@@ -1,0 +1,24 @@
+services:
+  server:
+    build: ./server
+    container_name: backend-container
+    ports:
+      - "4000:4000"
+
+  server-tests:
+    build: ./server
+    container_name: backend-tests
+    command: npm test
+    depends_on:
+      - server
+
+  client:
+    build: ./client
+    container_name: frontend-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    volumes:
+      - ./client:/usr/src/app/frontend
+      - /usr/src/app/frontend/node_modules
