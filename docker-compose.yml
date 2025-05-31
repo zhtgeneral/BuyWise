@@ -16,7 +16,7 @@ services:
     build: ./client
     container_name: frontend-container
     ports:
-      - "3000:3000"
+      - "5173:5173"
     depends_on:
       - server
     volumes:
