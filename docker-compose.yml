@@ -20,8 +20,5 @@ services:
     depends_on:
       - server
     volumes:
-      - ./client/src:/usr/src/app/frontend/src
-      - ./client/public:/usr/src/app/frontend/public
+      - ./client:/usr/src/app/frontend
       - /usr/src/app/frontend/node_modules
-    environment:
-      -  CHOKIDAR_USEPOLLING=true  # Required for file watching in Docker
