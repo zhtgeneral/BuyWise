@@ -7,6 +7,7 @@ import { store } from './libs/store'
 import Layout from './Layout';
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 
 
 
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: 'login',
         element: <LoginPage />
+      },
+      {
+        path: 'profile',
+        element: <ProfilePage />
       },
     ]
   }
