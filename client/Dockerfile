@@ -2,10 +2,10 @@
 FROM node:22
 
 # Working dir
-WORKDIR /usr/src/app/frontend
+WORKDIR /app
 
-# Force devDependecies to install
-ENV NODE_ENV=development
+# # Force devDependecies to install
+# ENV NODE_ENV=development
 
 # Copy package files
 COPY package*.json ./

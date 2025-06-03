@@ -4,6 +4,9 @@ services:
     container_name: backend-container
     ports:
       - "4000:4000"
+    volumes:
+    - ./server:/app
+    - backend_node_modules:/app/node_modules
 
   server-tests:
     build: ./server
@@ -17,8 +20,12 @@ services:
     container_name: frontend-container
     ports:
       - "5173:5173"
+    volumes:
+      - ./client:/app
+      - frontend_node_modules:/app/node_modules
     depends_on:
       - server
-    volumes:
-      - ./client:/usr/src/app/frontend
-      - /usr/src/app/frontend/node_modules
+
+volumes:
+  frontend_node_modules:
+  backend_node_modules:

@@ -2,7 +2,7 @@
 FROM node:22
 
 # Working dir
-WORKDIR /usr/src/app/backend
+WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
