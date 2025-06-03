@@ -1,4 +1,4 @@
-import './main.css';
+import './styles/main.css';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
@@ -6,6 +6,7 @@ import { store } from './libs/store'
 
 import Layout from './Layout';
 import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage';
 
 
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />
+      },
+      {
+        path: 'login',
+        element: <LoginPage />
       },
     ]
   }
