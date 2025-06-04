@@ -8,7 +8,7 @@ import Layout from './Layout';
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
-
+import ChatPage from './pages/ChatPage'
 
 
 /**
@@ -24,6 +24,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />
+      },
+      {
+        path: 'chat',
+        element: <ChatPage />
       },
       {
         path: 'login',
