@@ -16,28 +16,39 @@ export default function LoginPage() {
 
   return (
     <main className="login-container">
-      <div className="login-title">
-        Login
-      </div>
-      <label htmlFor="username">Username</label>
-      <input
-        id="username"
-        type="text"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-        placeholder="Enter Username"
-      />
-      <label htmlFor="Password">Password</label>
-      <input
-        id="password"
-        type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        placeholder="Enter Password"
-      />
+      <div className="login-scrollable">
+        <div className="login-padding">
+          <h1 className="login-header">Login</h1>
 
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleRegister}>Register</button>
+          <div className="login-section">
+            <div className="login-field">
+              <label className="login-field__label">Username:</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter Username"
+                className="login-field__input"
+              />
+            </div>
+            <div className="login-field">
+              <label className="login-field__label">Password:</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter Password"
+                className="login-field__input"
+              />
+            </div>
+          </div>
+          <div className="login-actions">
+            <button className="login-button edit" onClick={handleLogin}>Login</button>
+            <button className="login-button edit" onClick={handleRegister}>Register</button>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
