@@ -22,7 +22,7 @@
 /* Main content area */
 .main-content {
   flex: 1;
-  margin-left: 180px; /* Same as sidebar width */
+  margin-left: 280px; /* Same as sidebar width */
   padding: 1rem;
   min-height: 100vh;
   box-sizing: border-box;
