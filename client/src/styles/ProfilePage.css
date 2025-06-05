@@ -100,8 +100,7 @@
 }
 
 .profile-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  opacity: 0.8;
 }
 
 .profile-scrollable::-webkit-scrollbar {

@@ -2,10 +2,8 @@ import '../styles/ProfilePage.css';
 import { useState } from 'react';
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
-
   const [userProfile, setUserProfile] = useState({
-    name: 'First last',
+    name: 'Username',
     email: 'temp@mail.ca',
     seller: {
       budgetMin: '100',
@@ -35,24 +33,22 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     // TODO: Save feature to put data into backend
-    setIsEditing(false);
+    console.log('Profile saved:', userProfile);
   };
 
   return (
     <main className="profile-container">
       <div className="profile-scrollable">
         <div className="profile-padding">
-          <h1 className="profile-header">User Profile</h1>
-
+          <h1 className="profile-header">Edit your preferences</h1>
           <div className="profile-section">
             <div className="profile-field">
-              <label className="profile-field__label">Name:</label>
+              <label className="profile-field__label">Display name:</label>
               <input
                 type="text"
                 value={userProfile.name}
                 onChange={(e) => handleChange('name', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
                 autoComplete="name"
               />
             </div>
@@ -61,16 +57,11 @@ export default function ProfilePage() {
               <input
                 type="email"
                 value={userProfile.email}
-                onChange={(e) => handleChange('email', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
+                disabled
                 autoComplete="email"
               />
             </div>
-          </div>
-
-          <h2 className="profile-subheader">Buyer Profile</h2>
-          <div className="profile-section">
             <div className="profile-field">
               <label className="profile-field__label">Budget Minimum:</label>
               <input
@@ -78,7 +69,6 @@ export default function ProfilePage() {
                 value={userProfile.seller.budgetMin}
                 onChange={(e) => handleSellerChange('budgetMin', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
               />
             </div>
             <div className="profile-field">
@@ -88,17 +78,15 @@ export default function ProfilePage() {
                 value={userProfile.seller.budgetMax}
                 onChange={(e) => handleSellerChange('budgetMax', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
               />
             </div>
             <div className="profile-field">
-              <label className="profile-field__label">Brand Preference:</label>
+              <label className="profile-field-label">Brand Preference:</label>
               <input
                 type="text"
                 value={userProfile.seller.brandPreference}
                 onChange={(e) => handleSellerChange('brandPreference', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
               />
             </div>
             <div className="profile-field">
@@ -108,7 +96,6 @@ export default function ProfilePage() {
                 value={userProfile.seller.country}
                 onChange={(e) => handleSellerChange('country', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
               />
             </div>
             <div className="profile-field">
@@ -118,7 +105,6 @@ export default function ProfilePage() {
                 value={userProfile.seller.ratingPreference}
                 onChange={(e) => handleSellerChange('ratingPreference', e.target.value)}
                 className="profile-field__input"
-                disabled={!isEditing}
                 min="1"
                 max="5"
               />
@@ -126,14 +112,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="profile-actions">
-            {isEditing ? (
-              <>
-                <button className="profile-button save" onClick={handleSave}>Save</button>
-                <button className="profile-button cancel" onClick={() => setIsEditing(false)}>Cancel</button>
-              </>
-            ) : (
-              <button className="profile-button edit" onClick={() => setIsEditing(true)}>Edit Profile</button>
-            )}
+            <button className="profile-button save" onClick={handleSave}>Save changes</button>
           </div>
         </div>
       </div>
