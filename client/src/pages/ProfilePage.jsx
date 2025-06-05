@@ -1,39 +1,38 @@
 import '../styles/ProfilePage.css'; 
 import { useState } from 'react';
+import { selectUser, updateUser } from '../libs/features/userSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
+/**
+ * This page allows the user to update their info and their preferences.
+ */
 export default function ProfilePage() {
-  const [userProfile, setUserProfile] = useState({
-    name: 'Username',
-    email: 'temp@mail.ca',
-    seller: {
-      budgetMin: '100',
-      budgetMax: '1000',
-      brandPreference: 'None',
-      country: 'Canada',
-      ratingPreference: '4',
-    },
-  });
+  const dispatch = useDispatch();  
+  /** React useState holds temporary modified state */  
+  const [userProfile, setUserProfile] = useState(useSelector(selectUser));
 
-  const handleChange = (field, value) => {
+  const handleUserOptionsChange = (field, value) => {
     setUserProfile(prev => ({
-      ...prev, 
-      [field]: value
+      ...prev,
+      userOptions: {
+        ...prev.userOptions,
+        [field]: value
+      }
     }));
   };
 
-  const handleSellerChange = (field, value) => {
+  const handleUserPreferencesChange = (field, value) => {
     setUserProfile(prev => ({
       ...prev,
-      seller: {
-        ...prev.seller,
+      userPreferences: {
+        ...prev.userPreferences,
         [field]: value
       }
     }));
   };
 
   const handleSave = () => {
-    // TODO: Save feature to put data into backend
-    console.log('Profile saved:', userProfile);
+    dispatch(updateUser(userProfile));
   };
 
   return (
@@ -46,8 +45,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Display name:</label>
               <input
                 type="text"
-                value={userProfile.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={userProfile.userOptions.username}
+                onChange={(e) => handleUserOptionsChange('username', e.target.value)}
                 className="profile-field__input"
                 autoComplete="name"
               />
@@ -56,7 +55,7 @@ export default function ProfilePage() {
               <label className="profile-field__label">Email:</label>
               <input
                 type="email"
-                value={userProfile.email}
+                value={userProfile.userOptions.email}
                 className="profile-field__input"
                 disabled
                 autoComplete="email"
@@ -66,8 +65,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Minimum:</label>
               <input
                 type="number"
-                value={userProfile.seller.budgetMin}
-                onChange={(e) => handleSellerChange('budgetMin', e.target.value)}
+                value={userProfile.userPreferences.budgetMin}
+                onChange={(e) => handleUserPreferencesChange('budgetMin', Number(e.target.value))}
                 className="profile-field__input"
               />
             </div>
@@ -75,8 +74,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Maximum:</label>
               <input
                 type="number"
-                value={userProfile.seller.budgetMax}
-                onChange={(e) => handleSellerChange('budgetMax', e.target.value)}
+                value={userProfile.userPreferences.budgetMax}
+                onChange={(e) => handleUserPreferencesChange('budgetMax', Number(e.target.value))}
                 className="profile-field__input"
               />
             </div>
@@ -84,8 +83,8 @@ export default function ProfilePage() {
               <label className="profile-field-label">Brand Preference:</label>
               <input
                 type="text"
-                value={userProfile.seller.brandPreference}
-                onChange={(e) => handleSellerChange('brandPreference', e.target.value)}
+                value={userProfile.userPreferences.brandPreference}
+                onChange={(e) => handleUserPreferencesChange('brandPreference', e.target.value)}
                 className="profile-field__input"
               />
             </div>
@@ -93,8 +92,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Country:</label>
               <input
                 type="text"
-                value={userProfile.seller.country}
-                onChange={(e) => handleSellerChange('country', e.target.value)}
+                value={userProfile.userPreferences.country}
+                onChange={(e) => handleUserPreferencesChange('country', e.target.value)}
                 className="profile-field__input"
               />
             </div>
@@ -102,8 +101,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Rating Preference:</label>
               <input
                 type="number"
-                value={userProfile.seller.ratingPreference}
-                onChange={(e) => handleSellerChange('ratingPreference', e.target.value)}
+                value={userProfile.userPreferences.ratingPreference}
+                onChange={(e) => handleUserPreferencesChange('ratingPreference', Number(e.target.value))}
                 className="profile-field__input"
                 min="1"
                 max="5"

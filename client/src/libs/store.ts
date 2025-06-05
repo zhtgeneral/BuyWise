@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import userReducer from './features/userSlice';
 
 /**
  * This holds the global states.
@@ -7,7 +8,7 @@ import { configureStore } from '@reduxjs/toolkit';
  */
 export const store = configureStore({
   reducer: {
-    // TODO add reducers here
+    user: userReducer
   },
 })
 
