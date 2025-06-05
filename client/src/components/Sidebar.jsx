@@ -9,7 +9,10 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <nav className="sidebar-nav">
-        <div onClick={() => navigate('/chat')}className="sidebar-link">
+        <div onClick={() => navigate("/")} className="sidebar-link">
+          BuyWise
+        </div>
+        <div onClick={() => navigate('/chat')} className="sidebar-link">
           <TerminalIcon className="sidebar-icon" /> 
           <span className="sidebar-text">Chat</span>
         </div>
