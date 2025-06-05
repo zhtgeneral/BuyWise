@@ -1,4 +1,6 @@
 import { useState } from "react";
+import ProductGrid from "../components/ProductGrid";
+
 /** This is tha page where the user can chat with the AI for products */
 export default function ChatPage() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -97,7 +99,7 @@ export default function ChatPage() {
           <input
             type="text"
             value={answers.brand}
-            onChange={(e) => 
+            onChange={(e) =>
               setAnswers((previous) => ({ ...previous, brand: e.target.value }))
             }
             placeholder="Enter a brand"
@@ -131,7 +133,7 @@ export default function ChatPage() {
   ];
 
   const currentStep = steps[stepIndex];
-  
+
   const handleAnswer = (text, updatedAnswer = {}) => {
     setChat((previous) => [...previous, { speaker: 'user', text }]);
     setAnswers((previous) => ({ ...previous, ...updatedAnswer }));
@@ -164,7 +166,7 @@ export default function ChatPage() {
         {currentStep.key === 'results' && (
           <div>
             <h3>Recommended Products</h3>
-            <div>Cool</div>
+            <ProductGrid />
           </div>
         )}
       </div>
