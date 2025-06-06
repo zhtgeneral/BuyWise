@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { store } from './libs/store';
 
-import { Auth0Provider } from '@auth0/auth0-react'; 
+import { Auth0ProviderWithHistory } from './Auth0ProviderWithHistory'; 
 
 import Layout from './Layout';
 import HomePage from './pages/HomePage';
@@ -42,10 +42,6 @@ const router = createBrowserRouter([
   }
 ]);
 
-
-const domain = 'dev-rzymgcdpizdpp3pt.us.auth0.com';       
-const clientId = 'xefmkcSCmwyxqpY8Vc0M0RGipUfJlmKC';  
-
 /**
  * This file provides the app with hooks.
  *
@@ -54,18 +50,12 @@ const clientId = 'xefmkcSCmwyxqpY8Vc0M0RGipUfJlmKC';
  * `useSelector` gets the displayed value of a state.
  * `useDispatch` triggers an event to impact the state.
  *
- * ` <RouterProvider router={router} />` provides the app with routes
+ * `<RouterProvider router={router} />` provides the app with routes.
  */
 createRoot(document.getElementById('root')).render(
-    <Auth0Provider
-        domain={domain}
-        clientId={clientId}
-        authorizationParams={{
-          redirect_uri: window.location.origin,
-        }}
-    >
+    <Auth0ProviderWithHistory>
       <Provider store={store}>
         <RouterProvider router={router} />
       </Provider>
-    </Auth0Provider>
+    </Auth0ProviderWithHistory>
 );
