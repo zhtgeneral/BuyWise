@@ -5,7 +5,7 @@
 export default function HomePage() {
   return (
     <main>
-      Entry point
+      Welcome to BuyWise! Please Enjoy Our Demo!
     </main>
   )
 }
