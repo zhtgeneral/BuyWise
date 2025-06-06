@@ -1,0 +1,30 @@
+.chat-row {
+  display: flex;
+}
+
+.chat-row.bot {
+  justify-content: flex-start;
+}
+
+.chat-row.user {
+  justify-content: flex-end;
+}
+
+.chat-message {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  max-width: 60%;
+  word-wrap: break-word;
+}
+
+.bot .chat-message {
+  background-color: #e3f2fd;
+  color: #000;
+  text-align: left;
+}
+
+.user .chat-message {
+  background-color: #4a90e2;
+  color: white;
+  text-align: right;
+}
