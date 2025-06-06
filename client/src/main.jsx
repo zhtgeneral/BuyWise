@@ -1,8 +1,10 @@
+import '@mantine/core/styles.css';
 import './styles/main.css';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { store } from './libs/store';
+import { MantineProvider } from '@mantine/core';
 
 import { Auth0ProviderWithHistory } from './Auth0ProviderWithHistory'; 
 
@@ -53,9 +55,11 @@ const router = createBrowserRouter([
  * `<RouterProvider router={router} />` provides the app with routes.
  */
 createRoot(document.getElementById('root')).render(
-    <Auth0ProviderWithHistory>
-      <Provider store={store}>
+  <Auth0ProviderWithHistory>
+    <Provider store={store}>
+      <MantineProvider withGlobalStyles withNormalizeCSS>
         <RouterProvider router={router} />
-      </Provider>
-    </Auth0ProviderWithHistory>
+      </MantineProvider>
+    </Provider>
+  </Auth0ProviderWithHistory>
 );
