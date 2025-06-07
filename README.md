@@ -2,7 +2,9 @@
 
 # **BuyWise**
 
-> **Smarter Shopping Starts Here**
+> **Smarter Shopping Starts Here.**
+>
+> By *TEAM 10 - Chris Tang, Brandon Kato, Dhruv Khanna, Zhong Tan*
 
 ---
 
@@ -85,3 +87,7 @@ Then navigate to:
 ## 👥 **Team**
 
 * 🚀 Powered by the BuyWise Team
+
+---
+
+## **Milestone 1**
