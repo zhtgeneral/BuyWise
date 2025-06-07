@@ -91,3 +91,4 @@ Then navigate to:
 ---
 
 ## **Milestone 1**
+With this milestone, we have developed the core front-end of our app. The user login feature has now been implemented through Auth0, and the overall style and atmosphere of the app have been established using the component and style library Mantine. We have added the home page and built the basic functionality and design for the AI chat interface, user profile editing pages, and the dynamically populating product grid. Additionally, we have made some minor updates to the docker container architecture as well as to the back-end to prepare for the API endpoints that we will integrate into our app as both the front-end and back-end components are developed in parallel.
