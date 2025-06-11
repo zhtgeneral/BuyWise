@@ -32,49 +32,51 @@ export default function Sidebar() {
 
     return (
         <aside className="sidebar">
-            <nav className="sidebar-nav">
-                {/* Logo at the Top */}
-                <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '2rem', cursor: 'pointer' }}>
-                    <img src={BuyWiseLogo} alt="BuyWise Logo" style={{ width: '180px', height: 'auto' }} />
-                </div>
-
-                <div onClick={() => handleNavigation('/chat')} className="sidebar-link">
-                    <TerminalIcon className="sidebar-icon" />
-                    <span className="sidebar-text">Chat</span>
-                </div>
-                <div onClick={() => handleNavigation('/profile')} className="sidebar-link">
-                    <EditIcon className="sidebar-icon" />
-                    <span className="sidebar-text">Profile</span>
-                </div>
-            </nav>
-
-            {/* Auth Section at Bottom */}
-            <div className="sidebar-auth">
-                {!isAuthenticated ? (
-                    <button
-                        onClick={() => loginWithRedirect({
-                            appState: { returnTo: location.pathname } 
-                        })}
-                        className="auth-button"
-                    >
-                        Log In
-                    </button>
-                ) : (
-                    <div className="sidebar-user-info">
-                        <img
-                            src={user.picture}
-                            alt={user.name}
-                            className="user-avatar"
-                        />
-                        <div className="user-name">{user.name}</div>
-                        <button
-                            onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-                            className="auth-button logout-button"
-                        >
-                            Log Out
-                        </button>
+            <div className="sidebar-items">
+                <nav className="sidebar-nav">
+                    {/* Logo at the Top */}
+                    <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '2rem', cursor: 'pointer' }}>
+                        <img src={BuyWiseLogo} alt="BuyWise Logo" style={{ width: '180px', height: 'auto' }} />
                     </div>
-                )}
+
+                    <div onClick={() => handleNavigation('/chat')} className="sidebar-link">
+                        <TerminalIcon className="sidebar-icon" />
+                        <span className="sidebar-text">Chat</span>
+                    </div>
+                    <div onClick={() => handleNavigation('/profile')} className="sidebar-link">
+                        <EditIcon className="sidebar-icon" />
+                        <span className="sidebar-text">Profile</span>
+                    </div>
+                </nav>
+
+                {/* Auth Section at Bottom */}
+                <div className="sidebar-auth">
+                    {!isAuthenticated ? (
+                        <button
+                            onClick={() => loginWithRedirect({
+                                appState: { returnTo: location.pathname } 
+                            })}
+                            className="auth-button"
+                        >
+                            Log In
+                        </button>
+                    ) : (
+                        <div className="sidebar-user-info">
+                            <img
+                                src={user.picture}
+                                alt={user.name}
+                                className="user-avatar"
+                            />
+                            <div className="user-name">{user.name}</div>
+                            <button
+                                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                                className="auth-button logout-button"
+                            >
+                                Log Out
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </aside>
     );

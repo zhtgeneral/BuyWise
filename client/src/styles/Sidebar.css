@@ -5,13 +5,17 @@
   top: 0;
   left: 0;
   background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
-  padding: 1.5rem 1rem;
   box-sizing: border-box;
   overflow-y: auto;
-  display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.sidebar-items {
+  height: 100%;
+  display: flex;  
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem 1rem;
 }
 .sidebar-logo {
   display: flex;

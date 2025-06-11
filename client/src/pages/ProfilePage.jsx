@@ -118,3 +118,6 @@ export default function ProfilePage() {
     </main>
   );
 }
+// Test email
+// rizz@mail.com
+// RizzRizz1!

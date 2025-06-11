@@ -11,12 +11,13 @@ body {
   margin: 0;
   font-family: system-ui, sans-serif;
   min-height: 100vh;
-  background: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+  /* background: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085); */
+  background-color: white;
   background-size: 400% 400%;
-  animation: gradientAnimation 15s ease infinite;
+  /* animation: gradientAnimation 15s ease infinite; */
 }
 
-@keyframes gradientAnimation {
+/* @keyframes gradientAnimation {
   0% {
     background-position: 0% 50%;
   }
@@ -26,7 +27,7 @@ body {
   100% {
     background-position: 0% 50%;
   }
-}
+} */
 
 
 @media (prefers-color-scheme: light) {

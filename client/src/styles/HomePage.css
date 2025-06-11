@@ -6,13 +6,25 @@
     justify-content: center;
     align-items: flex-start;
     min-height: 90vh;
-    padding-left: 5rem; 
     text-align: left;
     font-family: 'Poppins', sans-serif;
+    background: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .main-content h1 {
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 700;
     color: #213547;
     margin-bottom: 1rem;
