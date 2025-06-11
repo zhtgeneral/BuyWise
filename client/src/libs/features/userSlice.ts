@@ -1,3 +1,4 @@
+import { useAuth0 } from '@auth0/auth0-react';
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
@@ -21,8 +22,8 @@ interface Preferences {
 
 const initialState: Preferences = {
   userOptions: {
-    username: "Username",
-    email: "temp@mail.ca"
+    username: "No username",
+    email: "No email"
   },
   userPreferences: {
     budgetMin: 100,
@@ -44,8 +45,8 @@ export const userSlice = createSlice({
     updateUser: (state, action: PayloadAction<Preferences>) => {
       state.userOptions = {
         ...state.userOptions,
-        /** Note email is not editable even if it passes through */
         username: action.payload.userOptions.username,
+        email: action.payload.userOptions.email,
       }
       state.userPreferences = {
         ...state.userPreferences,
