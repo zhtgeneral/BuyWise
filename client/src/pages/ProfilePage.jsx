@@ -109,10 +109,7 @@ export default function ProfilePage() {
               />
             </div>
           </div>
-
-          <div className="profile-actions">
-            <button className="profile-button save" onClick={handleSave}>Save changes</button>
-          </div>
+          <button className="profile-button" onClick={handleSave}>Save changes</button>
         </div>
       </div>
     </main>

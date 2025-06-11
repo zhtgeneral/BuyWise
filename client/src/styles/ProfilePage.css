@@ -1,5 +1,4 @@
 .profile-container {
-  max-width: 800px;
   margin: 0 auto;
   height: 100%;   
   width: 100%;
@@ -9,36 +8,25 @@
 }
 
 .profile-padding {
-  padding: 2em 6em;
+  padding: 3em 6em;
 }
 
 .profile-scrollable {
   flex: 1;
   overflow-y: auto;
-  padding: 1em 0;
 }
 
 .profile-header {
   text-align: left;  
   color: #333;
   line-height: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.profile-header h1 {
+  margin: 1.5rem 0;
+  justify-content: center;
   font-size: 3rem;
-}
-
-.profile-subheader {
-  text-align: left;
-  color: #444;
-  margin: 1.5rem 0 1rem 0;
 }
 
 .profile-section {
   text-align: left;
-  padding: 1em 0;
-  margin-bottom: 1rem;
 }
 
 .profile-field {
@@ -64,7 +52,7 @@
 
 .profile-field input:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: #0a67ad;
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
@@ -74,13 +62,6 @@
   cursor: not-allowed;
 }
 
-.profile-actions {
-  margin-top: 2rem;
-  padding: 1rem 0;
-  display: flex;
-  gap: 0.75rem;
-}
-
 .profile-button {
   padding: 0.75rem 1.5rem;
   border: none;
@@ -88,21 +69,12 @@
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-}
-
-.profile-button.edit {
-  background-color: #4a90e2;
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 4s ease infinite;  
+  display: inline; 
   color: white;
-}
-
-.profile-button.save {
-  background-color: #28a745;
-  color: white;
-}
-
-.profile-button.cancel {
-  background-color: #dc3545;
-  color: white;
+  font-weight: 600;
 }
 
 .profile-button:hover {
@@ -125,4 +97,16 @@
 
 .profile-scrollable::-webkit-scrollbar-thumb:hover {
   background: #aaa;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }

@@ -2,7 +2,18 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  font-family: Arial, sans-serif;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  padding: 1em;
+  border-radius: 8px;
+  padding: 2em 4em;
+}
+/* reduce padding on mid-smaller screens */
+@media (max-width: 960px) {
+  .chat-page {
+    padding: 1em 2em;
+  }
 }
 
 .chat-wrapper {
@@ -54,15 +65,42 @@
 
 .chat-button {
   padding: 0.75rem 1.5rem;
+  max-width: 300px;
+  height: 54px;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #4a90e2;
   color: white;
+  background-image: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+  background-size: 300% 300%;
+  animation: gradientAnimation 12s ease infinite;
 }
 
 .chat-button:hover {
   opacity: 0.8;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.buywise-highlight {
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 4s ease infinite;
+  -webkit-background-clip: text; /* For Safari */
+  background-clip: text;
+  -webkit-text-fill-color: transparent; /* For Safari */
+  color: transparent; /* Standard property */
+  display: inline; /* Ensures gradient works properly */
 }

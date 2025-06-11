@@ -3,7 +3,7 @@ import { Button } from "@mantine/core";
 import ProductGrid from "../components/ProductGrid";
 import ChatMessage from "../components/ChatMessage";
 import ChatDrawer from "../components/ChatDrawer";
-// import "../styles/ChatPage.css" superceded by mantine styles, revert if you hate it
+import "../styles/ChatPage.css" 
 
 /** This is tha page where the user can chat with the AI for products */
 export default function ChatPage() {
@@ -19,10 +19,8 @@ export default function ChatPage() {
 
   return (
     <main className="chat-page">
-      <h1>Welcome to BuyWise</h1>
-      <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
-        <Button onClick={() => setOpened(true)}>Start Chat</Button>
-      </div>
+      <h1>Welcome to <span className="buywise-highlight">BuyWise</span></h1>
+      <Button className="chat-button" onClick={() => setOpened(true)}>Start Chat</Button>
 
       <ChatDrawer
         opened={opened}

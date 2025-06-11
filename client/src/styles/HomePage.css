@@ -8,7 +8,34 @@
     min-height: 90vh;
     text-align: left;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+    background-image: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+    background-size: 300% 300%;
+    animation: gradientAnimation 16s ease infinite;
+}
+
+.main-hero {
+    padding: 6rem;
+}
+
+.highlight {
+  background-image: linear-gradient(-45deg, #f6d365, #fda085, #f6d365, #fda085);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gradientAnimation 4s ease infinite;
+}
+
+.buywise-highlight {
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 4s ease infinite;
+  -webkit-background-clip: text; 
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline; 
 }
 
 @keyframes gradientAnimation {
@@ -27,20 +54,16 @@
     font-size: 3rem;
     font-weight: 700;
     color: #213547;
-    margin-bottom: 1rem;
-}
-
-.main-content .highlight {
-    color: #007BFF;
+    justify-content: center;
 }
 
 .main-content p {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: #555;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #444;
     max-width: 600px;
 }
-
+/* 
 .glass-card {
     background: rgba(255, 255, 255, 0.25); 
     border-radius: 16px;
@@ -52,4 +75,16 @@
     max-width: 800px;
     margin: auto;
     text-align: center;
+} */
+
+.highlight-link {
+    text-decoration: underline !important;
+    cursor: pointer;
+    font-weight: bold;
+    color: #073b63
+}
+
+
+.highlight-link:hover {
+    color: #0d6fbb;
 }
