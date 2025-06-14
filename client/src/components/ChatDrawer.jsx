@@ -179,7 +179,7 @@ export default function ChatDrawer({
       opened={opened}
       onClose={onClose}
       title="Talk to BuyWise"
-      size="md"
+      size="lg"
     >
       {chat.map((msg, i) => (
         <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />

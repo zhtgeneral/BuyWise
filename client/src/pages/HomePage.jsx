@@ -10,6 +10,10 @@ export default function HomePage() {
                 Please Enjoy Our Demo! 
                 Click <span className="highlight-link" onClick={() => navigate('/chat')}>here</span> to begin.
             </p>
+            <p>
+                Our app helps shoppers streamline their experience by tailoring relevant products to their searches.
+                In detail, users can message the chatbot to recieve relevant products and get help with navigating the app.
+            </p>
         </main>
     );
 }
