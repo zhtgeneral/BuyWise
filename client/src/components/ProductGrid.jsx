@@ -7,7 +7,7 @@ export default function ProductGrid() {
 
   // test products for now, delete this later
   useEffect(() => {
-    fetch("http://localhost:4000/test_products")
+    fetch("http://localhost:3000/api/test-products")
       .then((res) => {
         if (!res.ok) {
           throw new Error("Something went wrong getting the test products");

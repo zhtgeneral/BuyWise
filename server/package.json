@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "debug": "ls && cat package.json && ls node_modules",
     "build": "tsc",
     "start": "node dist/index.js"
   },
