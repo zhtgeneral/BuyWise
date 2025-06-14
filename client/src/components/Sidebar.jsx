@@ -46,6 +46,10 @@ export default function Sidebar() {
                     <EditIcon className="sidebar-icon" />
                     <span className="sidebar-text">Profile</span>
                 </div>
+                <div onClick={() => handleNavigation('/about')} className="sidebar-link">
+                    <EditIcon className="sidebar-icon" />
+                    <span className="sidebar-text">About Us</span>
+                </div>
             </nav>
 
             {/* Auth Section at Bottom */}
