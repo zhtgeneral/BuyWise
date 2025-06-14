@@ -13,8 +13,11 @@ RUN npm install
 # Copy server files over
 COPY . .
 
-# Expose port 4000
-EXPOSE 4000
+# Expose port 3000
+EXPOSE 3000
 
 # Run the backend
 CMD ["npm", "run", "dev"]
+
+# Use this command to check if node_modules are being installed in the container correctly.
+# CMD ["npm", "run", "debug"] 

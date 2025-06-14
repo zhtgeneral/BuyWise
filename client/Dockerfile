@@ -21,3 +21,5 @@ EXPOSE 5173
 
 # Run the frontend
 CMD ["npm", "run", "dev"]
+
+# CMD ["npm", "run", "debug"]

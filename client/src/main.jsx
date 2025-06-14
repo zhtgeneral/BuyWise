@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { store } from './libs/store';
 import { MantineProvider } from '@mantine/core';
+import axios from 'axios';
 
 import { Auth0ProviderWithHistory } from './Auth0ProviderWithHistory'; 
 
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
     ]
   }
 ]);
+
+  axios.post('http://localhost:3000/api/chatbot', {
+    message: 'what does this app do?'
+  });
 
 /**
  * This file provides the app with hooks.
