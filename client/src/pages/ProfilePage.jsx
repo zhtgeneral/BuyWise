@@ -116,5 +116,5 @@ export default function ProfilePage() {
   );
 }
 // Test email
-// rizz@mail.com
+// rizz@mail.ca
 // RizzRizz1!

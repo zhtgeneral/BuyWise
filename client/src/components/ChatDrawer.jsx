@@ -185,6 +185,9 @@ export default function ChatDrawer({
         <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
       ))}
       {currentStep.input && currentStep.input()}
+      <input>
+        
+      </input>
     </Drawer>
   );
 }

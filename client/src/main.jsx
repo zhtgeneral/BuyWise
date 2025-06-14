@@ -45,9 +45,10 @@ const router = createBrowserRouter([
   }
 ]);
 
-  axios.post('http://localhost:3000/api/chatbot', {
-    message: 'what does this app do?'
-  });
+// TODO remove temporary test
+axios.post('http://localhost:3000/api/chatbot', {
+  message: 'I want to buy phones'
+});
 
 /**
  * This file provides the app with hooks.
