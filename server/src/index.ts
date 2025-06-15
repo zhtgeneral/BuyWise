@@ -9,6 +9,7 @@ import { swaggerSpec } from './config/swagger';
 import { postChat } from './api/chatbot'
 import { authMiddleware } from './middleware/auth';
 
+
 // import test from 'node:test';
 
 const test_products = require('../static/products.json');
@@ -27,6 +28,7 @@ console.log('MongoDB URI:', MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:**
 // Middleware
 app.use(cors());
 app.use(express.json());
+
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

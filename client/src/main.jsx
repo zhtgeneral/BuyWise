@@ -5,7 +5,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { store } from './libs/store';
 import { MantineProvider } from '@mantine/core';
-import axios from 'axios';
 
 import { Auth0ProviderWithHistory } from './Auth0ProviderWithHistory'; 
 
@@ -44,11 +43,6 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
-// TODO remove temporary test
-axios.post('http://localhost:3000/api/chatbot', {
-  message: 'I want to buy phones'
-});
 
 /**
  * This file provides the app with hooks.

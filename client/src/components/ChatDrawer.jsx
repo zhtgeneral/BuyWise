@@ -1,176 +1,79 @@
-import { useState } from "react";
-import {
-  Drawer,
-  Button,
-  Input,
-  RangeSlider,
-  Group,
-  Stack,
-} from "@mantine/core";
-import ChatMessage from "./ChatMessage";
+import { useState, useRef, useEffect } from 'react';
+import { Drawer, Button, Textarea } from '@mantine/core';
+import ChatMessage from './ChatMessage';
+import axios from 'axios';
 
-export default function ChatDrawer({
-  opened,
-  onClose,
-  answers,
-  setAnswers,
-  setShowResults,
-}) {
-  const MAX_BUDGET = 50000;
-  const MIN_BUDGET = 0;
-  const [stepIndex, setStepIndex] = useState(0);
+export default function ChatDrawer({ opened, onClose }) {
   const [chat, setChat] = useState([
-    { speaker: "bot", text: "Are you looking for a cellphone or computer?" },
+    { 
+      speaker: "bot", 
+      text: "Hello! How can I help you today?" 
+    }
   ]);
+  const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
 
-  // Would ideally find some way to store conversation flow in the backend
-  // For now since we are only working on frontend I mocked a demo version that
-  // Brings user through a mock conversation to display the grid answer component
-  const steps = [
-    {
-      key: "category",
-      question: "Are you looking for a cellphone or computer?",
-      input: () => (
-        <Group>
-          <Button
-            onClick={() => handleAnswer("Cellphone", { category: "Cellphone" })}
-          >
-            Cellphone
-          </Button>
-          <Button
-            onClick={() => handleAnswer("Computer", { category: "Computer" })}
-          >
-            Computer
-          </Button>
-        </Group>
-      ),
-    },
-    {
-      key: "budgetMin",
-      question: "What is your budget minimum?",
-      input: () => (
-        <Stack>
-          <p>Minimum Budget: ${answers.budgetMin}</p>
-          <RangeSlider
-            min={MIN_BUDGET}
-            max={MAX_BUDGET}
-            step={1}
-            value={[answers.budgetMin, answers.budgetMin]}
-            onChange={(value) =>
-              setAnswers((previous) => ({
-                ...previous,
-                budgetMin: value[0],
-                budgetMax: value[0],
-              }))
-            }
-          />
-          <Button
-            onClick={() =>
-              handleAnswer(`$${answers.budgetMin}`, {
-                budgetMin: answers.budgetMin,
-              })
-            }
-          >
-            Confirm Budget
-          </Button>
-        </Stack>
-      ),
-    },
-    {
-      key: "budgetMax",
-      question: "What is your budget maximum?",
-      input: () => (
-        <Stack>
-          <p>Maximum Budget: ${answers.budgetMax}</p>
-          <RangeSlider
-            min={answers.budgetMin}
-            max={MAX_BUDGET}
-            step={1}
-            value={[answers.budgetMax, answers.budgetMax]}
-            onChange={(value) =>
-              setAnswers((previous) => ({
-                ...previous,
-                budgetMax: value[0],
-              }))
-            }
-          />
-          <Button
-            onClick={() =>
-              handleAnswer(`$${answers.budgetMax}`, {
-                budgetMax: answers.budgetMax,
-              })
-            }
-          >
-            Confirm Budget
-          </Button>
-        </Stack>
-      ),
-    },
-    {
-      key: "brand",
-      question: "Do you have a brand preference?",
-      input: () => (
-        <Stack>
-          <Input
-            value={answers.brand}
-            placeholder="Enter a brand"
-            onChange={(e) =>
-              setAnswers((previous) => ({ ...previous, brand: e.target.value }))
-            }
-          />
-          <Button
-            onClick={() => handleAnswer(answers.brand || "No Preference")}
-          >
-            Submit
-          </Button>
-        </Stack>
-      ),
-    },
-    {
-      key: "rating",
-      question: "What is your preferred rating?",
-      input: () => (
-        <Group>
-          {[1, 2, 3, 4, 5].map((number) => (
-            <Button
-              key={number}
-              onClick={() =>
-                handleAnswer(`${number} stars`, { rating: number })
-              }
-            >
-              {number}
-            </Button>
-          ))}
-        </Group>
-      ),
-    },
-    {
-      key: "results",
-      question: "Here is what I found:",
-    },
-  ];
+  // Auto-scroll to bottom when chat updates
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chat]);
 
-  const currentStep = steps[stepIndex];
+  const handleSendMessage = async () => {
+    /** This prevents empty messages from being sent */
+    if (!userInput.trim()) return; 
+    
+    // Add user message to chat
+    const newUserMessage = { 
+      speaker: "user", 
+      text: userInput 
+    };
+    setChat(prev => [...prev, newUserMessage]);
+    setUserInput("");
 
-  const handleAnswer = (text, updatedAnswer = {}) => {
-    setChat((previous) => [...previous, { speaker: "user", text }]);
-    setAnswers((previous) => ({ ...previous, ...updatedAnswer }));
+    setIsLoading(true);
 
-    const nextStepIndex = stepIndex + 1;
-
-    setTimeout(() => {
-      if (nextStepIndex < steps.length) {
-        const nextStep = steps[nextStepIndex];
-        setChat((prev) => [
-          ...prev,
-          { speaker: "bot", text: nextStep.question },
+    try {
+      const response = await axios.post('http://localhost:3000/api/chatbot', {
+        message: userInput
+      });
+      if (response.status === 200) {
+        const chatbotResponse = response.data.chatbotResponse;
+        setChat(prev => [
+          ...prev, 
+          { 
+            speaker: "bot",
+             text: chatbotResponse 
+          }
         ]);
-      }
-      if (steps[nextStepIndex].key === "results") {
-        setShowResults(true);
-      }
-      setStepIndex(nextStepIndex);
-    }, 400);
+      } else {
+        setChat(prev => [
+          ...prev, 
+          { 
+            speaker: "bot", 
+            text: "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience."
+          }
+        ]);
+      }      
+    } catch (error) {
+      console.error('Error:', error);
+      setChat(prev => [
+        ...prev, 
+        { 
+          speaker: "bot", 
+          text: "Sorry, I encountered an error. Please try again later." 
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
@@ -180,14 +83,42 @@ export default function ChatDrawer({
       onClose={onClose}
       title="Talk to BuyWise"
       size="lg"
+      styles={{
+        body: {
+          display: 'flex',
+          flexDirection: 'column',
+          height: 'calc(100% - 60px)',
+        }
+      }}
     >
-      {chat.map((msg, i) => (
-        <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
-      ))}
-      {currentStep.input && currentStep.input()}
-      <input>
-        
-      </input>
+      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem' }}>
+        {
+          chat.map((msg, i) => (
+            <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
+          ))
+        }
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <Textarea
+          placeholder="Type your message to BuyWise..."
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          style={{ flex: 1 }}
+          minRows={1}
+          maxRows={4}
+          autosize
+        />
+        <Button 
+          onClick={handleSendMessage}
+          loading={isLoading}
+          disabled={!userInput.trim()}
+        >
+          Send
+        </Button>
+      </div>
     </Drawer>
   );
 }
