@@ -20,13 +20,15 @@ const VerificationPage = () => {
       }
 
       try {
-        const res = await axios.get(`/api/profiles/verify/${token}`);
+        console.log("WE GO");
+        const res = await axios.get(`http://localhost:3000/api/profiles/verify/${token}`);
+        console.log("OK");
         setStatus("success");
         setMessage("Email verified successfully! You can now log in");
 
         setTimeout(() => navigate("/login"), 2000);
       } catch (err) {
-        console.err(err);
+        console.error(err);
         setStatus("error");
         setMessage(
           err.response?.data?.error || "Verification failed. Token may be invalid or expired"
