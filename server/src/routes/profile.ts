@@ -31,7 +31,7 @@ const router = express.Router();
  *                 minLength: 8
  *               storage_preference: 
  *                 type: string
- *                 enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+ *                 enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
  *               RAM_preference:
  *                 type: string
  *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
@@ -43,17 +43,8 @@ const router = express.Router();
  *                 type: number
  *               rating_preference:
  *                 type: number
- *               address:
- *                 type: object
- *                 properties:
- *                   street:
- *                     type: string
- *                   city:
- *                     type: string
- *                   state:
- *                     type: string
- *                   zipCode:
- *                     type: string
+ *               country:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Profile created successfully
@@ -187,6 +178,11 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *   patch:
  *     summary: Update profile
  *     tags: [Profiles]
+ *     description: 
+ *       This endpoint uses authentication middleware, so it needs Auth headers.
+ *       Make sure to use Bearer <JWT> before making a request to this endpoint.
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -204,7 +200,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *                 type: string
  *               storage_preference: 
  *                 type: string
- *                 enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+ *                 enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
  *               RAM_preference:
  *                 type: string
  *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
@@ -216,22 +212,13 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *                 type: number
  *               rating_preference:
  *                 type: number
- *               address:
- *                 type: object
- *                 properties:
- *                   street:
- *                     type: string
- *                   city:
- *                     type: string
- *                   state:
- *                     type: string
- *                   zipCode:
- *                     type: string
+ *               country:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Profile updated successfully
  *       404:
- *         description: Profile not found
+ *         description: Profile not found 
  */
 router.patch('/:id', authenticate, async (req: Request, res: Response) => {
   try {

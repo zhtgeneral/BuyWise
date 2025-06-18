@@ -3,11 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface userPreferences {
+  id: string | null,
   storagePreference: string;
   RAMPreference: string;
   brandPreference: string,
-  budgetMin: number,
-  budgetMax: number,
+  minBudget: number,
+  maxBudget: number,
   ratingPreference: number
   country: string,
 }
@@ -28,11 +29,12 @@ const initialState: Preferences = {
     email: "No email"
   },
   userPreferences: {
+    id: null,
     storagePreference: '128GB',
     RAMPreference: '2GB',
     brandPreference: "None",
-    budgetMin: 100,
-    budgetMax: 1000,
+    minBudget: 100,
+    maxBudget: 1000,
     ratingPreference: 3,
     country: "Canada",
   }

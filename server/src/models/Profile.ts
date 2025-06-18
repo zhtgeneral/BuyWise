@@ -16,15 +16,9 @@ export interface IProfile extends Document {
   min_budget: number,
   max_budget: number,
   rating: number,
+  country: string;  
   email: string;
   password: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zipCode?: string;
-    country?: string;
-  };
   isEmailVerified: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
@@ -43,7 +37,7 @@ const ProfileSchema: Schema = new Schema({
   storage_preference: {
     type: String,
     required: true,
-    enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+    enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
   },
   RAM_preference: {
     type: String,
@@ -67,6 +61,10 @@ const ProfileSchema: Schema = new Schema({
   rating_preference: {
     type: Number,
     default: 3
+  },
+  country: {
+    type: String,
+    default: 'Canada'
   },
   email: {
     type: String,

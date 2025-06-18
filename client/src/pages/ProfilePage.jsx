@@ -2,6 +2,9 @@ import '../styles/ProfilePage.css';
 import { useState } from 'react';
 import { selectUser, updateUser } from '../libs/features/userSlice';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
+
+const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
 /**
  * This page allows the user to update their info and their preferences.
@@ -33,7 +36,19 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    dispatch(updateUser(userProfile));
+    console.log("ProfilePage saved user profile: " + JSON.stringify(userProfile, null, 2));
+    axios.patch(`${backendURL}/api/profiles/${userProfile.id}`, {
+      name: userProfile.username,
+      storage_preference: userProfile.storagePreference,
+      RAM_preference: userProfile.RAMPreference,
+      brand_preference: userProfile.brandPreference,
+      min_budget: userProfile.minBudget,
+      max_budget: userProfile.maxBudget,
+      rating_preference: userProfile.ratingPreference,
+      country: userProfile.country
+    }).then(() => {
+      dispatch(updateUser(userProfile));
+    })
   };
 
   return (
@@ -70,6 +85,7 @@ export default function ProfilePage() {
                 className="profile-field__input"
               >
                 <option value="None">None</option>
+                <option value="64GB">64GB</option>
                 <option value="128GB">128GB</option>
                 <option value="256GB">256GB</option>
                 <option value="512GB">512GB</option>
@@ -104,7 +120,7 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Minimum:</label>
               <input
                 type="number"
-                value={userProfile.userPreferences.budgetMin}
+                value={userProfile.userPreferences.minBudget}
                 onChange={(e) => handleUserPreferencesChange('budgetMin', Number(e.target.value))}
                 className="profile-field__input"
               />
@@ -113,7 +129,7 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Maximum:</label>
               <input
                 type="number"
-                value={userProfile.userPreferences.budgetMax}
+                value={userProfile.userPreferences.maxBudget}
                 onChange={(e) => handleUserPreferencesChange('budgetMax', Number(e.target.value))}
                 className="profile-field__input"
               />
