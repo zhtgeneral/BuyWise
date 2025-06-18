@@ -34,20 +34,22 @@
   text-align: left;
 }
 
-.profile-field label {
+.profile-field__label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #555;
 }
 
-.profile-field input {
+.profile-field__input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
   max-width: 480px;
+  background-color: white;
+  transition: all 0.2s ease;
 }
 
 .profile-field input:focus {
@@ -60,6 +62,33 @@
   background-color: #f5f5f5;
   color: #666;
   cursor: not-allowed;
+}
+
+/* Select dropdown styles */
+.profile-field select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.5em;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.profile-field select:focus {
+  outline: none;
+  border-color: #0a67ad;
+}
+
+/* Dropdown options styling */
+.profile-field select option {
+  padding: 1rem;
+  background-color: white;
+  color: #333;
+}
+
+.profile-field select option:hover {
+  background-color: #f0f7ff;
 }
 
 .profile-button {

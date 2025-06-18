@@ -41,6 +41,8 @@ const router = express.Router();
  *                 type: number
  *               max_budget:
  *                 type: number
+ *               rating_preference:
+ *                 type: number
  *               address:
  *                 type: object
  *                 properties:
@@ -211,6 +213,8 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *               min_budget: 
  *                 type: number
  *               max_budget:
+ *                 type: number
+ *               rating_preference:
  *                 type: number
  *               address:
  *                 type: object

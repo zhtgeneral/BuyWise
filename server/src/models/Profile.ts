@@ -14,7 +14,8 @@ export interface IProfile extends Document {
   RAM_preference: string;
   brand_preference: string; // use Comma seperated string instead of array for less storage use
   min_budget: number,
-  max_budget: number
+  max_budget: number,
+  rating: number,
   email: string;
   password: string;
   address?: {
@@ -62,6 +63,10 @@ const ProfileSchema: Schema = new Schema({
     type: Number,
     required: false,
     default: 1000
+  },
+  rating_preference: {
+    type: Number,
+    default: 3
   },
   email: {
     type: String,

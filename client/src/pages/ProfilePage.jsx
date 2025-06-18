@@ -8,8 +8,9 @@ import { useSelector, useDispatch } from 'react-redux';
  */
 export default function ProfilePage() {
   const dispatch = useDispatch();  
+  const currentUser = useSelector(selectUser);
   /** React useState holds temporary modified state */  
-  const [userProfile, setUserProfile] = useState(useSelector(selectUser));
+  const [userProfile, setUserProfile] = useState(currentUser);
 
   const handleUserOptionsChange = (field, value) => {
     setUserProfile(prev => ({
@@ -62,6 +63,44 @@ export default function ProfilePage() {
               />
             </div>
             <div className="profile-field">
+              <label className="profile-field__label">Storage Preference:</label>
+              <select
+                value={userProfile.userPreferences.storagePreference}
+                onChange={(e) => handleUserPreferencesChange('storagePreference', e.target.value)}
+                className="profile-field__input"
+              >
+                <option value="None">None</option>
+                <option value="128GB">128GB</option>
+                <option value="256GB">256GB</option>
+                <option value="512GB">512GB</option>
+                <option value="1TB+">1TB+</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">RAM Preference:</label>
+              <select
+                value={userProfile.userPreferences.RAMPreference}
+                onChange={(e) => handleUserPreferencesChange('RAMPreference', e.target.value)}
+                className="profile-field__input"
+              >
+                <option value="None">None</option>
+                <option value="2GB">2GB</option>
+                <option value="4GB">4GB</option>
+                <option value="8GB">8GB</option>
+                <option value="16GB">16GB</option>
+                <option value="32GB+">32GB+</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Brand Preference:</label>
+              <input
+                type="text"
+                value={userProfile.userPreferences.brandPreference}
+                onChange={(e) => handleUserPreferencesChange('brandPreference', e.target.value)}
+                className="profile-field__input"
+              />
+            </div>
+            <div className="profile-field">
               <label className="profile-field__label">Budget Minimum:</label>
               <input
                 type="number"
@@ -78,25 +117,7 @@ export default function ProfilePage() {
                 onChange={(e) => handleUserPreferencesChange('budgetMax', Number(e.target.value))}
                 className="profile-field__input"
               />
-            </div>
-            <div className="profile-field">
-              <label className="profile-field-label">Brand Preference:</label>
-              <input
-                type="text"
-                value={userProfile.userPreferences.brandPreference}
-                onChange={(e) => handleUserPreferencesChange('brandPreference', e.target.value)}
-                className="profile-field__input"
-              />
-            </div>
-            <div className="profile-field">
-              <label className="profile-field__label">Country:</label>
-              <input
-                type="text"
-                value={userProfile.userPreferences.country}
-                onChange={(e) => handleUserPreferencesChange('country', e.target.value)}
-                className="profile-field__input"
-              />
-            </div>
+            </div>            
             <div className="profile-field">
               <label className="profile-field__label">Rating Preference:</label>
               <input
@@ -106,6 +127,15 @@ export default function ProfilePage() {
                 className="profile-field__input"
                 min="1"
                 max="5"
+              />
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Country:</label>
+              <input
+                type="text"
+                value={userProfile.userPreferences.country}
+                onChange={(e) => handleUserPreferencesChange('country', e.target.value)}
+                className="profile-field__input"
               />
             </div>
           </div>
