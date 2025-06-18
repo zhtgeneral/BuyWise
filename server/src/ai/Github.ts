@@ -108,6 +108,10 @@ export async function chatCompletionGithubModel(message: string) {
       throw response.body.error;
   }
 
-  console.log(JSON.stringify(response, null, 2));
+  console.log("/api/chatbot POST got response", JSON.stringify(response.body, null, 2));
+
+  // TODO save chatbot response using response.body.choices[0].message.content to database with user id and timestamp for history feature.
+  // TODO History can be used to suggest products in Explore page
+
   return response.body.choices[0].message.content;
 }

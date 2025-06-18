@@ -2,14 +2,23 @@ import mongoose, { Schema, Document } from 'mongoose';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
+// TODO change this to use updated preference fields
+// TODO Preferences are now 
+// brand preference, min, max, rating, country, min storage, min RAM
+// min storage is either: none, 128, 256, 512, 1TB+
+// min RAM is either: none 2, 4, 8, 16, 32+
+
 export interface IProfile extends Document {
   name: string;
-  ageRange: string;
+  storage_preference: string;
+  RAM_preference: string;
+  brand_preference: string; // use Comma seperated string instead of array for less storage use
+  age_range: string; // TODO remove
   email: string;
   password: string;
-  hobbies?: string[];
-  hasPets?: boolean;
-  hasChildren?: boolean;
+  hobbies?: string[]; // TODO remove
+  hasPets?: boolean; // TODO remove
+  hasChildren?: boolean; // TODO remove
   address?: {
     street?: string;
     city?: string;
@@ -32,6 +41,21 @@ const ProfileSchema: Schema = new Schema({
     required: [true, 'Name is required'],
     trim: true
   },
+  min_preference: {
+    type: String,
+    required: true,
+    enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+  },
+  RAM_preference: {
+    type: String,
+    required: true,
+    enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
+  },
+  brand_preference: {
+    type: String,
+    required: false,
+  },
+  // TODO remove
   ageRange: {
     type: String,
     required: [true, 'Age range is required'],
@@ -51,14 +75,17 @@ const ProfileSchema: Schema = new Schema({
     minlength: [8, 'Password must be at least 8 characters long'],
     select: false // Don't include password in queries by default
   },
+  // TODO remove
   hobbies: [{
     type: String,
     trim: true
   }],
+  // TODO remove
   hasPets: {
     type: Boolean,
     default: false
   },
+  // TODO remove
   hasChildren: {
     type: Boolean,
     default: false

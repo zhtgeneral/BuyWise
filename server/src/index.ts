@@ -2,19 +2,16 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
+
+import { swaggerSpec } from './config/swagger';
 import profileRoutes from './routes/profile';
 import authRoutes from './routes/auth';
-import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from './config/swagger';
-import { postChat } from './api/chatbot'
 import { authMiddleware } from './middleware/auth';
-
-
-// import test from 'node:test';
+import swaggerUi from 'swagger-ui-express';
+import { postChat } from './api/chatbot';
 
 const test_products = require('../static/products.json');
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
@@ -28,17 +25,6 @@ console.log('MongoDB URI:', MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:**
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-
-// Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.post('/api/chatbot', postChat);
-
-app.get('/api/test-products', (req: Request, res: Response) => {
-  return res.json(test_products);
-})
-
 
 // Connect to MongoDB with proper options
 // TODO move to a different file for organization
@@ -93,19 +79,17 @@ const connectDB = async () => {
   }
 };
 
-// Connect to database before starting the server
 connectDB().then(() => {
-  // Routes
-  app.use('/api/profiles', profileRoutes);
-  app.use('/api/auth', authRoutes);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  // Public route (no auth)
-  app.get('/api/auth/hello', (req: Request, res: Response) => {
-    res.status(200).json({
-      success: true,
-      message: 'Hello from public route!'
-    });
-  });
+  app.post('/api/chatbot', postChat);
+
+  app.get('/api/test-products', (req: Request, res: Response) => {
+    return res.json(test_products);
+  })
+  app.use('/api/profiles', profileRoutes);
+
+  app.use('/api/auth', authRoutes);
 
   // Protected route (requires JWT)
   app.get('/api/protected', authMiddleware, (req: Request, res: Response) => {
@@ -116,7 +100,6 @@ connectDB().then(() => {
     });
   });
 
-  // Error handling middleware
   app.use((err: any, req: Request, res: Response) => {
     console.error(err);
     res.status(err.statusCode || 500).json({
