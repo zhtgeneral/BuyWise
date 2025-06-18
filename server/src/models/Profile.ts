@@ -13,12 +13,10 @@ export interface IProfile extends Document {
   storage_preference: string;
   RAM_preference: string;
   brand_preference: string; // use Comma seperated string instead of array for less storage use
-  age_range: string; // TODO remove
+  min_budget: number,
+  max_budget: number
   email: string;
   password: string;
-  hobbies?: string[]; // TODO remove
-  hasPets?: boolean; // TODO remove
-  hasChildren?: boolean; // TODO remove
   address?: {
     street?: string;
     city?: string;
@@ -41,7 +39,7 @@ const ProfileSchema: Schema = new Schema({
     required: [true, 'Name is required'],
     trim: true
   },
-  min_preference: {
+  storage_preference: {
     type: String,
     required: true,
     enum: ['none', '128GB', '256GB', '512GB', '1TB+']
@@ -55,11 +53,15 @@ const ProfileSchema: Schema = new Schema({
     type: String,
     required: false,
   },
-  // TODO remove
-  ageRange: {
-    type: String,
-    required: [true, 'Age range is required'],
-    enum: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
+  min_budget: {
+    type: Number,
+    required: false,
+    default: 100
+  },
+  max_budget: {
+    type: Number,
+    required: false,
+    default: 1000
   },
   email: {
     type: String,
@@ -74,22 +76,7 @@ const ProfileSchema: Schema = new Schema({
     required: [true, 'Password is required'],
     minlength: [8, 'Password must be at least 8 characters long'],
     select: false // Don't include password in queries by default
-  },
-  // TODO remove
-  hobbies: [{
-    type: String,
-    trim: true
-  }],
-  // TODO remove
-  hasPets: {
-    type: Boolean,
-    default: false
-  },
-  // TODO remove
-  hasChildren: {
-    type: Boolean,
-    default: false
-  },
+  },  
   address: {
     street: String,
     city: String,

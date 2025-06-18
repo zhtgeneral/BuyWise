@@ -29,17 +29,18 @@ const router = express.Router();
  *               password:
  *                 type: string
  *                 minLength: 8
- *               ageRange:
+ *               storage_preference: 
  *                 type: string
- *                 enum: [18-24, 25-34, 35-44, 45-54, 55+]
- *               hobbies:
- *                 type: array
- *                 items:
- *                   type: string
- *               hasPets:
- *                 type: boolean
- *               hasChildren:
- *                 type: boolean
+ *                 enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+ *               RAM_preference:
+ *                 type: string
+ *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
+ *               brand_preference:
+ *                 type: string
+ *               min_budget: 
+ *                 type: number
+ *               max_budget:
+ *                 type: number
  *               address:
  *                 type: object
  *                 properties:
@@ -199,17 +200,18 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *             properties:
  *               name:
  *                 type: string
- *               ageRange:
+ *               storage_preference: 
  *                 type: string
- *                 enum: [18-24, 25-34, 35-44, 45-54, 55+]
- *               hobbies:
- *                 type: array
- *                 items:
- *                   type: string
- *               hasPets:
- *                 type: boolean
- *               hasChildren:
- *                 type: boolean
+ *                 enum: ['none', '128GB', '256GB', '512GB', '1TB+']
+ *               RAM_preference:
+ *                 type: string
+ *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
+ *               brand_preference:
+ *                 type: string
+ *               min_budget: 
+ *                 type: number
+ *               max_budget:
+ *                 type: number
  *               address:
  *                 type: object
  *                 properties:
