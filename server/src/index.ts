@@ -6,6 +6,7 @@ import cors from 'cors';
 import { swaggerSpec } from './config/swagger';
 import profileRoutes from './routes/profile';
 import authRoutes from './routes/auth';
+import productsRoutes from './routes/products';
 import { authMiddleware } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './api/chatbot';
@@ -88,6 +89,7 @@ connectDB().then(() => {
     return res.json(test_products);
   })
   app.use('/api/profiles', profileRoutes);
+  app.use('/api/products', productsRoutes);
 
   app.use('/api/auth', authRoutes);
 

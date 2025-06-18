@@ -9,6 +9,41 @@ import axios from 'axios';
  * This function gets the AI response.
  * Feel free to change the provider if API limits are hit.
  * */
+
+/**
+ * @swagger
+ * /api/chatbot:
+ *   post:
+ *     summary: Get AI response for a message
+ *     tags: [Chatbot]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - message
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 description: The message to get AI response for
+ *     responses:
+ *       200:
+ *         description: Successful response from AI
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 chatbotResponse:
+ *                   type: string
+ *                   description: The AI's response
+ *       400:
+ *         description: Invalid request - message is required or invalid
+ *       500:
+ *         description: Server error or incomplete AI response
+ */
 export const postChat = async (req: Request, res: Response) => {  
   const { message } = req.body;
   if (!message) {

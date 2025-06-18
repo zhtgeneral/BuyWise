@@ -1,11 +1,11 @@
-import jwt from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import Profile, { IProfile } from '../models/Profile';
 import { AppError } from '../utils/AppError';
 import { CustomJwtPayload } from '../types/jwt';
 import { Document } from 'mongoose';
 
 export class AuthService {
-  private static JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+  private static JWT_SECRET: Secret = process.env.JWT_SECRET || 'your-secret-key';
   private static JWT_EXPIRES_IN = '24h';
 
   static async login(email: string, password: string): Promise<{ token: string; profile: Partial<IProfile> }> {
@@ -28,12 +28,12 @@ export class AuthService {
 
     // Generate JWT token
     const payload: CustomJwtPayload = {
-      id: profile._id.toString()
+      id: (profile as Document & { _id: any })._id.toString()
     };
 
     const token = jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: this.JWT_EXPIRES_IN
-    });
+    } as SignOptions);
 
     // Create profile object without password
     const { password: _, ...profileWithoutPassword } = profile.toObject();
