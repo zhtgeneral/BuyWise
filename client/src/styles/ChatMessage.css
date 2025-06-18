@@ -11,10 +11,12 @@
 }
 
 .chat-message {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  border-radius: 16px;
   max-width: 60%;
   word-wrap: break-word;
+  margin: 0.5em 0em;
+  font-size: 1.1em;
 }
 
 .bot .chat-message {

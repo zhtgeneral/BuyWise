@@ -1,5 +1,8 @@
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
+import { ChatbotResponse } from "../types/ChatbotResponse";
+
+const debug = false;
 
 // TODO move to a secure place
 const token = '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';
@@ -8,7 +11,6 @@ const endpoint = "https://models.github.ai/inference";
 const modelName = "meta/Meta-Llama-3.1-8B-Instruct";
 
 const client = ModelClient(endpoint, new AzureKeyCredential(token));
-
 
 /**
  * This function calls the Azure API to get the Llama model for text completion.
@@ -20,7 +22,7 @@ const client = ModelClient(endpoint, new AzureKeyCredential(token));
  * (sample code) https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/ai/ai-inference-rest/samples/v1-beta/typescript/src/chatCompletions.ts
  * (testing) https://github.com/marketplace/models/azureml-meta/Meta-Llama-3-1-8B-Instruct/playground/json
  */
-export async function chatCompletionGithubModel(message: string) {
+export async function chatCompletionGithubModel(message: string): Promise<ChatbotResponse> {
   const response = await client.path("/chat/completions").post({
     body: {
       messages: [
@@ -28,7 +30,11 @@ export async function chatCompletionGithubModel(message: string) {
           role:"system", 
           content: `
             This is what the user said: ${message}
-            Give appropriate responses using this business logic. The business logic contains possible scenarios and responses. Don't explain the reasoning. 
+              Give appropriate responses using this business logic. The business logic contains possible scenarios and responses. Don't explain the reasoning. Return the response like this
+
+            ChatbotMessage=<Chatbot message>
+            ProductRequested=true/false
+
             business instructions: 
             if user sends none/empty message, 
               bot: "What type of electronics are you looking for?"
@@ -110,8 +116,33 @@ export async function chatCompletionGithubModel(message: string) {
 
   console.log("/api/chatbot POST got response", JSON.stringify(response.body, null, 2));
 
-  // TODO save chatbot response using response.body.choices[0].message.content to database with user id and timestamp for history feature.
+  // TODO save chatbot response to database with user id and timestamp for history feature.
   // TODO History can be used to suggest products in Explore page
 
-  return response.body.choices[0].message.content;
+  const chatbotText = response.body.choices[0].message.content || '';
+
+  return parseChatbotMessage(chatbotText);  
+}
+
+function parseChatbotMessage(response: string): ChatbotResponse {
+  const chatbotMessageMatch = response.match(/ChatbotMessage=(.*?)(\n|$)/);
+  const productRequestedMatch = response.match(/ProductRequested=(.*?)(\n|$)/);
+
+  if (debug) {
+    console.log("Chatbot test: " + response);
+    console.log("chatbotMessageMatch: " + chatbotMessageMatch);
+    console.log("productRequestedMatch: " + productRequestedMatch);
+  }
+
+  if (!chatbotMessageMatch || !productRequestedMatch) {
+    return {
+      chatbotMessage: 'No message',
+      productRequested: false
+    };
+  }
+
+  return {
+    chatbotMessage: chatbotMessageMatch[1],
+    productRequested: productRequestedMatch[1] === 'true',
+  };
 }

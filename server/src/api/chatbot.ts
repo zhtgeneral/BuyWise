@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { chatCompleteHuggingFace } from '../ai/HuggingFace';
 import { chatCompletionGithubModel } from '../ai/Github';
+import axios from 'axios';
 
 
 // TODO should we make this route protected?
@@ -22,14 +23,20 @@ export const postChat = async (req: Request, res: Response) => {
   try {
     // const chatbotResponse = await chatCompleteHuggingFace(message);  // alternative model, but rate limited
     const chatbotResponse = await chatCompletionGithubModel(message);
+    console.log('/api/chatbot POST got chatbotResponse: ' + JSON.stringify(chatbotResponse, null, 2));
 
     if (!chatbotResponse) {
-      console.log('/api/chatbot POST received incomplete response from AI');
+      console.log('/api/chatbot POST recieved incomplete response from AI');
       return res.status(500).json({ error: 'AI response was incomplete' });
     }
 
+    if (chatbotResponse.productRequested) {
+      // TODO Product API here
+      // axios.post('/api/products...', ...)
+    }
+
     return res.status(200).json({
-      chatbotResponse: chatbotResponse
+      chatbotMessage: chatbotResponse.chatbotMessage
     });
 
   } catch (error: unknown) {

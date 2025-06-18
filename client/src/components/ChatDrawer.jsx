@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Drawer, Button, Textarea } from '@mantine/core';
 import ChatMessage from './ChatMessage';
 import axios from 'axios';
+import '../styles/ChatDrawer.css'
 
 export default function ChatDrawer({ opened, onClose }) {
   const [chat, setChat] = useState([
@@ -38,12 +39,12 @@ export default function ChatDrawer({ opened, onClose }) {
         message: userInput
       });
       if (response.status === 200) {
-        const chatbotResponse = response.data.chatbotResponse;
+        const chatbotMessage = response.data.chatbotMessage;
         setChat(prev => [
           ...prev, 
           { 
             speaker: "bot",
-             text: chatbotResponse 
+             text: chatbotMessage 
           }
         ]);
       } else {
@@ -77,48 +78,52 @@ export default function ChatDrawer({ opened, onClose }) {
   };
 
   return (
-    <Drawer
-      position="right"
-      opened={opened}
-      onClose={onClose}
-      title="Talk to BuyWise"
-      size="lg"
-      styles={{
-        body: {
-          display: 'flex',
-          flexDirection: 'column',
-          height: 'calc(100% - 60px)',
-        }
-      }}
-    >
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem' }}>
-        {
-          chat.map((msg, i) => (
-            <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
-          ))
-        }
-        <div ref={messagesEndRef} />
-      </div>
+    <div className="chatdrawer-styles">
+      <Drawer
+        position="right"
+        opened={opened}
+        onClose={onClose}
+        title="Talk to BuyWise"
+        size="xl"
+        styles={{
+          body: {
+            display: 'flex',
+            flexDirection: 'column',
+            height: 'calc(100% - 60px)',
+          }
+        }}
+      >
+        <div style={{ flex: 1, overflowY: 'auto', marginBottom: '0.5rem' }}>
+          {
+            chat.map((msg, i) => (
+              <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
+            ))
+          }
+          <div ref={messagesEndRef} />
+        </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <Textarea
-          placeholder="Type your message to BuyWise..."
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          style={{ flex: 1 }}
-          minRows={1}
-          maxRows={4}
-          autosize
-        />
-        <Button 
-          onClick={handleSendMessage}
-          loading={isLoading}
-          disabled={!userInput.trim()}
-        >
-          Send
-        </Button>
-      </div>
-    </Drawer>
+        <div style={{ display: 'flex', gap: '0.7rem' }}>
+          <Textarea
+            placeholder="Type your message to BuyWise..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{ flex: 1 }}
+            className="chatdrawer-input"
+            minRows={1}
+            maxRows={4}
+            autosize
+          />
+          <Button 
+            onClick={handleSendMessage}
+            loading={isLoading}
+            disabled={!userInput.trim()}
+            className="chatdrawer-button"
+          >
+            Send
+          </Button>
+        </div>
+      </Drawer>
+    </div>
   );
 }
