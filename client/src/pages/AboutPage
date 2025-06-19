@@ -1,9 +1,0 @@
-import '../styles/AboutPage.css'; 
-
-export default function AboutPage() {
-    return (
-        <div className="about-content">
-            <p>Lorem ipsum dolor sit amet</p>
-        </div>
-    );
-}

@@ -13,7 +13,9 @@ export default function Sidebar() {
 
     // Helper function to protect navigation and remember intended path
     const handleNavigation = (path) => {
-        if (!isAuthenticated) {
+        if (path === '/about' || path === "/") {
+            navigate(path);
+        } else if (!isAuthenticated) {
             loginWithRedirect({
                 appState: { returnTo: path } 
             });

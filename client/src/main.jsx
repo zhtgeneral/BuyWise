@@ -13,6 +13,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
+import AboutPage from './pages/AboutPage';
 
 /**
  * This defines the routes in our app.
