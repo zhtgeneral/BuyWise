@@ -13,9 +13,14 @@ export class ProductService {
       };
       
       const productResponse = await getJson(productParams);
-      console.log(productResponse['sellers_results']['online_sellers']);
-      
-      return productResponse['sellers_results']['online_sellers']?.slice(0, 3) || [];
+
+      const sellerResults = productResponse?.sellers_results?.online_sellers;
+
+      const firstValidSeller = sellerResults?.find((seller: any) => seller?.direct_link) || {
+        direct_link: "",
+      };
+
+      return firstValidSeller;
     } catch (error) {
       console.error('Error fetching seller details:', error);
       return null;
@@ -45,11 +50,11 @@ export class ProductService {
       }
 
       // Filter immersive_products to only include "Popular Products"
+      // TODO decide whether to use popular products or all products. Seller details is required for product link. seller details only works for popular products.
       const popularProducts = response["immersive_products"]?.filter((product: any) => 
         product.category === "Popular products"
-      ).slice(0, 5) || [];
+      ).slice(0, 10) || [];
 
-      // Enrich each product with seller details
       const enrichedProducts = await Promise.all(
         popularProducts.map(async (product: any) => {
           const sellerDetails = await this.getSellerDetails(product.product_id);

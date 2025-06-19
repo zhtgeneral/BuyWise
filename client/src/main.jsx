@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
 import VerificationPage from './pages/VerificationPage';
+import AboutPage from './pages/AboutPage';
 
 /**
  * This defines the routes in our app.
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
       {
         path: 'verify-email',
         element: <VerificationPage />
+      },
+      {
+        path: 'about',
+        element: <AboutPage />
       },
     ]
   }

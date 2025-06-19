@@ -151,10 +151,11 @@ router.get('/search', async (req: Request, res: Response) => {
     }
 
     const products = await ProductService.searchProducts(q, device as string, location as string);
+    console.log("/api/products/search GET got products from SerpAPI: " + JSON.stringify(products, null, 2));
 
     return res.status(200).json({
       success: true,
-      data: products
+      products: products
     });
 
   } catch (error: any) {
