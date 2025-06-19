@@ -1,10 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { Drawer, Button, Textarea } from '@mantine/core';
 import ChatMessage from './ChatMessage';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import '../styles/ChatDrawer.css'
+import { setProducts } from '../libs/features/productsSlice'
 
-export default function ChatDrawer({ opened, onClose }) {
+export default function ChatDrawer({ 
+  opened, 
+  onClose,
+  setShowProduct
+ }) {
+  const dispatch = useDispatch();
+
   const [chat, setChat] = useState([
     { 
       speaker: "bot", 
@@ -13,7 +21,7 @@ export default function ChatDrawer({ opened, onClose }) {
   ]);
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null);  
 
   // Auto-scroll to bottom when chat updates
   useEffect(() => {
@@ -21,10 +29,8 @@ export default function ChatDrawer({ opened, onClose }) {
   }, [chat]);
 
   const handleSendMessage = async () => {
-    /** This prevents empty messages from being sent */
     if (!userInput.trim()) return; 
     
-    // Add user message to chat
     const newUserMessage = { 
       speaker: "user", 
       text: userInput 
@@ -40,35 +46,35 @@ export default function ChatDrawer({ opened, onClose }) {
       });
       if (response.status === 200) {
         const chatbotMessage = response.data.chatbotMessage;
-        setChat(prev => [
-          ...prev, 
-          { 
-            speaker: "bot",
-             text: chatbotMessage 
-          }
-        ]);
+        addMessageToConversation(chatbotMessage);
+
+        if (response.data.productData && response.data.productData.length > 0) {
+          dispatch(setProducts(response.data.productData));
+          setShowProduct(true);
+        }
+        
       } else {
-        setChat(prev => [
-          ...prev, 
-          { 
-            speaker: "bot", 
-            text: "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience."
-          }
-        ]);
+        const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
+        addMessageToConversation(unsuccessfulMessage);
       }      
     } catch (error) {
       console.error('Error:', error);
-      setChat(prev => [
-        ...prev, 
-        { 
-          speaker: "bot", 
-          text: "Sorry, I encountered an error. Please try again later." 
-        }
-      ]);
+      const errorMessage = "Sorry, I encountered an error. Please try again later." 
+      addMessageToConversation(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
+  function addMessageToConversation(message) {
+    setChat(prev => [
+      ...prev, 
+      { 
+        speaker: "bot",
+        text: message 
+      }
+    ]);
+  }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {

@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './features/userSlice';
+import productsReducer from './features/productsSlice'
 
 /**
  * This holds the global states.
@@ -8,7 +9,8 @@ import userReducer from './features/userSlice';
  */
 export const store = configureStore({
   reducer: {
-    user: userReducer
+    user: userReducer,
+    products: productsReducer,
   },
 })
 

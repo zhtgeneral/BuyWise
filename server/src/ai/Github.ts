@@ -30,10 +30,18 @@ export async function chatCompletionGithubModel(message: string): Promise<Chatbo
           role:"system", 
           content: `
             This is what the user said: ${message}
-              Give appropriate responses using this business logic. The business logic contains possible scenarios and responses. Don't explain the reasoning. Return the response like this
+            Give appropriate responses using this business logic. The business logic contains possible scenarios and responses. Don't explain the reasoning. 
+            
+            how to create responses:
+            ChatbotMessage is the expected response of the bot.
+            ProductRequested is true when the user is looking for a product.
+            ProductQuery is only filled in when ProductRequested is true and the user searches for a valid product. Keep ProductQuery empty unless the user is searching for a product.
+
+            Return the response like this. 
 
             ChatbotMessage=<Chatbot message>
             ProductRequested=true/false
+            ProductQuery=<Key words of the user's product description>
 
             business instructions: 
             if user sends none/empty message, 
@@ -41,10 +49,10 @@ export async function chatCompletionGithubModel(message: string): Promise<Chatbo
 
             if user sends any synonyms of 'laptop', 'phone', 'computer' (PC, tablet, mobiles all accepted),
               bot sends one of these
-                "Based on you preferences I recommend these laptops/phones/computers (compares 3-5 together). If you would like to update your preferences, just let me know",
-                "I could not find anything with your preferences on the web. Let me know if you would like to change your preferences."
+                "I was able to find these laptops/phones/computers on the web", or
+                "I could not find anything with that description on the web. Let me know if you would like to change your preferences."
 
-            if user sends something other than  'laptop', 'phone', 'computer',
+            if user searches for something other than  'laptop', 'phone', 'computer',
               bot sends "My AI can only search for laptops, phones, and computers. Would you like to search for any of these?"
 
             if the user asks how the chatbot is used,
@@ -114,8 +122,6 @@ export async function chatCompletionGithubModel(message: string): Promise<Chatbo
       throw response.body.error;
   }
 
-  console.log("/api/chatbot POST got response", JSON.stringify(response.body, null, 2));
-
   // TODO save chatbot response to database with user id and timestamp for history feature.
   // TODO History can be used to suggest products in Explore page
 
@@ -127,6 +133,7 @@ export async function chatCompletionGithubModel(message: string): Promise<Chatbo
 function parseChatbotMessage(response: string): ChatbotResponse {
   const chatbotMessageMatch = response.match(/ChatbotMessage=(.*?)(\n|$)/);
   const productRequestedMatch = response.match(/ProductRequested=(.*?)(\n|$)/);
+  const productQueryMatch = response.match(/ProductQuery=(.*?)(\n|$)/);
 
   if (debug) {
     console.log("Chatbot test: " + response);
@@ -134,15 +141,17 @@ function parseChatbotMessage(response: string): ChatbotResponse {
     console.log("productRequestedMatch: " + productRequestedMatch);
   }
 
-  if (!chatbotMessageMatch || !productRequestedMatch) {
+  if (!chatbotMessageMatch || !productRequestedMatch || !productQueryMatch) {
     return {
       chatbotMessage: 'No message',
-      productRequested: false
+      productRequested: false,
+      productQuery: ""
     };
   }
 
   return {
     chatbotMessage: chatbotMessageMatch[1],
     productRequested: productRequestedMatch[1] === 'true',
+    productQuery: productQueryMatch[1]
   };
 }

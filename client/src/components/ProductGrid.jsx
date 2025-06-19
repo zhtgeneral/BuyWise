@@ -1,37 +1,36 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
 import "../styles/ProductGrid.css";
+import { selectProducts } from "../libs/features/productsSlice";
 
-export default function ProductGrid() {
-  const [products, setProducts] = useState([]);
+export default function ProductGrid({
+  showProduct
+}) {
+  const products = useSelector(selectProducts);
 
-  // test products for now, delete this later
-  useEffect(() => {
-    fetch("http://localhost:3000/api/test-products")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Something went wrong getting the test products");
-        }
-        return res.json();
-      })
-      .then((data) => setProducts(data))
-      .catch((err) => console.error("Get error:", err));
-  }, []);
-
+  if (!showProduct) {
+    return (
+      <></>
+    )
+  }
+  
   return (
-    <div className="product-list">
-      {products.map((product) => (
-        <div className="product-card" key={product.id}>
-          <img src={product.image} alt={product.title} />
-          <div className="product-container">
-            <h4>{product.title}</h4>
-            <p>Price: ${product.price}</p>
-            <Link to={product.url} className="product-link">
-              Link to Product
-            </Link>
+    <>
+      <h3>Recommended Products</h3>    
+      <div className="product-list">
+        {products?.map((product) => (
+          <div className="product-card" key={product.id}>
+            <img src={product.image} alt={product.title} />
+            <div className="product-container">
+              <h4>{product.title}</h4>
+              <p>Price: ${product.price}</p>
+              <Link to={product.url} className="product-link">
+                Link to Product
+              </Link>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 }
