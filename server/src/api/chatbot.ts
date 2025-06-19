@@ -1,13 +1,11 @@
 import { Request, Response } from 'express';
-import { chatCompleteHuggingFace } from '../ai/HuggingFace';
 import { chatCompletionGithubModel } from '../ai/Github';
+import axios from 'axios';
+import { randomUUID } from 'crypto';
+import { ProductService } from '../services/ProductService';
 
 
 // TODO should we make this route protected?
-/** 
- * This function gets the AI response.
- * Feel free to change the provider if API limits are hit.
- * */
 
 /**
  * @swagger
@@ -55,20 +53,62 @@ export const postChat = async (req: Request, res: Response) => {
   }
 
   try {
-    // const chatbotResponse = await chatCompleteHuggingFace(message);  // alternative model, but rate limited
-    const chatbotResponse = await chatCompletionGithubModel(message);
-
-    if (!chatbotResponse) {
-      console.log('/api/chatbot POST received incomplete response from AI');
-      return res.status(500).json({ error: 'AI response was incomplete' });
-    }
-
-    return res.status(200).json({
-      chatbotResponse: chatbotResponse
-    });
-
+    var chatbotResponse = await chatCompletionGithubModel(message);
+    console.log('/api/chatbot POST got chatbotResponse: ' + JSON.stringify(chatbotResponse, null, 2));
   } catch (error: unknown) {
+    /** Chatbot fails */
     console.log(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
     return res.status(500);    
   }
+
+  if (!chatbotResponse) {
+    console.log('/api/chatbot POST recieved incomplete response from AI');
+    return res.status(500).json({ error: 'AI response was incomplete' });
+  }
+
+  if (!chatbotResponse.productRequested) {
+    /** Chatbot works and no product requested */
+    return res.status(200).json({
+      chatbotMessage: chatbotResponse.chatbotMessage,
+      productData: null
+    });
+  }
+
+  try {
+    var enrichedProducts = await ProductService.searchProducts(chatbotResponse.productQuery);
+    console.log("/api/chatbot POST enrichedProducts: " + JSON.stringify(enrichedProducts.slice(0, 1), null, 2));
+  } catch (error: any) {
+    /** Chatbot works but Product fails */
+    console.log('/api/chatbot POST unable to search for products' + JSON.stringify(error, null, 2));
+    return res.status(200).json({
+      chatbotMessage: chatbotResponse.chatbotMessage,
+      productData: []
+    });
+  }
+
+  /** Chatbot and Product works */
+  const formattedData = formatProductForFrontend(enrichedProducts);
+  console.log("/api/chatbot POST formattedData: " + JSON.stringify(formattedData.slice(0,10), null, 2));
+  return res.status(200).json({
+    chatbotMessage: chatbotResponse.chatbotMessage,
+    productData: formattedData
+  });
+}
+
+
+function formatProductForFrontend(products: any[]) {
+  const formattedProducts = products.map((p) => {
+    console.log("formatProductForFrontend: product seller details" + JSON.stringify(p.seller_details, null, 2));
+    return {
+      id: p.product_id || randomUUID(),
+      source: p.source || "",
+      title: p.title || "",
+      image: p.thumbnail || "",
+      price: p.extracted_price || 0,
+      url: p.seller_details.direct_link || "",
+      rating: p.rating || 0, // new field
+      reviews: p.reviews || 0 // new field
+    }
+  })
+  return formattedProducts;
 }

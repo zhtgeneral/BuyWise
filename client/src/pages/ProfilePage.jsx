@@ -46,8 +46,10 @@ export default function ProfilePage() {
       max_budget: userProfile.maxBudget,
       rating_preference: userProfile.ratingPreference,
       country: userProfile.country
-    }).then(() => {
-      dispatch(updateUser(userProfile));
+    }).then((response) => {
+      if (response.ok) {
+        dispatch(updateUser(userProfile));
+      }
     })
   };
 
