@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Drawer, Button, Textarea } from '@mantine/core';
 import ChatMessage from './ChatMessage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { addMessage, selectChatMessages } from '../libs/features/chatSlice';
 import axios from 'axios';
 import '../styles/ChatDrawer.css'
 import { setProducts } from '../libs/features/productsSlice'
@@ -12,13 +13,14 @@ export default function ChatDrawer({
   setShowProduct
  }) {
   const dispatch = useDispatch();
+  const chat = useSelector(selectChatMessages);
 
-  const [chat, setChat] = useState([
-    { 
-      speaker: "bot", 
-      text: "Hello! How can I help you today?" 
+  useEffect(() => {
+    if (chat.length === 0) {
+      dispatch(addMessage({ speaker: "bot", text: "Are you looking for a cellphone or computer?" }));
     }
-  ]);
+  }, [chat.length, dispatch]);
+
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);  
@@ -35,7 +37,7 @@ export default function ChatDrawer({
       speaker: "user", 
       text: userInput 
     };
-    setChat(prev => [...prev, newUserMessage]);
+    dispatch(addMessage(newUserMessage));
     setUserInput("");
 
     setIsLoading(true);
@@ -46,7 +48,7 @@ export default function ChatDrawer({
       });
       if (response.status === 200) {
         const chatbotMessage = response.data.chatbotMessage;
-        addMessageToConversation(chatbotMessage);
+        dispatch(addMessage({ speaker: "bot", text: chatbotMessage }));
 
         if (response.data.productData && response.data.productData.length > 0) {
           dispatch(setProducts(response.data.productData));
@@ -55,26 +57,16 @@ export default function ChatDrawer({
         
       } else {
         const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
-        addMessageToConversation(unsuccessfulMessage);
+        dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));
       }      
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = "Sorry, I encountered an error. Please try again later." 
-      addMessageToConversation(errorMessage);
+      dispatch(addMessage({ speaker: "bot", text: errorMessage }));
     } finally {
       setIsLoading(false);
     }
   };
-
-  function addMessageToConversation(message) {
-    setChat(prev => [
-      ...prev, 
-      { 
-        speaker: "bot",
-        text: message 
-      }
-    ]);
-  }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
