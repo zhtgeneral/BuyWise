@@ -7,6 +7,7 @@ import { swaggerSpec } from './config/swagger';
 import profileRoutes from './routes/profile';
 import authRoutes from './routes/auth';
 import productsRoutes from './routes/products';
+import chatRoutes from './routes/chat';
 import { authMiddleware } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './api/chatbot';
@@ -90,6 +91,7 @@ connectDB().then(() => {
   })
   app.use('/api/profiles', profileRoutes);
   app.use('/api/products', productsRoutes);
+  app.use('/api/chats', chatRoutes);
 
   app.use('/api/auth', authRoutes);
 
