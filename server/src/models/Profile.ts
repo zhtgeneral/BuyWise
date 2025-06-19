@@ -36,12 +36,12 @@ const ProfileSchema: Schema = new Schema({
   },
   storage_preference: {
     type: String,
-    required: true,
+    required: false,
     enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
   },
   RAM_preference: {
     type: String,
-    required: true,
+    required: false,
     enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
   },
   brand_preference: {

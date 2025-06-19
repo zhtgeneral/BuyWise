@@ -2,7 +2,6 @@
   "name": "buywise-app",
   "version": "0.1.0",
   "private": true,
-  
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "debug": "ls && cat package.json && ls node_modules",
@@ -22,6 +21,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",

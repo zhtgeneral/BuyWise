@@ -1,10 +1,7 @@
-// src/app.ts
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 import swaggerUi from 'swagger-ui-express';
-
 import { swaggerSpec } from './config/swagger';
 import profileRoutes from './routes/profile';
 import authRoutes from './routes/auth';
@@ -12,12 +9,15 @@ import productsRoutes from './routes/products';
 import { authMiddleware } from './middleware/auth';
 import { postChat } from './api/chatbot';
 
+const cookieParser = require('cookie-parser');
+
 dotenv.config();
 
 const app = express();
 
 // Middleware
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

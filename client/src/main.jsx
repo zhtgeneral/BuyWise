@@ -5,9 +5,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createRoot } from 'react-dom/client';
 import { store } from './libs/store';
 import { MantineProvider } from '@mantine/core';
-
-import { Auth0ProviderWithHistory } from './Auth0ProviderWithHistory'; 
-
 import Layout from './Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -15,6 +12,7 @@ import ProfilePage from './pages/ProfilePage';
 import ChatPage from './pages/ChatPage';
 import VerificationPage from './pages/VerificationPage';
 import AboutPage from './pages/AboutPage';
+import RegistrationPage from './pages/RegistrationPage';
 
 /**
  * This defines the routes in our app.
@@ -37,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: 'login',
         element: <LoginPage />
+      },
+      {
+        path: 'registration',
+        element: <RegistrationPage />
       },
       {
         path: 'profile',
@@ -65,11 +67,9 @@ const router = createBrowserRouter([
  * `<RouterProvider router={router} />` provides the app with routes.
  */
 createRoot(document.getElementById('root')).render(
-  <Auth0ProviderWithHistory>
-    <Provider store={store}>
-      <MantineProvider withGlobalStyles withNormalizeCSS>
-        <RouterProvider router={router} />
-      </MantineProvider>
-    </Provider>
-  </Auth0ProviderWithHistory>
+  <Provider store={store}>
+    <MantineProvider withGlobalStyles withNormalizeCSS>
+      <RouterProvider router={router} />
+    </MantineProvider>
+  </Provider>
 );

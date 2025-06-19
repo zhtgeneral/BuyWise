@@ -2,38 +2,49 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
+const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
-export default function LoginPage() {
+export default function RegistrationPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post(
-        `${backendURL}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
-      alert(`Logging in with username: ${email}`);
-      navigate('/');
-    } catch (error) {
-      alert(error.response?.data?.error || 'Login Failed');
-    }
+  const handleCancel = () => {
+    navigate('/login');
   };
 
-  const handleRegister = () => {
-    navigate('/registration');
+  const handleCreateAccount = async () => {
+    try {
+      await axios.post(
+        `${backendURL}/api/profiles`,
+        { name, email, password }
+      );
+      alert(`Verification Email sent to: ${email}`);
+      navigate('/login');
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.error || 'Registration Failed');
+    }
   };
 
   return (
     <main className="login-container">
       <div className="login-scrollable">
         <div className="login-padding">
-        <h1 className="login-header">Login</h1>
+          <h1 className="login-header">Register</h1>
           <div className="login-section">
+            <div className="login-field">
+              <label className="login-field__label">Name:</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Name"
+                className="login-field__input"
+              />
+            </div>
             <div className="login-field">
               <label className="login-field__label">Email:</label>
               <input
@@ -56,9 +67,9 @@ export default function LoginPage() {
               />
             </div>
           </div>
-          <div className="login-actions">
-            <button className="login-button edit" onClick={handleLogin}>Login</button>
-            <button className="login-button edit" onClick={handleRegister}>Register</button>
+          <div className="login-actions">  
+            <button className="login-button edit" onClick={handleCancel}>Cancel</button>
+            <button className="login-button edit" onClick={handleCreateAccount}>Create Account</button>
           </div>
         </div>
       </div>

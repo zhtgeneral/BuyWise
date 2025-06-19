@@ -19,12 +19,11 @@ declare global {
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    const token = req.cookies?.token;
+    if (!token) {
       throw new AppError('No token provided', 401);
     }
 
-    const token = authHeader.split(' ')[1];
     if (!process.env.JWT_SECRET) {
       throw new AppError('JWT secret is not configured', 500);
     }
@@ -46,14 +45,11 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   if (req.path.startsWith('/api/auth')) {
     return next();
   }
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Authentication required' });
-  }
-  const token = authHeader.split(' ')[1];
+  const token = req.cookies?.token;
   if (!token) {
     return res.status(401).json({ error: 'Authentication required' });
   }
+  
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as CustomJwtPayload;
     req.user = decoded;

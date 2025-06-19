@@ -1,6 +1,5 @@
 import '../styles/Sidebar.css';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
@@ -10,16 +9,16 @@ import BuyWiseLogo from '../assets/BuyWiseLogo.png';
 export default function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();  
-    const { loginWithRedirect, logout, isAuthenticated, isLoading, user } = useAuth0();
+    const isAuthenticated = false; //TO REMOVE
+    const user = null; //TO REMOVE
+    const isLoading = false; //TO REMOVE
 
     // Helper function to protect navigation and remember intended path
     const handleNavigation = (path) => {
         if (path === '/about' || path === "/") {
             navigate(path);
         } else if (!isAuthenticated) {
-            loginWithRedirect({
-                appState: { returnTo: path } 
-            });
+            navigate('/login', { state: { from: path } });
         } else {
             navigate(path);
         }
@@ -59,9 +58,7 @@ export default function Sidebar() {
                 <div className="sidebar-auth">
                     {!isAuthenticated ? (
                         <button
-                            onClick={() => loginWithRedirect({
-                                appState: { returnTo: location.pathname } 
-                            })}
+                            onClick={() => navigate('/login', { state: { from: location.pathname } })}
                             className="auth-button"
                         >
                             Log In
@@ -75,7 +72,7 @@ export default function Sidebar() {
                             />
                             <div className="user-name">{user.name}</div>
                             <button
-                                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                                onClick={() => {/* TO ADD LOGOUT LOGIC LATER */}}
                                 className="auth-button logout-button"
                             >
                                 Log Out

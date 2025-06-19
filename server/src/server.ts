@@ -1,7 +1,6 @@
 import app from './app';
 import mongoose from 'mongoose';
 
-
 const port = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/BuyWise';
 
@@ -9,7 +8,6 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/BuyWis
 console.log('MongoDB URI:', MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@'));
 
 // Connect to MongoDB with proper options
-// TODO move to a different file for organization
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(MONGODB_URI, {
