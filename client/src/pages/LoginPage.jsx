@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
+const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,15 +14,24 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
         `${backendURL}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
+        { email, password }
       );
-      alert(`Logging in with username: ${email}`);
-      navigate('/');
+      
+      if (response.data.success && response.data.token) {
+        // Store the token in localStorage
+        localStorage.setItem('token', response.data.token);
+        alert(`Logging in with username: ${email}`);
+        navigate('/');
+      } else {
+        alert('Login failed: No token received');
+      }
     } catch (error) {
       alert(error.response?.data?.error || 'Login Failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +68,9 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="login-actions">
-            <button className="login-button edit" onClick={handleLogin}>Login</button>
+            <button className="login-button edit" onClick={handleLogin} disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
             <button className="login-button edit" onClick={handleRegister}>Register</button>
           </div>
         </div>

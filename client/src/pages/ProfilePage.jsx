@@ -37,20 +37,34 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     console.log("ProfilePage saved user profile: " + JSON.stringify(userProfile, null, 2));
-    axios.patch(`${backendURL}/api/profiles/${userProfile.id}`, {
-      name: userProfile.username,
-      storage_preference: userProfile.storagePreference,
-      RAM_preference: userProfile.RAMPreference,
-      brand_preference: userProfile.brandPreference,
-      min_budget: userProfile.minBudget,
-      max_budget: userProfile.maxBudget,
-      rating_preference: userProfile.ratingPreference,
-      country: userProfile.country
-    }).then((response) => {
-      if (response.ok) {
-        dispatch(updateUser(userProfile));
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No authentication token found. Please login again.');
+      return;
+    }
+    
+    axios.patch(`${backendURL}/api/profiles/me`, {
+      storage_preference: userProfile.userPreferences.storagePreference,
+      RAM_preference: userProfile.userPreferences.RAMPreference,
+      brand_preference: userProfile.userPreferences.brandPreference,
+      min_budget: userProfile.userPreferences.minBudget,
+      max_budget: userProfile.userPreferences.maxBudget,
+      rating_preference: userProfile.userPreferences.ratingPreference,
+      country: userProfile.userPreferences.country
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
-    })
+    }).then((response) => {
+      if (response.status === 200) {
+        dispatch(updateUser(userProfile));
+        alert('Profile updated successfully!');
+      }
+    }).catch((error) => {
+      console.error('Error updating profile:', error);
+      alert('Failed to update profile');
+    });
   };
 
   return (

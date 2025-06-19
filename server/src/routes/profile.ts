@@ -1,71 +1,9 @@
 import express, { Request, Response } from 'express';
 import { authenticate } from '../middleware/auth';
 import { ProfileService } from '../services/ProfileService';
+import { UserService } from '../services/UserService';
 
 const router = express.Router();
-
-/**
- * @swagger
- * /api/profiles:
- *   post:
- *     summary: Create a new profile
- *     tags: [Profiles]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - password
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 minLength: 8
- *               storage_preference: 
- *                 type: string
- *                 enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
- *               RAM_preference:
- *                 type: string
- *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
- *               brand_preference:
- *                 type: string
- *               min_budget: 
- *                 type: number
- *               max_budget:
- *                 type: number
- *               rating_preference:
- *                 type: number
- *               country:
- *                 type: string
- *     responses:
- *       201:
- *         description: Profile created successfully
- *       400:
- *         description: Invalid input data
- */
-router.post('/', async (req: Request, res: Response) => {
-  try {
-    const result = await ProfileService.createProfile(req.body);
-    res.status(201).json({
-      success: true,
-      message: 'Profile created successfully',
-      data: result
-    });
-  } catch (error: any) {
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
 
 /**
  * @swagger
@@ -87,7 +25,7 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.get('/verify/:token', async (req: Request, res: Response) => {
   try {
-    await ProfileService.verifyEmail(req.params.token);
+    await UserService.verifyEmail(req.params.token);
     res.status(200).json({
       success: true,
       message: 'Email verified successfully'
@@ -122,11 +60,11 @@ router.get('/verify/:token', async (req: Request, res: Response) => {
  *       200:
  *         description: Verification email sent
  *       400:
- *         description: Invalid email or profile not found
+ *         description: Invalid email or user not found
  */
 router.post('/resend-verification', async (req: Request, res: Response) => {
   try {
-    await ProfileService.resendVerificationEmail(req.body.email);
+    await UserService.resendVerificationEmail(req.body.email);
     res.status(200).json({
       success: true,
       message: 'Verification email sent'
@@ -141,25 +79,21 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/profiles/{id}:
+ * /api/profiles/me:
  *   get:
- *     summary: Get profile by ID
+ *     summary: Get current user's profile
  *     tags: [Profiles]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Profile retrieved successfully
  *       404:
  *         description: Profile not found
  */
-router.get('/:id', authenticate, async (req: Request, res: Response) => {
+router.get('/me', authenticate, async (req: Request, res: Response) => {
   try {
-    const profile = await ProfileService.getProfile(req.params.id);
+    const profile = await ProfileService.getProfileByUserId(req.user!.id);
     res.status(200).json({
       success: true,
       data: profile
@@ -174,21 +108,15 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/profiles/{id}:
+ * /api/profiles/me:
  *   patch:
- *     summary: Update profile
+ *     summary: Update current user's profile
  *     tags: [Profiles]
  *     description: 
  *       This endpoint uses authentication middleware, so it needs Auth headers.
  *       Make sure to use Bearer <JWT> before making a request to this endpoint.
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -196,8 +124,6 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
  *               storage_preference: 
  *                 type: string
  *                 enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
@@ -220,9 +146,9 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
  *       404:
  *         description: Profile not found 
  */
-router.patch('/:id', authenticate, async (req: Request, res: Response) => {
+router.patch('/me', authenticate, async (req: Request, res: Response) => {
   try {
-    const profile = await ProfileService.updateProfile(req.params.id, req.body);
+    const profile = await ProfileService.updateProfile(req.user!.id, req.body);
     res.status(200).json({
       success: true,
       message: 'Profile updated successfully',
@@ -238,16 +164,12 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/profiles/{id}/password:
+ * /api/profiles/password:
  *   patch:
- *     summary: Update profile password
+ *     summary: Update user password
  *     tags: [Profiles]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -269,12 +191,12 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
  *       400:
  *         description: Invalid current password
  *       404:
- *         description: Profile not found
+ *         description: User not found
  */
-router.patch('/:id/password', authenticate, async (req: Request, res: Response) => {
+router.patch('/password', authenticate, async (req: Request, res: Response) => {
   try {
-    await ProfileService.updatePassword(
-      req.params.id,
+    await UserService.updatePassword(
+      req.user!.id,
       req.body.currentPassword,
       req.body.newPassword
     );

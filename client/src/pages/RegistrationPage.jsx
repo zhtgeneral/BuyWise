@@ -17,15 +17,32 @@ export default function RegistrationPage() {
 
   const handleCreateAccount = async () => {
     try {
-      await axios.post(
-        `${backendURL}/api/profiles`,
+      const response = await axios.post(
+        `${backendURL}/api/auth/register`,
         { name, email, password }
       );
-      alert(`Verification Email sent to: ${email}`);
-      navigate('/login');
+      
+      if (response.data.success && response.data.token) {
+        // Store the token in localStorage
+        localStorage.setItem('token', response.data.token);
+        alert(`Registration successful! Your account has been created and verified.`);
+        navigate('/login');
+      } else {
+        alert('Registration failed: No token received');
+      }
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.error || 'Registration Failed');
+      
+      // Handle specific error cases gracefully
+      if (error.response?.data?.error) {
+        if (error.response.data.error.includes('Email already exists')) {
+          alert('An account with this email already exists. Please try logging in instead.');
+        } else {
+          alert(error.response.data.error);
+        }
+      } else {
+        alert('Registration failed. Please try again.');
+      }
     }
   };
 
