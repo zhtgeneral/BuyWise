@@ -106,7 +106,7 @@ connectDB().then(() => {
     });
   });
 
-  app.use((err: any, req: Request, res: Response) => {
+  app.use((err: any, req: Request, res: Response, next: express.NextFunction) => {
     console.error(err);
     res.status(err.statusCode || 500).json({
       success: false,
