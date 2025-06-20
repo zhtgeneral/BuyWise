@@ -1,5 +1,6 @@
 import '../styles/Sidebar.css';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
@@ -8,10 +9,20 @@ import BuyWiseLogo from '../assets/BuyWiseLogo.png';
 /** This is the sidebar */
 export default function Sidebar() {
     const navigate = useNavigate();
-    const location = useLocation();  
-    const isAuthenticated = false; //TO REMOVE
-    const user = null; //TO REMOVE
-    const isLoading = false; //TO REMOVE
+    const location = useLocation();
+    const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setIsAuthenticated(!!localStorage.getItem("token"));
+        };
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, []);
+    
 
     // Helper function to protect navigation and remember intended path
     const handleNavigation = (path) => {
@@ -24,12 +35,11 @@ export default function Sidebar() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <aside className="sidebar" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <div className="spinner"></div>
-            </aside>
-        );
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        alert("You have successfully logged out!");
+        window.location.reload();
     }
 
     return (
@@ -65,14 +75,11 @@ export default function Sidebar() {
                         </button>
                     ) : (
                         <div className="sidebar-user-info">
-                            <img
-                                src={user.picture}
-                                alt={user.name}
-                                className="user-avatar"
-                            />
-                            <div className="user-name">{user.name}</div>
+                            <div>
+                                Welcome Wise Buyer!
+                            </div>
                             <button
-                                onClick={() => {/* TO ADD LOGOUT LOGIC LATER */}}
+                                onClick={handleLogout}
                                 className="auth-button logout-button"
                             >
                                 Log Out

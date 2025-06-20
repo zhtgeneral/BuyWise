@@ -25,6 +25,7 @@ export default function LoginPage() {
         localStorage.setItem('token', response.data.token);
         alert(`Logging in with username: ${email}`);
         navigate('/');
+        window.location.reload();
       } else {
         alert('Login failed: No token received');
       }
