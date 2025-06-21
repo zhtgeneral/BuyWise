@@ -101,7 +101,7 @@ With this milestone, we developed the backend and databse of our app. We also be
 ---
 
 ## **Known Issues**
-- SerpAPI running out of tokens for our search functionality
-- Authentication platform currently tries to create a profile using the same userID throwing a duplicate entry error
-- Navigation between `/chat` or `/profile` from sidebar will bring user into `/login`
-- Logout button render issues
+- SerpAPI running out of tokens for our search functionality - 6/20
+- Authentication platform currently tries to create a profile using the same userID throwing a duplicate entry error - 6/20
+- Navigation between `/chat` or `/profile` from sidebar will bring user into `/login` - 6/20
+- Logout button render issues - 6/20
