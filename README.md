@@ -92,3 +92,16 @@ Then navigate to:
 
 ## **Milestone 1**
 With this milestone, we have developed the core front-end of our app. The user login feature has now been implemented through Auth0, and the overall style and atmosphere of the app have been established using the component and style library Mantine. We have added the home page and built the basic functionality and design for the AI chat interface, user profile editing pages, and the dynamically populating product grid. Additionally, we have made some minor updates to the docker container architecture as well as to the back-end to prepare for the API endpoints that we will integrate into our app as both the front-end and back-end components are developed in parallel.
+
+---
+
+## **Milestone 2**
+With this milestone, we developed the backend and databse of our app. We also began adding in core funcitonality of our BuyWise chat where users can find products with the help of SerpAPI. We also made the decision to create an internal account authenticaion system. Although we are still working through bugs and kinks we currently have a proof-of-concept model of what we would like to iterate on. There a few tests created and through the next iterations we will expand and increase coverage.
+
+---
+
+## **Known Issues**
+- SerpAPI running out of tokens for our search functionality
+- Authentication platform currently tries to create a profile using the same userID throwing a duplicate entry error
+- Navigation between `/chat` or `/profile` from sidebar will bring user into `/login`
+- Logout button render issues
