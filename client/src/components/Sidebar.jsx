@@ -9,7 +9,7 @@ import BuyWiseLogo from '../assets/BuyWiseLogo.png';
 export default function Sidebar() {
     const navigate = useNavigate();
     const location = useLocation();  
-    const isAuthenticated = false; //TO REMOVE
+    const isAuthenticated = true; //TO REMOVE
     const user = null; //TO REMOVE
     const isLoading = false; //TO REMOVE
 
@@ -66,11 +66,11 @@ export default function Sidebar() {
                     ) : (
                         <div className="sidebar-user-info">
                             <img
-                                src={user.picture}
-                                alt={user.name}
+                                src={user?.picture}
+                                alt={user?.name}
                                 className="user-avatar"
                             />
-                            <div className="user-name">{user.name}</div>
+                            <div className="user-name">{user?.name}</div>
                             <button
                                 onClick={() => {/* TO ADD LOGOUT LOGIC LATER */}}
                                 className="auth-button logout-button"

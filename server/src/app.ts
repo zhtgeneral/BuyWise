@@ -7,7 +7,7 @@ import profileRoutes from './routes/profile';
 import authRoutes from './routes/auth';
 import productsRoutes from './routes/products';
 import { authMiddleware } from './middleware/auth';
-import { postChat } from './api/chatbot';
+import { postChat } from './routes/chatbot';
 
 const cookieParser = require('cookie-parser');
 

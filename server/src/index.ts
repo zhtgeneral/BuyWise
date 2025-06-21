@@ -11,7 +11,7 @@ import authRoutes from './routes/auth';
 import productsRoutes from './routes/products';
 import { authMiddleware } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
-import { postChat } from './api/chatbot';
+import { postChat } from './routes/chatbot';
 
 const test_products = require('../static/products.json');
 
