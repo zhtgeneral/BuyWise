@@ -1,5 +1,3 @@
-// Split into app.ts and server.ts
-
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
@@ -13,8 +11,6 @@ import chatRoutes from './routes/chat';
 import { authMiddleware } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
-
-const test_products = require('../static/products.json');
 
 dotenv.config();
 
@@ -88,9 +84,9 @@ connectDB().then(() => {
 
   app.post('/api/chatbot', postChat);
 
-  app.get('/api/test-products', (req: Request, res: Response) => {
-    return res.json(test_products);
-  })
+  // app.get('/api/test-products', (req: Request, res: Response) => {
+  //   return res.json(test_products);
+  // })
   app.use('/api/profiles', profileRoutes);
   app.use('/api/products', productsRoutes);
   app.use('/api/chats', chatRoutes);

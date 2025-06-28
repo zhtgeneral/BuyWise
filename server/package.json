@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:old": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "nodemon src/index.ts",
     "debug": "ls && cat package.json && ls node_modules",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "mocha --require ts-node/register 'src/**/*.test.ts' --timeout 10000"
+    "test": "mocha --require ts-node/register src/tests/**/*.test.ts --timeout 20000",
+    "test:chatbot": "mocha --require ts-node/register src/tests/integration/chatbot.test.ts --timeout 20000",
+    "test:auth": "mocha --require ts-node/register src/tests/unit/authService.test.ts --timeout 20000",
+    "test:product": "mocha --require ts-node/register src/tests/integration/products.test.ts --timeout 20000"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",
@@ -28,6 +32,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
     "nodemailer": "^7.0.3",
+    "nodemon": "^3.1.10",
     "resend": "^4.6.0",
     "serpapi": "^2.1.0",
     "swagger-jsdoc": "^6.2.8",
@@ -40,14 +45,16 @@
     "@types/mocha": "^10.0.10",
     "@types/node": "^20",
     "@types/sinon": "^17.0.4",
+    "@types/sinon-chai": "^4.0.0",
     "@types/supertest": "^6.0.3",
     "chai": "^5.2.0",
     "eslint": "^9",
     "mocha": "^11.7.0",
     "sinon": "^21.0.0",
+    "sinon-chai": "^4.0.0",
     "supertest": "^7.1.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5"
+    "typescript": "^5.8.3"
   }
 }

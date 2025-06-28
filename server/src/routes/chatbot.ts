@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { chatCompletionGithubModel } from '../ai/Github';
-import axios from 'axios';
 import { randomUUID } from 'crypto';
 import { ProductService } from '../services/ProductService';
+import { AIService } from '../services/AIService';
 
 
 // TODO should we make this route protected?
@@ -43,27 +42,34 @@ import { ProductService } from '../services/ProductService';
  */
 export const postChat = async (req: Request, res: Response) => {  
   const { message } = req.body;
-  if (!message) {
-    console.log(`/api/chatbot POST did not recieve message: ${message}`);
+
+  if (message === undefined) {
+    console.error(`/api/chatbot POST did not recieve message: ${message}`);
     return res.status(400).json({ error: 'Message is required' });
   }
+
   if (typeof message !== "string") {
-    console.log(`/api/chatbot POST recieved message with type of: ${typeof message}`);
+    console.error(`/api/chatbot POST recieved message with type of: ${typeof message}`);
     return res.status(400).json({ error: 'Message must be a string' });
+  }
+  
+  if (message === '') {
+    console.error(`/api/chatbot POST did not recieve message: ${message}`);
+    return res.status(400).json({ error: 'Message cannot be empty' });
   }
 
   try {
-    var chatbotResponse = await chatCompletionGithubModel(message);
+    var chatbotResponse = await AIService.chatCompletionGithubModel(message);
     console.log('/api/chatbot POST got chatbotResponse: ' + JSON.stringify(chatbotResponse, null, 2));
   } catch (error: unknown) {
     /** Chatbot fails */
-    console.log(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
-    return res.status(500);    
+    console.error(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
+    return res.status(500).json({ error: "Unable to call chatbot API" });    
   }
 
-  if (!chatbotResponse) {
-    console.log('/api/chatbot POST recieved incomplete response from AI');
-    return res.status(500).json({ error: 'AI response was incomplete' });
+  if (!chatbotResponse || !chatbotResponse.chatbotMessage) {
+    console.error('/api/chatbot POST recieved incomplete response from AI');
+    return res.status(500).json({ error: 'AI unable to respond' });
   }
 
   if (!chatbotResponse.productRequested) {
@@ -79,7 +85,7 @@ export const postChat = async (req: Request, res: Response) => {
     console.log("/api/chatbot POST enrichedProducts: " + JSON.stringify(enrichedProducts.slice(0, 1), null, 2));
   } catch (error: any) {
     /** Chatbot works but Product fails */
-    console.log('/api/chatbot POST unable to search for products' + JSON.stringify(error, null, 2));
+    console.error('/api/chatbot POST unable to search for products' + JSON.stringify(error, null, 2));
     return res.status(200).json({
       chatbotMessage: chatbotResponse.chatbotMessage,
       productData: []

@@ -2,10 +2,12 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import jwt from 'jsonwebtoken';
 process.env.JWT_SECRET = "test-secret";
-import { AuthService } from '../services/authService';
-import { UserService } from '../services/UserService';
-import { ProfileService } from '../services/ProfileService';
-import { AppError } from '../utils/AppError';
+import { AuthService } from '../../services/authService';
+import { UserService } from '../../services/UserService';
+import { ProfileService } from '../../services/ProfileService';
+import { AppError } from '../../utils/AppError';
+
+// TODO this has bugs Error: Timeout of 10000ms exceeded. For async tests and hooks, ensure "done()" is called; if returning a Promise, ensure it resolves. (...\team10\server\src\tests\unit\authService.test.ts)// 
 
 describe('authService', () => {
   afterEach(() => {

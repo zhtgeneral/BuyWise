@@ -5,6 +5,8 @@ import { UserService } from '../services/UserService';
 
 const router = express.Router();
 
+// TODO add backend validation
+
 /**
  * @swagger
  * /api/profiles/verify/{token}:

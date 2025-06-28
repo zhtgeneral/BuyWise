@@ -3,6 +3,8 @@ import { ChatService } from '../services/ChatService';
 
 const router = express.Router();
 
+// TODO add backend validation
+
 /**
  * @swagger
  * /api/chat:

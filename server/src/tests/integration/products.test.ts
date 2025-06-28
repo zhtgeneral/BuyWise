@@ -2,8 +2,10 @@ import express from 'express';
 import request from 'supertest';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import productsRouter from '../routes/products';
-import { ProductService } from '../services/ProductService';
+import productsRouter from '../../routes/products';
+import { ProductService } from '../../services/ProductService';
+
+// TODO first test fails
 
 describe('Products API', () => {
   let app: express.Express;

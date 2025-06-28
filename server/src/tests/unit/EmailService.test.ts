@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import nodemailer from 'nodemailer';
-import * as emailService from '../services/EmailService';
+import * as emailService from '../../services/EmailService';
 
 describe('EmailService', () => {
   let sendMailStub: sinon.SinonStub;
