@@ -37,7 +37,7 @@ export default function ChatPage() {
           chatRef.current,
           emailRef.current
         );
-        const payload = { messages: chatRef.current, email: emailRef.current };
+        const payload = { messages: chatRef.current, email: "Rizz@mail.ca"}; // temporary email
         axios.post("http://localhost:3000/api/chats", payload); // fire-and-forget
         dispatch(clearChat());
       }
@@ -51,7 +51,7 @@ export default function ChatPage() {
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (chatRef.current.length > 0) {
-        const payload = { messages: chatRef.current, email: emailRef.current };
+        const payload = { messages: chatRef.current, email: "Rizz@mail.ca" }; // temporary email
         navigator.sendBeacon("http://localhost:3000/api/chats", JSON.stringify(payload));
         dispatch(clearChat());
       }
