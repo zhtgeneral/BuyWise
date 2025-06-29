@@ -141,7 +141,11 @@ const router = express.Router();
  */
 router.get('/search', async (req: Request, res: Response) => {
   try {
+    /** Note q gets converted into a string by axios */
+    /** if q is an array, it becomes undefined */
     const { q, device = 'mobile', location } = req.query;
+
+    console.log("type of query " + typeof q);
 
     if (!q || typeof q !== 'string') {
       return res.status(400).json({
@@ -159,7 +163,7 @@ router.get('/search', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    console.error('Product search error:', error);
+    console.error('/api/products/search GET Product search error: ', error);
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch products from SerpAPI'

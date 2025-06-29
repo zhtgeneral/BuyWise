@@ -5,8 +5,6 @@ import { expect } from 'chai';
 import productsRouter from '../../routes/products';
 import { ProductService } from '../../services/ProductService';
 
-// TODO first test fails
-
 describe('Products API', () => {
   let app: express.Express;
 
@@ -62,7 +60,7 @@ describe('Products API', () => {
 
       expect(res.status).to.equal(200);
       expect(res.body.success).to.be.true;
-      expect(res.body.data).to.deep.equal(fakeProducts);
+      expect(res.body.products).to.deep.equal(fakeProducts);
     });
 
     it('should return 400 if the search query is missing', async () => {
