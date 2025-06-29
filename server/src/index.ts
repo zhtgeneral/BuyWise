@@ -11,6 +11,7 @@ import chatRoutes from './routes/chat';
 import { authMiddleware } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
+// import { postRegister } from './routes/auth';
 
 dotenv.config();
 
@@ -92,6 +93,7 @@ connectDB().then(() => {
   app.use('/api/chats', chatRoutes);
 
   app.use('/api/auth', authRoutes);
+  // app.post('/api/auth/register', postRegister);
 
   // Protected route (requires JWT)
   app.get('/api/protected', authMiddleware, (req: Request, res: Response) => {

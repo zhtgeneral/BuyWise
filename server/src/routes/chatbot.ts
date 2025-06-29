@@ -3,9 +3,6 @@ import { randomUUID } from 'crypto';
 import { ProductService } from '../services/ProductService';
 import { AIService } from '../services/AIService';
 
-
-// TODO should we make this route protected?
-
 /**
  * @swagger
  * /api/chatbot:

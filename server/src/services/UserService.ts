@@ -3,37 +3,32 @@ import { sendVerificationEmail } from './EmailService';
 import { AppError } from '../utils/AppError';
 
 export class UserService {
-  // Create a new user
+  /**
+   * Assume email doesn't already exist in db.
+   * 
+   * Create and return a user in db. The returned user does not contain the password and is a JSON.
+   * 
+   * The user is auto verified.
+   */
   static async createUser(userData: { name: string; email: string; password: string }): Promise<IUser> {
-    try {
-      console.log('Creating user with email:', userData.email);
-      
-      const user = new User(userData);
-      // Auto-verify the user instead of sending verification email
-      user.isEmailVerified = true;
-      await user.save();
-
-      console.log('User created successfully:', user.email);
-      return user;
+    try {      
+      var createdUser = new User(userData);
+      createdUser.isEmailVerified = true;      
     } catch (error: any) {
-      console.log('UserService createUser error:', {
-        message: error.message,
-        code: error.code,
-        name: error.name
-      });
-      
-      if (error.code === 11000) {
-        throw new AppError('Email already exists', 400);
-      }
-      
-      // Handle validation errors
-      if (error.name === 'ValidationError') {
-        const validationErrors = Object.values(error.errors).map((err: any) => err.message);
-        throw new AppError(validationErrors.join(', '), 400);
-      }
-      
+      console.error("UserService::createUser error in creating user: " + JSON.stringify(error, null, 2));                
       throw error;
     }
+
+    try {
+      await createdUser.save();
+    } catch (error: any) {
+      console.error("UserService::createUser error encrypting password: " + JSON.stringify(error, null, 2));
+      throw error;
+    }
+
+    console.log('UserService::createUser User created successfully:', createdUser.email);
+    const userWithoutPassword = await User.findById(createdUser._id).select('-password');
+    return userWithoutPassword.toObject();
   }
 
   // Verify email
