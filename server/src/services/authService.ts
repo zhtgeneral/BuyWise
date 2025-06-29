@@ -5,7 +5,7 @@ import { Document } from 'mongoose';
 import { UserService } from './UserService';
 import { ProfileService } from './ProfileService';
 
-interface RegisterData {
+interface AuthData {
   token: string,
   user: Partial<IUser>
 }
@@ -22,7 +22,7 @@ export class AuthService {
    * 
    * Assume that email doesn't already exist in db.
    */
-  static async register(name: string, email: string, passwordData: string): Promise<RegisterData> {
+  static async register(name: string, email: string, passwordData: string): Promise<AuthData> {
     const user = await UserService.createUser({ name, email, password: passwordData });
 
     await ProfileService.createProfile(
@@ -59,7 +59,7 @@ export class AuthService {
    * 
    * Validate the user before calling this function in the endpoint.
    */
-  static async login(user: IUser): Promise<{ token: string; user: Partial<IUser> }> {    
+  static async login(user: Partial<IUser>): Promise<AuthData> {    
     const payload: CustomJwtPayload = {
       id: (user as Document & { _id: any })._id.toString()
     };
@@ -68,10 +68,7 @@ export class AuthService {
       expiresIn: this.JWT_EXPIRES_IN
     } as SignOptions);
 
-    const { 
-      password: _, 
-      ...userWithoutPassword 
-    } = user.toObject();
+    const userWithoutPassword = await UserService.getUserByEmail(user.email, false);
 
     return {
       token: token,

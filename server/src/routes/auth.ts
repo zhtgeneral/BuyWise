@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import User from '../models/User';
+import { UserService } from '../services/UserService';
 
 const router = express.Router();
 
@@ -26,8 +27,8 @@ router.post('/register', async (req: Request, res: Response) => {
     });
   }
 
-  try {
-    var existingUser = await User.findOne({ email: email });
+  try {   
+    var existingUser = await UserService.getUserByEmail(email);
   } catch (error: any) {
     console.error('/api/register POST Registration error: ', JSON.stringify(error, null, 2));
     return res.status(500).json({
@@ -79,7 +80,7 @@ router.post('/login', async (req, res) => {
     })
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  const user = await UserService.getUserByEmail(email, true);
   if (!user) {
     return res.status(401).json({
       success: false,

@@ -10,7 +10,7 @@ export class UserService {
    * 
    * The user is auto verified.
    */
-  static async createUser(userData: { name: string; email: string; password: string }): Promise<IUser> {
+  static async createUser(userData: { name: string; email: string; password: string }): Promise<Partial<IUser>> {
     try {      
       var createdUser = new User(userData);
       createdUser.isEmailVerified = true;      
@@ -27,11 +27,10 @@ export class UserService {
     }
 
     console.log('UserService::createUser User created successfully:', createdUser.email);
-    const userWithoutPassword = await User.findById(createdUser._id).select('-password');
-    return userWithoutPassword.toObject();
+    const userWithoutPassword = await UserService.getUserByEmail(userData.email);
+    return userWithoutPassword;
   }
 
-  // Verify email
   static async verifyEmail(token: string): Promise<void> {
     const user = await User.findOne({
       verificationToken: token,
@@ -48,7 +47,6 @@ export class UserService {
     await user.save();
   }
 
-  // Resend verification email
   static async resendVerificationEmail(email: string): Promise<void> {
     const user = await User.findOne({ email });
     if (!user) {
@@ -65,22 +63,30 @@ export class UserService {
     await sendVerificationEmail(email, verificationToken);
   }
 
-  // Get user by ID
-  static async getUserById(id: string): Promise<IUser> {
-    const user = await User.findById(id).select('+password');
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-    return user;
+  /**
+   * Return user as json format for frontend
+   */
+  static async getUserById(id: string, showPassword = false): Promise<Partial<IUser>> {
+    let user;
+    if (showPassword) {
+      user = await User.findById(id).select('+password');
+    } else {
+      user = await User.findById(id).select('-password');
+    }  
+    return user?.toObject();
   }
 
-  // Get user by email
-  static async getUserByEmail(email: string): Promise<IUser> {
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-    return user;
+  /**
+   * Return user as json format for frontend
+   */
+  static async getUserByEmail(email: string, showPassword = false): Promise<Partial<IUser>> {
+    let user;
+    if (showPassword) {
+      user = await User.findOne({ email }).select('+password');
+    } else {
+      user = await User.findOne({ email }).select('-password');
+    }  
+    return user?.toObject();
   }
 
   // Update user

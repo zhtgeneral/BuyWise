@@ -7,6 +7,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { AuthService } from '../../services/authService';
 import User, { IUser } from '../../models/User';
 import authRoutes from '../../routes/auth';
+import { UserService } from '../../services/UserService';
 
 process.env.JWT_SECRET = "test-secret";
 
@@ -118,7 +119,7 @@ describe('Auth API', () => {
     });
 
     it('should return 500 for failed email validation', async () => {      
-      sinon.stub(User, 'findOne').throws(new Error("Error related to searching user with email"));
+      sinon.stub(UserService, 'getUserByEmail').throws(new Error("Error related to searching user with email"));
 
       const response = await request(app)
         .post('/api/auth/register')
@@ -136,13 +137,13 @@ describe('Auth API', () => {
     });
 
     it('should return 400 for existing account', async () => {     
-      sinon.stub(User, 'findOne').resolves({
+      sinon.stub(UserService, 'getUserByEmail').resolves({
         _id: 'existing_id',
         name: 'Existing User',
         email: 'existing@example.com',
         password: 'hashed_password',
         isEmailVerified: true
-      }); 
+      } as IUser); 
 
       const response = await request(app)
         .post('/api/auth/register')
@@ -160,7 +161,7 @@ describe('Auth API', () => {
     });
 
     it('should return 500 for failed register', async () => {        
-      sinon.stub(User, 'findOne').resolves(null);
+      sinon.stub(UserService, 'getUserByEmail').resolves(null);
       sinon.stub(AuthService, 'register').throws(new Error("Unknown error in register"))
 
       const response = await request(app)
@@ -190,7 +191,7 @@ describe('Auth API', () => {
         updatedAt: (new Date()).toISOString(),
       }
 
-      sinon.stub(User, 'findOne').resolves(null);
+      sinon.stub(UserService, 'getUserByEmail').resolves(null);
       sinon.stub(AuthService, 'register').resolves({
         token: '123abc',
         user: fakeUser as unknown as Partial<IUser>
@@ -211,126 +212,164 @@ describe('Auth API', () => {
         data: fakeUser,
         token: '123abc'
       })
-      const payload = jwt.verify(response.body.token, process.env.JWT_SECRET || 'your-secret-key') as JwtPayload;
-      expect(payload.id).to.be('123abc');
     });
-  })
-})    
+  })  
 
   // TODO fix
-  // describe('login', () => {
-  //   it('should return token and user when login succeeds', async () => {
-  //     const fakeUser = {
-  //       email: 'test@example.com',
-  //       isEmailVerified: true,
-  //       password: 'hashed-password',
-  //       comparePassword: sinon.stub().resolves(true),
-  //       toObject: () => ({
-  //         email: 'test@example.com',
-  //         isEmailVerified: true,
-  //       }),
-  //       _id: '123abc'
-  //     };
+  describe('/api/auth/login POST', () => {
+    it('should return 400 for missing email', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          password: 'hashed-password'
+        })
+        .expect(400)
 
-  //     sinon.stub(UserService, 'getUserByEmail').resolves(fakeUser as any);
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Email and password are required"
+      })
+    })
 
-  //     const result = await AuthService.login('test@example.com', 'valid-password');
+    it('should return 400 for missing password', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: "test@example.com"
+        })
+        .expect(400)
 
-  //     expect(result).to.have.property('token').that.is.a('string');
-  //     expect(result.user).to.include({
-  //       email: 'test@example.com',
-  //       isEmailVerified: true,
-  //     });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Email and password are required"
+      })
+    })
 
-  //     const payload = jwt.verify(result.token, process.env.JWT_SECRET || 'your-secret-key') as any;
-  //     expect(payload).to.have.property('id', '123abc');
-  //   });
+    it('should return 400 for non string email', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 123,
+          password: 'test-hash'
+        })
+        .expect(400)
 
-  //   it('should throw an error when user is not found', async () => {
-  //     sinon.stub(UserService, 'getUserByEmail').rejects(new AppError('User not found', 404));
-    
-  //     try {
-  //       await AuthService.login('notfound@example.com', 'any-password');
-  //       throw new Error('Expected method to throw.');
-  //     } catch (err: any) {
-  //       expect(err).to.have.property('message', 'Invalid email or password');
-  //       expect(err).to.have.property('statusCode', 401);
-  //     }
-  //   });
-    
-  //   it('should throw an error when email is not verified', async () => {
-  //     const fakeUser = {
-  //       email: 'test@example.com',
-  //       isEmailVerified: false,
-  //       password: 'hashed-password',
-  //       comparePassword: sinon.stub().resolves(true),
-  //       toObject: () => ({
-  //         email: 'test@example.com',
-  //         isEmailVerified: false,
-  //       }),
-  //       _id: '123abc'
-  //     };
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Email and password must be strings"
+      })
+    })
 
-  //     sinon.stub(UserService, 'getUserByEmail').resolves(fakeUser as any);
+    it('should return 400 for non string password', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 123
+        })
+        .expect(400)
 
-  //     try {
-  //       await AuthService.login('test@example.com', 'valid-password');
-  //       throw new Error('Expected method to throw.');
-  //     } catch (err: any) {
-  //       expect(err).to.be.instanceOf(AppError);
-  //       expect(err.message).to.equal('Please verify your email before logging in');
-  //       expect(err.statusCode).to.equal(401);
-  //     }
-  //   });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Email and password must be strings"
+      })
+    })
 
-  //   it('should throw an error when password is invalid', async () => {
-  //     const fakeUser = {
-  //       email: 'test@example.com',
-  //       isEmailVerified: true,
-  //       password: 'hashed-password',
-  //       comparePassword: sinon.stub().resolves(false),
-  //       toObject: () => ({
-  //         email: 'test@example.com',
-  //         isEmailVerified: true,
-  //       }),
-  //       _id: '123abc'
-  //     };
+    it('should return 401 for bad email', async () => {
+      sinon.stub(UserService, 'getUserByEmail').resolves(null);
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'test-hash'
+        })
+        .expect(401)
 
-  //     sinon.stub(UserService, 'getUserByEmail').resolves(fakeUser as any);
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Invalid email or password"
+      })
+    })
 
-  //     try {
-  //       await AuthService.login('test@example.com', 'wrong-password');
-  //       throw new Error('Expected method to throw.');
-  //     } catch (err: any) {
-  //       expect(err).to.be.instanceOf(AppError);
-  //       expect(err.message).to.equal('Invalid email or password');
-  //       expect(err.statusCode).to.equal(401);
-  //     }
-  //   });
+    it('should return 401 for unverified email', async () => {
+      const unverifiedUser = {
+        name: 'test name',
+        email: 'test@example.com',
+        password: 'test-hash',
+        isEmailVerified: false
+      }
+      sinon.stub(UserService, 'getUserByEmail').resolves(unverifiedUser);
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'test-hash'
+        })
+        .expect(401)
 
-  //   it('should throw an error if password field is missing', async () => {
-  //     const fakeUser = {
-  //       email: 'test@example.com',
-  //       isEmailVerified: true,
-  //       comparePassword: sinon.stub().resolves(false),
-  //       toObject: () => ({
-  //         email: 'test@example.com',
-  //         isEmailVerified: true,
-  //       }),
-  //       _id: '123abc'
-  //     };
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Please verify your email before logging in"
+      })
+    })
 
-  //     sinon.stub(UserService, 'getUserByEmail').resolves(fakeUser as any);
+    it('should return 500 for unknown error during login', async () => {
+      const userWithPassword = {
+        _id: 'test_id',
+        email: 'test@example.com',
+        password: 'test-hash',
+        isEmailVerified: true
+      }
 
-  //     try {
-  //       await AuthService.login('test@example.com', 'any-password');
-  //       throw new Error('Expected method to throw.');
-  //     } catch (err: any) {
-  //       expect(err).to.be.instanceOf(AppError);
-  //       expect(err.message).to.equal('Invalid email or password');
-  //       expect(err.statusCode).to.equal(401);
-  //     }
-  //   });
-  // });
-// });
+      sinon.stub(UserService, 'getUserByEmail').resolves(userWithPassword);
+      sinon.stub(AuthService, 'login').throws(new Error("Some error during login"));
+
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'test-hash'
+        })
+        .expect(500)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: "Unknown authentication error"
+      })
+    })
+
+    it('should return 200 with token and user for successful login', async () => {
+      const userWithPassword = {
+        email: 'test@example.com',
+        password: 'hashed-password',
+        isEmailVerified: true,
+      };    
+      const {
+        password, 
+        ...userWithoutPassword
+      } = userWithPassword
+
+      sinon.stub(UserService, 'getUserByEmail').resolves(userWithPassword);
+      sinon.stub(AuthService, 'login').resolves({
+        token: 'token123',
+        user: userWithoutPassword
+      })
+
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'test@example.com',
+          password: 'hashed-password'
+        })
+        .expect(200)
+
+      expect(response.body).to.deep.equal({
+        success: true,
+        message: 'Login successful',
+        data: userWithoutPassword,
+        token: 'token123'
+      })
+    })
+  });
+});
 
