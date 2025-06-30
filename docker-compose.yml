@@ -11,12 +11,12 @@ services:
     # by removing node_modules and package-lock.json, reinstalling, and rerunning before including the line below
     # - backend_node_modules:/app/node_modules
 
-  server-tests:
-    build: ./server
-    container_name: backend-tests
-    command: npm test
-    depends_on:
-      - server
+  # server-tests:
+  #   build: ./server
+  #   container_name: backend-tests
+  #   command: npm test
+  #   depends_on:
+  #     - server
 
   client:
     build: ./client

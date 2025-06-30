@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { randomUUID } from 'crypto';
-import { ProductService } from '../services/ProductService';
-import { AIService } from '../services/AIService';
+import { chatWithAgent } from '../agent/chatbotAgent';
+
+
+// TODO should we make this route protected?
 
 /**
  * @swagger
@@ -29,9 +30,31 @@ import { AIService } from '../services/AIService';
  *             schema:
  *               type: object
  *               properties:
- *                 chatbotResponse:
+ *                 chatbotMessage:
  *                   type: string
  *                   description: The AI's response
+ *                 productData:
+ *                   type: array
+ *                   description: Product data if products were found (null if no products)
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       source:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       image:
+ *                         type: string
+ *                       price:
+ *                         type: number
+ *                       url:
+ *                         type: string
+ *                       rating:
+ *                         type: number
+ *                       reviews:
+ *                         type: number
  *       400:
  *         description: Invalid request - message is required or invalid
  *       500:
@@ -39,14 +62,13 @@ import { AIService } from '../services/AIService';
  */
 export const postChat = async (req: Request, res: Response) => {  
   const { message } = req.body;
-
-  if (message === undefined) {
-    console.error(`/api/chatbot POST did not recieve message: ${message}`);
+  if (!message) {
+    console.log(`/api/chatbot POST did not receive message: ${message}`);
     return res.status(400).json({ error: 'Message is required' });
   }
 
   if (typeof message !== "string") {
-    console.error(`/api/chatbot POST recieved message with type of: ${typeof message}`);
+    console.log(`/api/chatbot POST received message with type of: ${typeof message}`);
     return res.status(400).json({ error: 'Message must be a string' });
   }
   
@@ -56,62 +78,18 @@ export const postChat = async (req: Request, res: Response) => {
   }
 
   try {
-    var chatbotResponse = await AIService.chatCompletionGithubModel(message);
-    console.log('/api/chatbot POST got chatbotResponse: ' + JSON.stringify(chatbotResponse, null, 2));
+    // Not sure if it's sufficient to just use sessionId, figure it out later
+    const sessionId = req.ip || 'default';
+    
+    const agentResponse = await chatWithAgent(message, sessionId);
+    console.log('/api/chatbot POST got LangChain response: ' + agentResponse.message);
+    
+    return res.status(200).json({
+      chatbotMessage: agentResponse.message,
+      productData: agentResponse.productData
+    });
   } catch (error: unknown) {
-    /** Chatbot fails */
-    console.error(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
-    return res.status(500).json({ error: "Unable to call chatbot API" });    
+    console.log(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
+    return res.status(500).json({ error: 'AI response failed' });    
   }
-
-  if (!chatbotResponse || !chatbotResponse.chatbotMessage) {
-    console.error('/api/chatbot POST recieved incomplete response from AI');
-    return res.status(500).json({ error: 'AI unable to respond' });
-  }
-
-  if (!chatbotResponse.productRequested) {
-    /** Chatbot works and no product requested */
-    return res.status(200).json({
-      chatbotMessage: chatbotResponse.chatbotMessage,
-      productData: null
-    });
-  }
-
-  try {
-    var enrichedProducts = await ProductService.searchProducts(chatbotResponse.productQuery);
-    console.log("/api/chatbot POST enrichedProducts: " + JSON.stringify(enrichedProducts.slice(0, 1), null, 2));
-  } catch (error: any) {
-    /** Chatbot works but Product fails */
-    console.error('/api/chatbot POST unable to search for products' + JSON.stringify(error, null, 2));
-    return res.status(200).json({
-      chatbotMessage: chatbotResponse.chatbotMessage,
-      productData: []
-    });
-  }
-
-  /** Chatbot and Product works */
-  const formattedData = formatProductForFrontend(enrichedProducts);
-  console.log("/api/chatbot POST formattedData: " + JSON.stringify(formattedData.slice(0,10), null, 2));
-  return res.status(200).json({
-    chatbotMessage: chatbotResponse.chatbotMessage,
-    productData: formattedData
-  });
-}
-
-
-function formatProductForFrontend(products: any[]) {
-  const formattedProducts = products.map((p) => {
-    console.log("formatProductForFrontend: product seller details" + JSON.stringify(p.seller_details, null, 2));
-    return {
-      id: p.product_id || randomUUID(),
-      source: p.source || "",
-      title: p.title || "",
-      image: p.thumbnail || "",
-      price: p.extracted_price || 0,
-      url: p.seller_details.direct_link || "",
-      rating: p.rating || 0, // new field
-      reviews: p.reviews || 0 // new field
-    }
-  })
-  return formattedProducts;
 }
