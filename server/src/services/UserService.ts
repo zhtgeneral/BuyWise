@@ -31,16 +31,12 @@ export class UserService {
     return userWithoutPassword;
   }
 
-  static async verifyEmail(token: string): Promise<void> {
-    const user = await User.findOne({
-      verificationToken: token,
-      verificationTokenExpires: { $gt: Date.now() }
-    });
-
-    if (!user) {
-      throw new AppError('Invalid or expired verification token', 400);
-    }
-
+  /**
+   * Verfies the email of the user.
+   * 
+   * This assumes that the token exists for a user in the db.
+   */
+  static async verifyEmail(user: Partial<IUser>): Promise<void> {    
     user.isEmailVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpires = undefined;
@@ -61,6 +57,18 @@ export class UserService {
     await user.save();
 
     await sendVerificationEmail(email, verificationToken);
+  }
+
+  /**
+   * This gets the user without the password by searching for valid token.
+   */
+  static async getUserByToken(token: string): Promise<Partial<IUser>> {
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpires: { $gt: Date.now() }
+    }).select('-password').exec();
+    
+    return user.toObject();
   }
 
   /**

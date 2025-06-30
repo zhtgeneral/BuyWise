@@ -5,8 +5,6 @@ import { UserService } from '../services/UserService';
 
 const router = express.Router();
 
-// TODO add backend validation
-
 /**
  * @swagger
  * /api/profiles/verify/{token}:
@@ -25,19 +23,47 @@ const router = express.Router();
  *       400:
  *         description: Invalid or expired token
  */
-router.get('/verify/:token', async (req: Request, res: Response) => {
-  try {
-    await UserService.verifyEmail(req.params.token);
-    res.status(200).json({
-      success: true,
-      message: 'Email verified successfully'
-    });
-  } catch (error: any) {
-    res.status(400).json({
+router.get('/verify/:token?', async (req: Request, res: Response) => {
+  /** token is guaranteed to be a string becuase it is on params */
+  const { token } = req.params;
+
+  if (!token) {
+    return res.status(400).json({
       success: false,
-      error: error.message
+      error: 'token missing from params'
+    })
+  }
+
+  try {
+    var user = await UserService.getUserByToken(token);
+  } catch (error: any) {
+    console.error("/api/profiles/verify/:token? GET error when getting user: " + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to get user'
     });
   }
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      error: 'Invalid or expired verification token'
+    })
+  }
+
+  try {
+    await UserService.verifyEmail(user);    
+  } catch (error: any) {
+    console.error("/api/profiles/verify/:token? GET error when verifying email " + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to verify email'
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: 'Email verified successfully'
+  });
 });
 
 /**

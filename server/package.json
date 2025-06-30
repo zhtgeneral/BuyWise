@@ -12,7 +12,9 @@
     "test:chatbot": "mocha --require ts-node/register src/tests/integration/chatbot.test.ts --timeout 20000",
     "test:auth": "mocha --require ts-node/register src/tests/integration/auth.test.ts --timeout 20000",
     "test:product": "mocha --require ts-node/register src/tests/integration/products.test.ts --timeout 20000",
-    "test:chat": "mocha --require ts-node/register src/tests/integration/chat.test.ts --timeout 20000"
+    "test:chat": "mocha --require ts-node/register src/tests/integration/chat.test.ts --timeout 20000",
+    "test:profile": "mocha --require ts-node/register src/tests/integration/profile.test.ts --timeout 20000",
+    "test:integration": "mocha --require ts-node/register src/tests/integration/*.test.ts --timeout 20000"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",
