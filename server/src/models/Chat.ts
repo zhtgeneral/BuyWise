@@ -1,5 +1,16 @@
 import mongoose from 'mongoose';
 
+export interface IMessage {
+  speaker: string,
+  text: string,
+  timestamp?: string
+}
+export interface IChat {
+  messages: IMessage[],
+  email: string,
+  createdAt?: string
+}
+
 const MessageSchema = new mongoose.Schema({
   speaker: {
     type: String,

@@ -3,8 +3,6 @@ import { ChatService } from '../services/ChatService';
 
 const router = express.Router();
 
-// TODO add backend validation
-
 /**
  * @swagger
  * /api/chat:
@@ -53,13 +51,44 @@ const router = express.Router();
  *         description: Failed to save chat
  */
 router.post('/', async (req, res) => {
-  try {
-    const { messages, email } = req.body;
-    const chat = await ChatService.saveChat(messages, email);
-    res.status(201).json(chat);
-  } catch (err: any) {
-    res.status(err.statusCode || 500).json({ error: err.message || 'Failed to save chat.' });
+  const { messages, email } = req.body;
+  if (messages === undefined || email === undefined) {
+    return res.status(400).json({
+      success: false,
+      error: "messages and email required"
+    })
   }
+  if (typeof email !== 'string') {
+    return res.status(400).json({
+      success: false,
+      error: "email needs to be a string"
+    })
+  }
+  if (!Array.isArray(messages)) {
+    return res.status(400).json({
+      success: false,
+      error: "messages needs to be an array"
+    })
+  }
+  if(messages.some((m) => !isProperMessage(m))) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid speaker or text found on message"
+    })
+  }
+
+  try {
+    var chat = await ChatService.saveChat(messages, email);    
+  } catch (error: any) {
+    console.error("/api/chat POST error " + JSON.stringify(error, null, 2));
+    res.status(500).json({ 
+      success: false,
+      error: 'Unable to save chat' 
+    });
+  }
+
+  console.log("/api/chat POST created chat: " + JSON.stringify(chat, null, 2));
+  res.status(201).json(chat);
 });
 
 /**
@@ -101,3 +130,14 @@ router.get('/', async (req, res) => {
 });
 
 export default router;
+
+function isProperMessage(message: any) {
+  const { speaker, text } = message;
+  if (speaker === undefined || !['user', 'bot'].includes(speaker)) {
+    return false;
+  }
+  if (text === undefined || typeof text !== 'string') {
+    return false;
+  }
+  return true;
+}
