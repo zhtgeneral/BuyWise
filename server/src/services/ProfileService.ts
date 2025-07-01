@@ -5,7 +5,7 @@ export class ProfileService {
   // Create a new profile for a user
   static async createProfile(userId: string, profileData: Partial<IProfile>): Promise<IProfile> {
     try {
-      console.log('Creating profile for userId:', userId);
+      console.log('Creating profile for userId:', profileData);
       
       const profile = new Profile({
         userId,

@@ -24,6 +24,8 @@ export interface IProfile extends Document {
   };
   createdAt: Date;
   updatedAt: Date;
+
+  email: string;
 }
 
 const ProfileSchema: Schema = new Schema({
@@ -71,6 +73,10 @@ const ProfileSchema: Schema = new Schema({
     state: String,
     zipCode: String,
     country: String
+  },
+  email: {
+    type: String,
+    required: true
   }
 }, {
   timestamps: true

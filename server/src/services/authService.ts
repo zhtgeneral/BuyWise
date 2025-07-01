@@ -24,8 +24,9 @@ export class AuthService {
    */
   static async register(name: string, email: string, passwordData: string): Promise<AuthData> {
     const user = await UserService.createUser({ name, email, password: passwordData });
-
-    await ProfileService.createProfile(
+    console.log("user", user);
+    
+    const profile = await ProfileService.createProfile(
       (user as Document & { _id: any })._id.toString(), 
       {      
         storage_preference: 'none',
@@ -34,18 +35,22 @@ export class AuthService {
         min_budget: 100,
         max_budget: 1000,
         rating_preference: 3,
-        country: 'Canada'
+        country: 'Canada',
+        email: user.email
       }
     );
+    console.log("profile", profile);
 
     const payload: CustomJwtPayload = {
       id: (user as Document & { _id: any })._id.toString()
     };
-
+    console.log();
+    
     const token = jwt.sign(payload, this.JWT_SECRET, {
       expiresIn: this.JWT_EXPIRES_IN
     } as SignOptions);
-
+    console.log("token", token);
+    
     return {
       token: token,
       user: user
