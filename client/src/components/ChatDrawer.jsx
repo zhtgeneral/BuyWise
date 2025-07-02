@@ -48,13 +48,14 @@ export default function ChatDrawer({
       });
       if (response.status === 200) {
         const chatbotMessage = response.data.chatbotMessage;
-        dispatch(addMessage({ speaker: "bot", text: chatbotMessage }));
-
-        if (response.data.productData && response.data.productData.length > 0) {
-          dispatch(setProducts(response.data.productData));
+        const productData = response.data.productData;
+        const botMessage = { speaker: "bot", text: chatbotMessage };
+        if (productData && productData.length > 0) {
+          botMessage.recommendedProducts = productData;
+          dispatch(setProducts(productData));
           setShowProduct(true);
         }
-        
+        dispatch(addMessage(botMessage));
       } else {
         const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
         dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));

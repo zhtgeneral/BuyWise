@@ -1,9 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface RecommendedProduct {
+  id: string;
+  source: string;
+  title: string;
+  image: string;
+  price: number;
+  url: string;
+  rating?: number;
+  reviews?: number;
+}
+
 export interface ChatMessage {
   speaker: 'user' | 'bot';
   text: string;
   timestamp?: string;
+  recommendedProducts?: RecommendedProduct[];
 }
 
 interface ChatState {
