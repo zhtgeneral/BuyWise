@@ -1,6 +1,82 @@
 import { getJson } from 'serpapi';
+import ProxyLog from '../models/ProxyLog';
+import connectDB from '../lib/db';
 
 export class ProductService {
+  /**
+   * Create a proxy URL with parameters
+   */
+  static async createProxyUrl(originalUrl: string, params: Record<string, any>): Promise<string> {
+    try {
+      // Create query string from params
+      const queryString = new URLSearchParams(params).toString();
+      
+      // Create the redirect URL with query parameters
+      const redirectUrl = queryString ? `${originalUrl}?${queryString}` : originalUrl;
+      
+      // Generate a unique proxy URL using BuyWise prefix and timestamp
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 8);
+      const proxyUrl = `/api/buywise/redirect/${timestamp}-${randomString}`;
+      
+      // Store the proxy mapping in memory or create a temporary entry
+      // We'll use a simple approach: encode the data in the URL itself
+      const encodedData = Buffer.from(JSON.stringify({
+        originalUrl,
+        params,
+        redirectUrl
+      })).toString('base64');
+      
+      // Get the base URL from environment or use default
+      const baseUrl = process.env.API_BASE_URL || process.env.BASE_URL || 'http://localhost:3000';
+      
+      return `${baseUrl}${proxyUrl}?data=${encodedData}`;
+    } catch (error) {
+      console.error('Error creating proxy URL:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get redirect URL and log the user click
+   */
+  static async getRedirectUrl(proxyUrl: string, userId?: string, userAgent?: string, ipAddress?: string): Promise<string | null> {
+    try {
+      // Connect to database
+      await connectDB();
+      
+      // Extract the data from the URL
+      const url = new URL(`http://localhost${proxyUrl}`);
+      const encodedData = url.searchParams.get('data');
+      
+      if (!encodedData) {
+        return null;
+      }
+      
+      // Decode the data
+      const decodedData = JSON.parse(Buffer.from(encodedData, 'base64').toString());
+      const { originalUrl, params, redirectUrl } = decodedData;
+      
+      // Log the user click
+      const proxyLog = new ProxyLog({
+        originalUrl,
+        proxyUrl,
+        params,
+        redirectUrl,
+        userId,
+        userAgent,
+        ipAddress
+      });
+      
+      await proxyLog.save();
+      
+      return redirectUrl;
+    } catch (error) {
+      console.error('Error getting redirect URL:', error);
+      throw error;
+    }
+  }
+
   /**
    * Get seller details from SerpAPI for a specific product
    */
