@@ -272,7 +272,7 @@ describe('Profile API', () => {
       })
     });
 
-    it('should return 401 for JWT error', async () => {
+    it('should return 401 for JWT verification error', async () => {
       sinon.stub(jwt, 'verify').throws(new JsonWebTokenError("Some JWT verification error"));
 
       const response = await request(app)
@@ -286,7 +286,7 @@ describe('Profile API', () => {
       })
     });
 
-    it('should return 500 for JWT error', async () => {
+    it('should return 500 for unknown error JWT', async () => {
       sinon.stub(jwt, 'verify').throws(new Error("Some other error during JWT verification"));
 
       const response = await request(app)
