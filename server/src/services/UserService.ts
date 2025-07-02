@@ -111,19 +111,15 @@ export class UserService {
     return user;
   }
 
-  // Update password
-  static async updatePassword(id: string, currentPassword: string, newPassword: string): Promise<void> {
-    const user = await User.findById(id).select('+password');
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-
-    const isPasswordValid = await user.comparePassword(currentPassword);
-    if (!isPasswordValid) {
-      throw new AppError('Current password is incorrect', 401);
-    }
-
+  /**
+   * Assume user exists in database and currentPassword is correct.
+   */
+  static async updatePassword(user: Partial<IUser>, newPassword: string): Promise<void> {    
     user.password = newPassword;
     await user.save();
+  }
+
+  static async comparePassword(user: Partial<IUser>, currentPassword: string) {
+    return await user.comparePassword(currentPassword) || false;
   }
 } 

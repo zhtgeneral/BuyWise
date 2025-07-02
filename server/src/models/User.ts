@@ -8,9 +8,9 @@ export interface IUser extends Document {
   password: string;
   isEmailVerified: boolean;
   verificationToken?: string;
-  verificationTokenExpires?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  verificationTokenExpires?: string;
+  createdAt: string;
+  updatedAt: string;
   generateVerificationToken(): string;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }

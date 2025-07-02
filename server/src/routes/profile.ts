@@ -361,7 +361,187 @@ router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
   })
 });
 
-// TODO docs
+
+// NOTE PUT THIS ROUTE BEFORE /api/profiles/:userId or else /api/profiles/passwords/:userId will get overwritten!
+/**
+ * @swagger
+ * /api/profiles/passwords/:userId:
+ *   patch:
+ *     summary: Update user password
+ *     tags: [Profiles]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *     responses:
+ *       200:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnknownError:
+ *                 summary: Error during ProfileService getProfileByUserId
+ *                 value:
+ *                   success: true
+ *                   message: Password updated successfully
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingUserId:
+ *                 summary: Recieved request with missing userId from params
+ *                 value:
+ *                   success: false
+ *                   message: userId missing from params
+ *               MissingCurrentPassword:
+ *                 summary: Recieved request with missing currentPassword
+ *                 value:
+ *                   success: false
+ *                   message: currentPassword and newPassword required
+ *               MissingNewPassword:
+ *                 summary: Recieved request with missing newPassword
+ *                 value:
+ *                   success: false
+ *                   message: currentPassword and newPassword required
+ *               NonStringCurrentPassword:
+ *                 summary: Recieved request with non string newPassword
+ *                 value:
+ *                   success: false
+ *                   message: currentPassword and newPassword need to be strings
+ *               NonStringnewPassword:
+ *                 summary: Recieved request with non string currentPassword
+ *                 value:
+ *                   success: false
+ *                   message: currentPassword and newPassword need to be strings
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingAuthToken:
+ *                 summary: Recieved request with missing auth token
+ *                 value:
+ *                   success: false
+ *                   message: No auth token in header
+ *               InvalidJWT:
+ *                 summary: Recieved request with invalid JWT
+ *                 value:
+ *                   success: false
+ *                   message: Invalid JWT
+ *               PasswordIncorrect:
+ *                 summary: Recieved request with incorrect password
+ *                 value:
+ *                   success: false
+ *                   message: Password incorrect
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnconfiguredJWT:
+ *                 summary: JWT not configured in env
+ *                 value:
+ *                   success: false
+ *                   message: JWT not configured
+ *               UnknownJWT:
+ *                 summary: Unknown error occured when verifying JWT
+ *                 value:
+ *                   success: false
+ *                   message: Unknown error
+ *               ErrorFetchUser:
+ *                 summary: Unknown error occured in UserService getUserById
+ *                 value:
+ *                   success: false
+ *                   message: Unknown error during getting user
+ *               ErrorUpdatePassword:
+ *                 summary: Unknown error occured in UserService comparePassword
+ *                 value:
+ *                   success: false
+ *                   message: Unable to update password
+ */
+router.patch('/passwords/:userId?', authenticate, async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  if (!userId) {
+    console.error('/api/profiles/passwords/:userId PATCH userId missing from params')
+    return res.status(400).json({
+      success: false,
+      error: 'userId missing from params'
+    })
+  }
+  const { currentPassword, newPassword } = req.body;  
+  if (!currentPassword || !newPassword) {
+    console.error('/api/profiles/passwords/:userId PATCH missing one of currentPassword or newPassword in body')
+    return res.status(400).json({
+      success: false,
+      error: 'currentPassword and newPassword required'
+    })
+  }
+
+  if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+    console.error('/api/profiles/passwords/:userId PATCH currentPassword or newPassword was non string')
+    return res.status(400).json({
+      success: false,
+      error: 'currentPassword and newPassword need to be strings'
+    })
+  }
+
+  try {
+    var user = await UserService.getUserById(userId, true);
+  } catch (error: any) {
+    console.error('/api/profiles/passwords/:userId PATCH error during getting user: ' + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unknown error during getting user'
+    })
+  }
+
+  if (!user) {
+    console.error('/api/profiles/passwords/:userId PATCH no user found');
+    return res.status(404).json({
+      success: false,
+      error: 'No user found'
+    })
+  }
+
+  const isPasswordValid = await UserService.comparePassword(user, currentPassword);
+  if (!isPasswordValid) {
+    console.error('/api/profiles/passwords/:userId PATCH incorrect password');
+    return res.status(401).json({
+      success: false,
+      error: 'Password incorrect'
+    })
+  }
+
+  try {
+    await UserService.updatePassword(user, newPassword);
+  } catch (error: any) {
+    console.error('/api/profiles/passwords/:userId unknown error during updating password: ' + JSON.stringify(error, null, 2));
+    res.status(500).json({
+      success: false,
+      error: 'Unable to update password'
+    });
+  }
+  console.log('/api/profiles/passwords/:userId successfully updated password');
+  res.status(200).json({
+    success: true,
+    message: 'Password updated successfully'
+  });
+});
+
 /**
  * @swagger
  * /api/profiles/:userId:
@@ -527,56 +707,6 @@ router.patch('/:userId?', authenticate, async (req: Request, res: Response) => {
     message: 'Profile updated successfully',
     data: updatedProfile
   });
-});
-
-/**
- * @swagger
- * /api/profiles/password:
- *   patch:
- *     summary: Update user password
- *     tags: [Profiles]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - currentPassword
- *               - newPassword
- *             properties:
- *               currentPassword:
- *                 type: string
- *               newPassword:
- *                 type: string
- *                 minLength: 8
- *     responses:
- *       200:
- *         description: Password updated successfully
- *       400:
- *         description: Invalid current password
- *       404:
- *         description: User not found
- */
-router.patch('/password', authenticate, async (req: Request, res: Response) => {
-  try {
-    await UserService.updatePassword(
-      req.user!.id,
-      req.body.currentPassword,
-      req.body.newPassword
-    );
-    res.status(200).json({
-      success: true,
-      message: 'Password updated successfully'
-    });
-  } catch (error: any) {
-    res.status(error.message.includes('Current password') ? 400 : 404).json({
-      success: false,
-      error: error.message
-    });
-  }
 });
 
 export default router; 
