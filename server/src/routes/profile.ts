@@ -19,9 +19,50 @@ const router = express.Router();
  *           type: string
  *     responses:
  *       200:
- *         description: Email verified successfully
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             examples:
+ *               AllWorking:
+ *                 summary: Successfully verified email
+ *                 value:
+ *                   success: true
+ *                   message: Email verified successfully
  *       400:
- *         description: Invalid or expired token
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingToken:
+ *                 summary: Request params didn't recieve a token
+ *                 value:
+ *                   success: false
+ *                   error: token missing from params
+ *       404:
+ *         description: Unknown user
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnknownUser:
+ *                 summary: Request params recieved an invalid token
+ *                 value:
+ *                   success: false
+ *                   error: Invalid or expired verification token
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             examples:
+ *               GetUserError:
+ *                 summary: Error with UserService getUserByToken
+ *                 value:
+ *                   success: false
+ *                   error: Unable to get user
+ *               VerifyEmailError:
+ *                 summary: Error with UserService verifyEmail
+ *                 value:
+ *                   success: false
+ *                   error: Unable to verify email
  */
 router.get('/verify/:token?', async (req: Request, res: Response) => {
   /** token is guaranteed to be a string becuase it is on params */
@@ -86,9 +127,60 @@ router.get('/verify/:token?', async (req: Request, res: Response) => {
  *                 format: email
  *     responses:
  *       200:
- *         description: Verification email sent
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             examples:
+ *               AllWorking:
+ *                 summary: Successfully resent verification
+ *                 value:
+ *                   success: true
+ *                   message: Verification email sent
  *       400:
- *         description: Invalid email or user not found
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingEmail:
+ *                 summary: Request didn't recieve an email
+ *                 value:
+ *                   success: false
+ *                   error: email is required
+ *               NonStringEmail:
+ *                 summary: Request recieved an email that wasn't a string
+ *                 value:
+ *                   success: false
+ *                   error: email must be a string
+ *               UserAlreadyVerified:
+ *                 summary: User was already verified and resent verification
+ *                 value:
+ *                   success: false
+ *                   error: email is already verified
+ *       404:
+ *         description: Cannot find user
+ *         content:
+ *           application/json:
+ *             examples:
+ *               CannotFindUser:
+ *                 summary: Request received an unknown email
+ *                 value:
+ *                   success: false
+ *                   error: user cannot be found
+ *       500:
+ *         description: Server Erros
+ *         content:
+ *           application/json:
+ *             examples:
+ *               GetUserError:
+ *                 summary: Error with UserService getUserByEmail
+ *                 value:
+ *                   success: false
+ *                   error: Unable to get user while verifying email
+ *               ResendEmailError:
+ *                 summary: Error with UserService resendVerificationEmail
+ *                 value:
+ *                   success: false
+ *                   error: Unable to resend verification email
  */
 router.post('/resend-verification', async (req: Request, res: Response) => {
   const { email } = req.body;
