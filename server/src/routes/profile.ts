@@ -91,18 +91,65 @@ router.get('/verify/:token?', async (req: Request, res: Response) => {
  *         description: Invalid email or user not found
  */
 router.post('/resend-verification', async (req: Request, res: Response) => {
-  try {
-    await UserService.resendVerificationEmail(req.body.email);
-    res.status(200).json({
-      success: true,
-      message: 'Verification email sent'
-    });
-  } catch (error: any) {
-    res.status(400).json({
+  const { email } = req.body;
+
+  if (email === undefined) {
+    console.error("/api/profiles/resend-verification POST no email found");
+    return res.status(400).json({
       success: false,
-      error: error.message
+      error: 'email is required'
+    })
+  }
+
+  if (typeof email !== 'string') {
+    console.error("/api/profiles/resend-verification POST email was not a string");
+    return res.status(400).json({
+      success: false,
+      error: 'email must be a string'
+    })
+  }
+
+  try {
+    var user = await UserService.getUserByEmail(email);
+  } catch (error: any) {
+    console.error("/api/profiles/resend-verification POST error while getting user: " + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unable to get user while verifying email'
+    })
+  }
+
+  if (!user) {
+    console.error("/api/profiles/resend-verification POST user cannot be found");
+    return res.status(404).json({
+      success: false,
+      error: 'user cannot be found'
+    })
+  }
+
+  if (user.isEmailVerified) {
+    console.error("/api/profiles/resend-verification POST user is already verified");
+    return res.status(400).json({
+      success: false,
+      error: 'email is already verified'
+    })
+  }
+
+  try {
+    await UserService.resendVerificationEmail(user);    
+  } catch (error: any) {
+    console.error("/api/profiles/resend-verification POST unknown error during resending verification: " + JSON.stringify(error, null, 2));
+    res.status(500).json({
+      success: false,
+      error: 'Unable to resend verification email'
     });
   }
+
+  console.log("/api/profiles/resend-verification POST succesffuly sent verification email");
+  res.status(200).json({
+    success: true,
+    message: 'Verification email sent'
+  });
 });
 
 /**
