@@ -1,0 +1,331 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 8,
+    "passes": 8,
+    "pending": 0,
+    "failures": 0,
+    "start": "2025-07-02T03:11:37.887Z",
+    "end": "2025-07-02T03:11:38.113Z",
+    "duration": 226,
+    "testsRegistered": 8,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "c284d022-b272-4f37-8897-267027b263df",
+      "title": "",
+      "fullFile": "D:\\Uni\\C455\\Project\\team10\\server\\src\\tests\\integration\\profile.test.ts",
+      "file": "\\src\\tests\\integration\\profile.test.ts",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "0565bdf3-a1ac-4e48-85fd-12471141e1ff",
+          "title": "Profile API",
+          "fullFile": "D:\\Uni\\C455\\Project\\team10\\server\\src\\tests\\integration\\profile.test.ts",
+          "file": "\\src\\tests\\integration\\profile.test.ts",
+          "beforeHooks": [
+            {
+              "title": "\"before all\" hook in \"Profile API\"",
+              "fullTitle": "Profile API \"before all\" hook in \"Profile API\"",
+              "timedOut": false,
+              "duration": 2,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "app = (0, express_1.default)();\napp.use(express_1.default.json());\napp.use('/api/profiles', profile_1.default);",
+              "err": {},
+              "uuid": "02d0e7f5-ef63-4ee3-acf4-5786651525ed",
+              "parentUUID": "0565bdf3-a1ac-4e48-85fd-12471141e1ff",
+              "isHook": true,
+              "skipped": false
+            }
+          ],
+          "afterHooks": [
+            {
+              "title": "\"after each\" hook in \"Profile API\"",
+              "fullTitle": "Profile API \"after each\" hook in \"Profile API\"",
+              "timedOut": false,
+              "duration": 0,
+              "state": null,
+              "speed": null,
+              "pass": false,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "sinon_1.default.restore();",
+              "err": {},
+              "uuid": "f9d27f66-f4a3-4c62-90e3-2c4ad72cc387",
+              "parentUUID": "0565bdf3-a1ac-4e48-85fd-12471141e1ff",
+              "isHook": true,
+              "skipped": false
+            }
+          ],
+          "tests": [],
+          "suites": [
+            {
+              "uuid": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+              "title": "/api/profiles/:userId GET",
+              "fullFile": "D:\\Uni\\C455\\Project\\team10\\server\\src\\tests\\integration\\profile.test.ts",
+              "file": "\\src\\tests\\integration\\profile.test.ts",
+              "beforeHooks": [
+                {
+                  "title": "\"before each\" hook in \"/api/profiles/:userId GET\"",
+                  "fullTitle": "Profile API /api/profiles/:userId GET \"before each\" hook in \"/api/profiles/:userId GET\"",
+                  "timedOut": false,
+                  "duration": 0,
+                  "state": null,
+                  "speed": null,
+                  "pass": false,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "originalSecret = process.env.JWT_SECRET;",
+                  "err": {},
+                  "uuid": "722a379b-1d62-438f-8f1d-f61a1c65724c",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": true,
+                  "skipped": false
+                }
+              ],
+              "afterHooks": [
+                {
+                  "title": "\"after each\" hook in \"/api/profiles/:userId GET\"",
+                  "fullTitle": "Profile API /api/profiles/:userId GET \"after each\" hook in \"/api/profiles/:userId GET\"",
+                  "timedOut": false,
+                  "duration": 0,
+                  "state": null,
+                  "speed": null,
+                  "pass": false,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "process.env.JWT_SECRET = originalSecret; // restore",
+                  "err": {},
+                  "uuid": "5004ae6f-33f5-4455-b738-d005891630c5",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": true,
+                  "skipped": false
+                }
+              ],
+              "tests": [
+                {
+                  "title": "should return 401 for no auth token on header",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 401 for no auth token on header",
+                  "timedOut": false,
+                  "duration": 68,
+                  "state": "passed",
+                  "speed": "medium",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/')\n                .expect(401);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'No auth token in header'\n            });\n        })",
+                  "err": {},
+                  "uuid": "b3c93533-5610-447c-b42a-40f08747281b",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 500 for unconfigured JWT",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 500 for unconfigured JWT",
+                  "timedOut": false,
+                  "duration": 13,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            delete process.env.JWT_SECRET;\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer sometoken`)\n                .expect(500);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'JWT not figured'\n            });\n        })",
+                  "err": {},
+                  "uuid": "b218759f-11ff-4756-bc15-92e5fd655b7e",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 401 for JWT error",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 401 for JWT error",
+                  "timedOut": false,
+                  "duration": 25,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            sinon_1.default.stub(jsonwebtoken_1.default, 'verify').throws(new jsonwebtoken_1.JsonWebTokenError(\"Some JWT verification error\"));\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer sometoken`)\n                .expect(401);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'Invalid JWT'\n            });\n        })",
+                  "err": {},
+                  "uuid": "3964dfe2-d9d8-4eba-8250-8a91435cc942",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 500 for JWT error",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 500 for JWT error",
+                  "timedOut": false,
+                  "duration": 16,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            sinon_1.default.stub(jsonwebtoken_1.default, 'verify').throws(new Error(\"Some other error during JWT verification\"));\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer sometoken`)\n                .expect(500);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'Unknown error'\n            });\n        })",
+                  "err": {},
+                  "uuid": "66e05898-0137-429a-bfe3-d04b0be9301a",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 400 for missing userId on params",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 400 for missing userId on params",
+                  "timedOut": false,
+                  "duration": 15,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            sinon_1.default.stub(jsonwebtoken_1.default, 'verify').resolves();\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/')\n                .set('Authorization', `Bearer ${validToken}`)\n                .expect(400);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'userId missing from params'\n            });\n        })",
+                  "err": {},
+                  "uuid": "b5dd0a87-e605-4942-9f18-f39dd901ae3c",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 500 for error during getting profile",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 500 for error during getting profile",
+                  "timedOut": false,
+                  "duration": 16,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            /** Physically verify token without mocking */\n            sinon_1.default.stub(ProfileService_1.ProfileService, 'getProfileByUserId').throws(new Error(\"Some error related to getting user\"));\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer ${validToken}`)\n                .expect(500);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'Unknown error during getting profile'\n            });\n        })",
+                  "err": {},
+                  "uuid": "26f7368c-ed4e-4a73-9c24-4f06c32d8bc3",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 404 for missing profile for userId",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 404 for missing profile for userId",
+                  "timedOut": false,
+                  "duration": 19,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            /** Physically verify token without mocking */\n            sinon_1.default.stub(ProfileService_1.ProfileService, 'getProfileByUserId').resolves(null);\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer ${validToken}`)\n                .expect(404);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: false,\n                error: 'Unable to get profile with userId'\n            });\n        })",
+                  "err": {},
+                  "uuid": "b7aefa49-2b2d-42e3-b8a8-e474b6a62208",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                },
+                {
+                  "title": "should return 200 for successfully getting profile",
+                  "fullTitle": "Profile API /api/profiles/:userId GET should return 200 for successfully getting profile",
+                  "timedOut": false,
+                  "duration": 25,
+                  "state": "passed",
+                  "speed": "fast",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "__awaiter(void 0, void 0, void 0, function* () {\n            /** Physically verify token without mocking */\n            const fakeProfile = {\n                _id: 'test id',\n                userId: 'test userId',\n                storage_preference: '123GB',\n                RAM_preference: '8GB',\n                brand_preference: 'Apple, Samsung, Sony',\n                min_budget: 50,\n                max_budget: 500,\n                rating_preference: 5,\n                country: 'Canada',\n                address: {\n                    street: 'test street',\n                    city: 'test city',\n                    state: 'test state',\n                    zipCode: 'test zip code',\n                    country: 'test country',\n                },\n                createdAt: (new Date()).toISOString(),\n                updatedAt: (new Date()).toISOString(),\n                email: 'test@example.com',\n            };\n            sinon_1.default.stub(ProfileService_1.ProfileService, 'getProfileByUserId').resolves(fakeProfile);\n            const response = yield (0, supertest_1.default)(app)\n                .get('/api/profiles/userId123')\n                .set('Authorization', `Bearer ${validToken}`)\n                .expect(200);\n            (0, chai_1.expect)(response.body).to.deep.equal({\n                success: true,\n                message: 'Successfully retrieved profile',\n                data: fakeProfile\n            });\n        })",
+                  "err": {},
+                  "uuid": "e881a2de-d796-44fd-85a1-5980837a4941",
+                  "parentUUID": "8baa3e08-581d-4bdb-b8a4-0d60b6d01712",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "b3c93533-5610-447c-b42a-40f08747281b",
+                "b218759f-11ff-4756-bc15-92e5fd655b7e",
+                "3964dfe2-d9d8-4eba-8250-8a91435cc942",
+                "66e05898-0137-429a-bfe3-d04b0be9301a",
+                "b5dd0a87-e605-4942-9f18-f39dd901ae3c",
+                "26f7368c-ed4e-4a73-9c24-4f06c32d8bc3",
+                "b7aefa49-2b2d-42e3-b8a8-e474b6a62208",
+                "e881a2de-d796-44fd-85a1-5980837a4941"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 197,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 20000
+            }
+          ],
+          "passes": [],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 0,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 20000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 20000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "11.7.0"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "profile-test",
+        "saveHtml": true,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "reportDir": "mochawesome-profile",
+        "reportFilename": "profile-test"
+      },
+      "version": "6.2.0"
+    }
+  }
+}

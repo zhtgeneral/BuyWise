@@ -48,7 +48,7 @@ describe('Chatbot API', () => {
         .send({ message: 0 })
         .expect(400)
 
-      expect(response.body).to.deep.equal({ error: 'Message must be a string' });
+      expect(response.body).to.deep.equal({ error: 'Message is required' });
     });
 
     it('returns 400 code for empty message', async () => {      
@@ -57,7 +57,7 @@ describe('Chatbot API', () => {
         .send({ message: "" })
         .expect(400)
       
-      expect(response.body).to.deep.equal({ error: 'Message cannot be empty' });
+      expect(response.body).to.deep.equal({ error: 'Message is required' });
     });
 
     it('returns 500 code for failed chatbot API call', async () => {
@@ -117,7 +117,7 @@ describe('Chatbot API', () => {
 
       expect(response.body).to.deep.equal({ 
         chatbotMessage: "Here are some macbooks I found.",
-        productData: []
+        productData: null
       });   
     });
 

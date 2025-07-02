@@ -1,15 +1,39 @@
 import mongoose from 'mongoose';
 
+export interface IRecommendedProduct {
+  id: string;
+  source: string;
+  title: string;
+  image: string;
+  price: number;
+  url: string;
+  rating?: number;
+  reviews?: number;
+}
+
 export interface IMessage {
   speaker: string,
   text: string,
-  timestamp?: string
+  timestamp?: string,
+  recommendedProducts?: IRecommendedProduct[]
 }
+
 export interface IChat {
   messages: IMessage[],
   email: string,
   createdAt?: string
 }
+
+const RecommendedProductSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  source: { type: String },
+  title: { type: String },
+  image: { type: String },
+  price: { type: Number },
+  url: { type: String },
+  rating: { type: Number },
+  reviews: { type: Number }
+}, { _id: false });
 
 const MessageSchema = new mongoose.Schema({
   speaker: {
@@ -25,6 +49,7 @@ const MessageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  recommendedProducts: [RecommendedProductSchema]
 });
 
 const ChatSchema = new mongoose.Schema({
@@ -37,7 +62,7 @@ const ChatSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
 export default mongoose.model('Chat', ChatSchema);

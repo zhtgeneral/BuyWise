@@ -43,20 +43,17 @@ export class UserService {
     await user.save();
   }
 
-  static async resendVerificationEmail(email: string): Promise<void> {
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-
-    if (user.isEmailVerified) {
-      throw new AppError('Email is already verified', 400);
-    }
-
+  /**
+   * This generates a verification token and resends email.
+   * 
+   * This assumes that the user exists in db.
+   */
+  static async resendVerificationEmail(user: Partial<IUser>): Promise<void> {
     const verificationToken = user.generateVerificationToken();
+    
     await user.save();
 
-    await sendVerificationEmail(email, verificationToken);
+    await sendVerificationEmail(user.email, verificationToken);
   }
 
   /**

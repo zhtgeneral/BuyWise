@@ -14,14 +14,24 @@ export class ChatService {
       createdAt: new Date().toISOString()
     });
     await chat.save();
-    const obj = chat.toObject()
+    const obj = chat.toObject();
     return {
       email: obj.email,
       createdAt: obj.createdAt.toISOString(),
       messages: obj.messages.map((m: any) => ({
         speaker: m.speaker,
         text: m.text,
-        timestamp: m.timestamp?.toISOString()
+        timestamp: m.timestamp?.toISOString(),
+        recommendedProducts: (m.recommendedProducts || []).map((p: any) => ({
+          id: p.id,
+          source: p.source,
+          title: p.title,
+          image: p.image,
+          price: p.price,
+          url: p.url,
+          rating: p.rating,
+          reviews: p.reviews
+        }))
       }))
     };
   }

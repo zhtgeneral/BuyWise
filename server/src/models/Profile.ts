@@ -6,8 +6,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 // min storage is either: none, 128, 256, 512, 1TB+
 // min RAM is either: none 2, 4, 8, 16, 32+
 
+/**
+ * This is the Profile type for the frontend. Make sure to call .toObject() before returning it to match this type.
+ */
 export interface IProfile extends Document {
-  userId: mongoose.Types.ObjectId;
+  userId: string;
   storage_preference: string;
   RAM_preference: string;
   brand_preference: string; // use Comma seperated string instead of array for less storage use
@@ -22,9 +25,8 @@ export interface IProfile extends Document {
     zipCode: string;
     country: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
-
+  createdAt: string;
+  updatedAt: string;
   email: string;
 }
 

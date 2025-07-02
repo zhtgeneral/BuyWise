@@ -18,8 +18,8 @@ function formatProductForFrontend(products: any[]) {
       image: p.thumbnail || "",
       price: p.extracted_price || 0,
       url: p.seller_details.direct_link || "",
-      rating: p.rating || 0, // new field
-      reviews: p.reviews || 0 // new field
+      rating: p.rating || 0,
+      reviews: p.reviews || 0
     }
   })
   return formattedProducts;
@@ -177,6 +177,18 @@ async function getAgentExecutor(sessionId: string) {
   });
 }
 
+// Per-session product history
+const productHistoryMap = new Map<string, any[]>();
+
+function addProductsToHistory(sessionId: string, products: any[]) {
+  if (!productHistoryMap.has(sessionId)) productHistoryMap.set(sessionId, []);
+  productHistoryMap.get(sessionId)!.push(...products);
+}
+
+function getProductHistory(sessionId: string): any[] {
+  return productHistoryMap.get(sessionId) || [];
+}
+
 export async function chatWithAgent(userInput: string, sessionId: string = 'default') {
   try {
     // Clear previous product data
@@ -201,17 +213,22 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
     const agentExecutor = await getAgentExecutor(sessionId);
     const result = await agentExecutor.invoke({ input: userInput });
     const response = result.output || result.result || "Sorry, I couldn't find an answer.";
-    
+    // Add any new products to the session's product history
+    if (lastProductData.length > 0) {
+      addProductsToHistory(sessionId, lastProductData);
+    }
     // Return both the response and any product data that was found
     return {
       message: response,
-      productData: lastProductData.length > 0 ? lastProductData : null
+      productData: lastProductData.length > 0 ? lastProductData : null,
+      productHistory: getProductHistory(sessionId)
     };
   } catch (error) {
     console.error('Error in chatWithAgent:', error);
     return {
       message: "I'm sorry, I encountered an error. Please try again.",
-      productData: null
+      productData: null,
+      productHistory: []
     };
   }
 }

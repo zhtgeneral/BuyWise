@@ -18,7 +18,7 @@ describe('Products API', () => {
   });
 
   describe('GET /api/products/search', () => {
-    it('should return products for a valid search query', async () => {
+    it('should return 200 and products for a valid search query', async () => {
       const fakeProducts = [
         {
           category: 'Popular products',

@@ -45,12 +45,9 @@ export class ProfileService {
   }
 
   // Get profile by user ID
-  static async getProfileByUserId(userId: string): Promise<IProfile> {
+  static async getProfileByUserId(userId: string): Promise<Partial<IProfile>> {
     const profile = await Profile.findOne({ userId });
-    if (!profile) {
-      throw new AppError('Profile not found', 404);
-    }
-    return profile;
+    return profile.toObject();
   }
 
   // Get profile by ID
