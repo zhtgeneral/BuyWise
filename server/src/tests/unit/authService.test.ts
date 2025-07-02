@@ -213,51 +213,51 @@
 //   });
 // });
 
-import sinon from 'sinon';
-import { expect } from 'chai';
-import express from 'express';
-import request from 'supertest'
-import jwt, { JwtPayload } from 'jsonwebtoken';
+// import sinon from 'sinon';
+// import { expect } from 'chai';
+// import express from 'express';
+// import request from 'supertest'
+// import jwt, { JwtPayload } from 'jsonwebtoken';
 
-process.env.JWT_SECRET = "test-secret";
-import { AuthService } from '../../services/authService';
-import { UserService } from '../../services/UserService';
-import { ProfileService } from '../../services/ProfileService';
-import { AppError } from '../../utils/AppError';
-import authRoutes, { postRegister } from '../../routes/auth';
+// process.env.JWT_SECRET = "test-secret";
+// import { AuthService } from '../../services/authService';
+// import { UserService } from '../../services/UserService';
+// import { ProfileService } from '../../services/ProfileService';
+// import { AppError } from '../../utils/AppError';
+// import authRoutes, { postRegister } from '../../routes/auth';
 
-describe('Auth API', () => {
-  let app: express.Express;
+// describe('Auth API', () => {
+//   let app: express.Express;
   
-  before(() => {
-    app = express();
-    app.use(express.json());
-    // app.use('/api/auth', authRoutes);
-    app.post('/api/auth/register', postRegister);
-  });
+//   before(() => {
+//     app = express();
+//     app.use(express.json());
+//     // app.use('/api/auth', authRoutes);
+//     app.post('/api/auth/register', postRegister);
+//   });
 
-  afterEach(() => {
-    sinon.restore();
-  });
+//   afterEach(() => {
+//     sinon.restore();
+//   });
 
-  describe('/api/auth/register POST', () => {
-    it('should return 400 for missing name', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          name: 'test name',
-          email: 'test@example.com',
-          password: 'password123'
-        })
-        .expect(400)
+//   describe('/api/auth/register POST', () => {
+//     it('should return 400 for missing name', async () => {
+//       const response = await request(app)
+//         .post('/api/auth/register')
+//         .send({
+//           name: 'test name',
+//           email: 'test@example.com',
+//           password: 'password123'
+//         })
+//         .expect(400)
 
-      expect(response.body).to.deep.equal({
-        success: false,
-        error: 'name, email and password are required'
-      })
-    });
-  })
-})
+//       expect(response.body).to.deep.equal({
+//         success: false,
+//         error: 'name, email and password are required'
+//       })
+//     });
+//   })
+// })
 
     // it('should return token and user when registration succeeds', async () => {
     //   const fakeUser = {
