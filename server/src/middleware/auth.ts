@@ -18,26 +18,42 @@ declare global {
 }
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log("No auth token recieved in header");
+    return res.status(401).json({
+      success: false,
+      error: 'No auth token in header'
+    })
+  }
+
+  const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+  if (!process.env.JWT_SECRET) {
+    console.log("JWT secret not figured in env");
+    return res.status(500).json({
+      success: false,
+      error: 'JWT not figured'
+    })
+  }
+  
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError('No token provided', 401);
-    }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    if (!process.env.JWT_SECRET) {
-      throw new AppError('JWT secret is not configured', 500);
-    }
-
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
     req.user = decoded;
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      next(new AppError('Invalid token', 401));
+      console.log("JWT validation failed");
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid JWT'
+      })
     } else {
-      next(error);
+      console.log("Unknown error during auth");
+      return res.status(500).json({
+        success: false,
+        error: 'Unknown error'
+      })
     }
   }
 }; 

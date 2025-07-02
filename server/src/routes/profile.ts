@@ -254,23 +254,112 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Profile retrieved successfully
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             examples:
+ *               AllWorking:
+ *                 summary: Successfully retrieved profile
+ *                 value:
+ *                   success: true
+ *                   message: Successfully retrieved profile,
+ *                   data: profile
  *       404:
- *         description: Profile not found
+ *         description: Not found
+ *         content:
+ *           application/json:
+ *             examples:
+ *               CannotFindProfile:
+ *                 summary: Cannot find profile
+ *                 value:
+ *                   success: false
+ *                   error: Unable to get profile with userId
+ * 
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               MissingUserIdOnParams:
+ *                 summary: Cannot find profile
+ *                 value:
+ *                   success: false
+ *                   error: Unknown error during getting profile
+ * 
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             examples:
+ *               NoAuthHeader: 
+ *                 summary: No auth token in header
+ *                 value:
+ *                   success: false
+ *                   error: No auth token in header
+ *               InvalidJWT: 
+ *                 summary: JWT did not match
+ *                 value:
+ *                   success: false
+ *                   error: Invalid JWT
+ * 
+ * 
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnknownError:
+ *                 summary: Error during ProfileService getProfileByUserId
+ *                 value:
+ *                   success: false
+ *                   error: Unknown error during getting profile
+ *               JWTConfigError:
+ *                 summeary: Error during JWT setup
+ *                 value:
+ *                   success: false
+ *                   error: JWT not figured
+ *               JWTUnknownError:
+ *                 summeary: Unknown Error during JWT verification
+ *                 value:
+ *                   success: false
+ *                   error: Unknown error
  */
-router.get('/me', authenticate, async (req: Request, res: Response) => {
-  try {
-    const profile = await ProfileService.getProfileByUserId(req.user!.id);
-    res.status(200).json({
-      success: true,
-      data: profile
-    });
-  } catch (error: any) {
-    res.status(404).json({
+router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  console.log("/api/profiles/:userId got userId on params: " + JSON.stringify(userId));
+
+  if (!userId) {
+    console.error("/api/profiles/:userId GET cannot find userId on params");
+    return res.status(400).json({
       success: false,
-      error: error.message
-    });
+      error: 'userId missing from params'
+    })
   }
+
+  try {
+    var profile = await ProfileService.getProfileByUserId(userId);
+  } catch (error: any) {
+    console.error("/api/profiles/:userId GET error during getting profile: " + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unknown error during getting profile'
+    })
+  }
+
+  if (!profile) {
+    console.error("/api/profiles/:userId GET cannot find profile");
+    return res.status(404).json({
+      success: false,
+      error: 'Unable to get profile with userId'
+    })
+  }
+
+  console.log("/api/profiles/:userId GET got profile: " + JSON.stringify(profile, null, 2));
+  return res.status(200).json({
+    success: true,
+    message: 'Successfully retrieved profile',
+    data: profile
+  })
 });
 
 /**
