@@ -268,7 +268,7 @@ describe('Profile API', () => {
 
       expect(response.body).to.deep.equal({
         success: false,
-        error: 'JWT not figured'
+        error: 'JWT not configured'
       })
     });
 

@@ -33,7 +33,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     console.log("JWT secret not figured in env");
     return res.status(500).json({
       success: false,
-      error: 'JWT not figured'
+      error: 'JWT not configured'
     })
   }
   

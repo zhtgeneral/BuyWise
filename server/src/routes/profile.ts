@@ -246,7 +246,7 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/profiles/me:
+ * /api/profiles/:userId:
  *   get:
  *     summary: Get current user's profile
  *     tags: [Profiles]
@@ -314,12 +314,12 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
  *                   success: false
  *                   error: Unknown error during getting profile
  *               JWTConfigError:
- *                 summeary: Error during JWT setup
+ *                 summary: Error during JWT setup
  *                 value:
  *                   success: false
- *                   error: JWT not figured
+ *                   error: JWT not configured
  *               JWTUnknownError:
- *                 summeary: Unknown Error during JWT verification
+ *                 summary: Unknown Error during JWT verification
  *                 value:
  *                   success: false
  *                   error: Unknown error
