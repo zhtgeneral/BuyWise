@@ -14,7 +14,8 @@
     "test:product": "mocha --require ts-node/register src/tests/integration/products.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-product,reportFilename=product-test",
     "test:chat": "mocha --require ts-node/register src/tests/integration/chat.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-chat,reportFilename=chat-test",
     "test:profile": "mocha --require ts-node/register src/tests/integration/profile.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-profile,reportFilename=profile-test",
-    "test:integration": "mocha --require ts-node/register src/tests/integration/*.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-integration,reportFilename=integration-tests"
+    "test:integration": "mocha --require ts-node/register src/tests/integration/*.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-integration,reportFilename=integration-tests",
+    "test:integration:report": "npx open-cli mochawesome-integration/integration-tests.html"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",
@@ -58,6 +59,7 @@
     "eslint": "^9",
     "mocha": "^11.7.0",
     "mochawesome": "^7.1.3",
+    "open-cli": "^8.0.0",
     "serve": "^14.2.4",
     "sinon": "^21.0.0",
     "sinon-chai": "^4.0.0",

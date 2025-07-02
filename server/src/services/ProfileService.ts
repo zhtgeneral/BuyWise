@@ -59,13 +59,11 @@ export class ProfileService {
     return profile;
   }
 
-  // Update profile
-  static async updateProfile(userId: string, updateData: Partial<IProfile>): Promise<IProfile> {
-    const profile = await Profile.findOne({ userId });
-    if (!profile) {
-      throw new AppError('Profile not found', 404);
-    }
-
+  /**
+   * Update profile.
+   * Assume that the profile exists in db.
+   */
+  static async updateProfile(profile: Partial<IProfile>, updateData: Partial<IProfile>): Promise<Partial<IProfile>> {
     // Don't allow userId updates through this endpoint
     delete updateData.userId;
 

@@ -302,7 +302,6 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
  *                   success: false
  *                   error: Invalid JWT
  * 
- * 
  *       500:
  *         description: Server error
  *         content:
@@ -362,9 +361,10 @@ router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
   })
 });
 
+// TODO docs
 /**
  * @swagger
- * /api/profiles/me:
+ * /api/profiles/:userId:
  *   patch:
  *     summary: Update current user's profile
  *     tags: [Profiles]
@@ -397,25 +397,136 @@ router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
  *               country:
  *                 type: string
  *     responses:
- *       200:
- *         description: Profile updated successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             examples:
+ *               NoAuthToken:
+ *                 summary: Recieved request without auth token in header
+ *                 value:
+ *                   success: false
+ *                   error: No auth token in header
+ *               InvalidJWT:
+ *                 summary: recieved invalid JWT in header
+ *                 value:
+ *                   success: false
+ *                   error: Invalid JWT
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               NoUserId:
+ *                 summary: Recieved request without userId on params
+ *                 value:
+ *                   success: false
+ *                   error: userId missing from params
+ *               NoUpdateData:
+ *                 summary: Recieved request without profileData in body
+ *                 value:
+ *                   success: false
+ *                   error: profileData missing from body
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnconfiguredJWT:
+ *                 summary: Attempted request without configuring JWT in env
+ *                 value:
+ *                   success: false
+ *                   error: JWT not configured
+ *               UnknownJWT:
+ *                 summary: Unknown error occured during JWT verification
+ *                 value:
+ *                   success: false
+ *                   error: Unknown error
+ *               FetchProfile:
+ *                 summary: Unknown error occured during fetching profile
+ *                 value:
+ *                   success: false
+ *                   error: Unknown error during getting profile
+ *               UpdateProfile:
+ *                 summary: Unknown error occured during updating profile
+ *                 value:
+ *                   success: false
+ *                   error: Unable to update profile
  *       404:
- *         description: Profile not found 
+ *         description: Not Found
+ *         content:
+ *           application/json:
+ *             examples:
+ *               UnknownProfile:
+ *                 summary: Request recieved a userId but led to no profile
+ *                 value:
+ *                   success: false
+ *                   error: No profile found
+ * 
+ *       200:
+ *         description: Ok
+ *         content:
+ *           application/json:
+ *             examples:
+ *               AllWorking:
+ *                 summary: All working
+ *                 value:
+ *                   success: true
+ *                   message: Profile updated successfully
+ *                   data: fakeProfileData
  */
-router.patch('/me', authenticate, async (req: Request, res: Response) => {
-  try {
-    const profile = await ProfileService.updateProfile(req.user!.id, req.body);
-    res.status(200).json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: profile
-    });
-  } catch (error: any) {
-    res.status(404).json({
+router.patch('/:userId?', authenticate, async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { profileData } = req.body;
+  if (!userId) {
+    console.error("/api/profiles/:userId PATCH missing userId on params")
+    return res.status(400).json({
       success: false,
-      error: error.message
+      error: 'userId missing from params'
+    })
+  }
+  if (!profileData) {
+    console.error("/api/profiles/:userId PATCH missing profileData in body")
+    return res.status(400).json({
+      success: false,
+      error: 'profileData missing from body'
+    })
+  }
+
+  try {
+    var profile = await ProfileService.getProfileByUserId(userId);
+  } catch (error: any) {
+    console.error("/api/profiles/:userId PATCH error during fetching profile: " + JSON.stringify(error, null, 2));
+    return res.status(500).json({
+      success: false,
+      error: 'Unknown error during getting profile'
+    })
+  }
+
+  if (!profile) {
+    console.error("/api/profiles/:userId PATCH profile not found");
+    return res.status(404).json({
+      success: false,
+      error: 'No profile found'
+    })
+  }
+
+  try {
+    var updatedProfile = await ProfileService.updateProfile(profile, profileData);    
+  } catch (error: any) {
+    console.error("/api/profiles/:userId PATCH error during updating profile: " + JSON.stringify(error, null, 2));
+    res.status(500).json({
+      success: false,
+      error: 'Unable to update profile'
     });
   }
+
+  console.log("/api/profiles/:userId PATCH got updated profile " + JSON.stringify(updatedProfile, null, 2));
+  res.status(200).json({
+    success: true,
+    message: 'Profile updated successfully',
+    data: updatedProfile
+  });
 });
 
 /**
