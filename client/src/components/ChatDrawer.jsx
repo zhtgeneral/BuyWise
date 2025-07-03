@@ -45,7 +45,10 @@ export default function ChatDrawer({
     try {
       const response = await axios.post('http://localhost:3000/api/chatbot', {
         message: userInput
-      });
+      },{headers :  {
+        'Content-Type': 'application/json',
+        'Authorization' : `Bearer ${localStorage.getItem('token')}`
+      }});
       if (response.status === 200) {
         const chatbotMessage = response.data.chatbotMessage;
         const productData = response.data.productData;

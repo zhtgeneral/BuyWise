@@ -6,7 +6,7 @@ export class ProductService {
   /**
    * Create a proxy URL with parameters
    */
-  static async createProxyUrl(originalUrl: string, params: Record<string, any>): Promise<string> {
+  static createProxyUrl(originalUrl: string, params: Record<string, any>, userId?: string): string {
     try {
       // Create query string from params
       const queryString = new URLSearchParams(params).toString();
@@ -24,7 +24,8 @@ export class ProductService {
       const encodedData = Buffer.from(JSON.stringify({
         originalUrl,
         params,
-        redirectUrl
+        redirectUrl,
+        userId
       })).toString('base64');
       
       // Get the base URL from environment or use default
@@ -55,7 +56,7 @@ export class ProductService {
       
       // Decode the data
       const decodedData = JSON.parse(Buffer.from(encodedData, 'base64').toString());
-      const { originalUrl, params, redirectUrl } = decodedData;
+      const { originalUrl, params, redirectUrl, userId: encodedUserId } = decodedData;
       
       // Log the user click
       const proxyLog = new ProxyLog({
@@ -63,7 +64,7 @@ export class ProductService {
         proxyUrl,
         params,
         redirectUrl,
-        userId,
+        userId: encodedUserId || userId, // Use encoded userId if available, otherwise fall back to parameter
         userAgent,
         ipAddress
       });
@@ -140,7 +141,8 @@ export class ProductService {
           };
         })
       );
-
+      console.log('enrichedProducts', enrichedProducts);
+      
       return enrichedProducts;
 
     } catch (error: any) {

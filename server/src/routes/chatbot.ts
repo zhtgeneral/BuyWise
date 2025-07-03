@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { chatWithAgent } from '../agent/chatbotAgent';
+import { authenticate } from '../middleware/auth';
 
 
 // TODO should we make this route protected?
@@ -10,6 +11,8 @@ import { chatWithAgent } from '../agent/chatbotAgent';
  *   post:
  *     summary: Get AI response for a message
  *     tags: [Chatbot]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -57,6 +60,8 @@ import { chatWithAgent } from '../agent/chatbotAgent';
  *                         type: number
  *       400:
  *         description: Invalid request - message is required or invalid
+ *       401:
+ *         description: Unauthorized - invalid or missing JWT token
  *       500:
  *         description: Server error or incomplete AI response
  */
@@ -81,7 +86,9 @@ export const postChat = async (req: Request, res: Response) => {
     // Not sure if it's sufficient to just use sessionId, figure it out later
     const sessionId = req.ip || 'default';
     
-    const agentResponse = await chatWithAgent(message, sessionId);
+    // Get user ID from authenticated request
+    const userId = (req as any).user?.id;
+    const agentResponse = await chatWithAgent(message, sessionId, userId);
     console.log('/api/chatbot POST got LangChain response: ' + agentResponse.message);
     
     return res.status(200).json({

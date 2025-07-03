@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto';
 // TODO: Find a better way to sync product data with asynchronous tool calls
 let lastProductData: any[] = [];
 
-function formatProductForFrontend(products: any[]) {
+function formatProductForFrontend(products: any[], userId?: string) {
   const formattedProducts = products.map((p) => {
     console.log("formatProductForFrontend: product seller details" + JSON.stringify(p.seller_details, null, 2));
     return {
@@ -17,7 +17,7 @@ function formatProductForFrontend(products: any[]) {
       title: p.title || "",
       image: p.thumbnail || "",
       price: p.extracted_price || 0,
-      url: p.seller_details.direct_link || "",
+      url: p.seller_details.direct_link ? ProductService.createProxyUrl(p.seller_details.direct_link, {product_id : p.product_id,source : p.source,title : p.title,price: p.extracted_price },userId) : "",
       rating: p.rating || 0,
       reviews: p.reviews || 0
     }
@@ -25,34 +25,39 @@ function formatProductForFrontend(products: any[]) {
   return formattedProducts;
 }
 
-// Product search tool
-const productSearchTool = new DynamicTool({
-  name: "product_search",
-  description: "Search for laptops, phones, or computers using a product query string.",
-  func: async (input: string) => {
-    console.log("Tool Invoked: product_search with input:", input);
-    const products = await ProductService.searchProducts(input);
-    lastProductData = formatProductForFrontend(products);
-    return JSON.stringify(lastProductData.slice(0, 3));
-  },
-});
+// Function to create tools with access to userId
+function createTools(userId?: string) {
+  // Product search tool
+  const productSearchTool = new DynamicTool({
+    name: "product_search",
+    description: "Search for laptops, phones, or computers using a product query string.",
+    func: async (input: string) => {
+      console.log("Tool Invoked: product_search with input:", input);
+      const products = await ProductService.searchProducts(input);
+      lastProductData = formatProductForFrontend(products, userId);
+      return JSON.stringify(lastProductData.slice(0, 3));
+    },
+  });
 
-// Price comparison tool
-const priceComparisonTool = new DynamicTool({
-  name: "price_comparison",
-  description: "Compare prices and find budget-friendly options",
-  func: async (input: string) => {
-    console.log("Tool Invoked: price_comparison with input:", input);
-    const products = await ProductService.searchProducts(input);
-    const sortedByPrice = products.sort((a, b) => (a.extracted_price || 0) - (b.extracted_price || 0));
-    lastProductData = formatProductForFrontend(products);
-    return JSON.stringify({
-      cheapest: sortedByPrice.slice(0, 3),
-      mostExpensive: sortedByPrice.slice(-2),
-      averagePrice: products.reduce((sum, p) => sum + (p.extracted_price || 0), 0) / products.length
-    });
-  },
-});
+  // Price comparison tool
+  const priceComparisonTool = new DynamicTool({
+    name: "price_comparison",
+    description: "Compare prices and find budget-friendly options",
+    func: async (input: string) => {
+      console.log("Tool Invoked: price_comparison with input:", input);
+      const products = await ProductService.searchProducts(input);
+      const sortedByPrice = products.sort((a, b) => (a.extracted_price || 0) - (b.extracted_price || 0));
+      lastProductData = formatProductForFrontend(products, userId);
+      return JSON.stringify({
+        cheapest: sortedByPrice.slice(0, 3),
+        mostExpensive: sortedByPrice.slice(-2),
+        averagePrice: products.reduce((sum, p) => sum + (p.extracted_price || 0), 0) / products.length
+      });
+    },
+  });
+
+  return [productSearchTool, priceComparisonTool];
+}
 
 // Drill down on product categories tool
 const categoryTool = new DynamicTool({
@@ -107,7 +112,8 @@ const focusCheckTool = new DynamicTool({
   },
 });
 
-const tools = [productSearchTool, priceComparisonTool, categoryTool, focusCheckTool];
+// Default tools (without userId) for backward compatibility
+const defaultTools = [categoryTool, focusCheckTool];
 
 const llm = new ChatOpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -145,7 +151,7 @@ Guidelines:
 const memoryMap = new Map<string, BufferMemory>();
 
 // Wrapper to initialize the agent executor
-async function getAgentExecutor(sessionId: string) {
+async function getAgentExecutor(sessionId: string, userId?: string) {
   if (!memoryMap.has(sessionId)) {
     memoryMap.set(
       sessionId,
@@ -165,6 +171,9 @@ async function getAgentExecutor(sessionId: string) {
     temperature: 0.2,
     maxTokens: 1000,
   });
+  
+  // Create tools with userId access
+  const tools = [...createTools(userId), ...defaultTools];
   
   // Apparently this is now deprecated...? Look up LangGraph alternative
   return initializeAgentExecutorWithOptions(tools, chatModel, {
@@ -189,7 +198,7 @@ function getProductHistory(sessionId: string): any[] {
   return productHistoryMap.get(sessionId) || [];
 }
 
-export async function chatWithAgent(userInput: string, sessionId: string = 'default') {
+export async function chatWithAgent(userInput: string, sessionId: string = 'default', userId?: string) {
   try {
     // Clear previous product data
     lastProductData = [];
@@ -210,7 +219,7 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
       };
     }
     
-    const agentExecutor = await getAgentExecutor(sessionId);
+    const agentExecutor = await getAgentExecutor(sessionId, userId);
     const result = await agentExecutor.invoke({ input: userInput });
     let response = result.output || result.result || "Sorry, I couldn't find an answer.";
 
