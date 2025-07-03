@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { selectProfile, updateProfile } from '../libs/features/profileSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+import { selectIsAuthenticated } from '../libs/features/authenticationSlice';
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
@@ -13,14 +14,14 @@ const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 export default function ProfilePage() {
   const dispatch = useDispatch();  
   const profile = useSelector(selectProfile);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [localProfile, setLocalProfile] = useState(profile);
-  console.log("ProfilePage profile in redux: " + JSON.stringify(localProfile, null, 2));
 
   const handleUserOptionsChange = (field, value) => {
     setLocalProfile(prev => ({
       ...prev,
-      userOptions: {
+      user: {
         ...prev.userOptions,
         [field]: value
       }
@@ -30,7 +31,7 @@ export default function ProfilePage() {
   const handleUserPreferencesChange = (field, value) => {
     setLocalProfile(prev => ({
       ...prev,
-      userPreferences: {
+      preferences: {
         ...prev.userPreferences,
         [field]: value
       }
@@ -40,13 +41,13 @@ export default function ProfilePage() {
   const handleSave = () => {
     console.log("ProfilePage saved user profile: " + JSON.stringify(localProfile, null, 2));
     
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('No authentication token found. Please login again.');
+    if (!isAuthenticated) {
+      alert('You are not authenticated. Please login again.');
       return;
     }
+
+    const token = localStorage.getItem('token');
     
-    // TODO
     axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
       {
         profileData: {

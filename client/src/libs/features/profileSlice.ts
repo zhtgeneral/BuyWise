@@ -53,13 +53,17 @@ export const profileSlice = createSlice({
   reducers: {
     /** 
      * This updates the user in the state.
+     * 
+     * Make sure preferences has only certain fields. Keep out address, createdAt, updatedAt, email
+     * as the frontend doesn't need those fields
      */
     updateProfile: (state, action: PayloadAction<Profile>) => {
+      const { user, preferences } = action.payload;
       state.user = {
-        ...action.payload.user
+        ...user
       }
       state.preferences = {
-        ...action.payload.preferences
+        ...preferences
       }
       console.log("redux profile: " + JSON.stringify(state, null, 2));
     },

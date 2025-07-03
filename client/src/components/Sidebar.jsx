@@ -33,6 +33,7 @@ export default function Sidebar() {
       preferences: {}
     }));
     alert("You have successfully logged out!");
+    window.location.reload();
   }
 
   return (

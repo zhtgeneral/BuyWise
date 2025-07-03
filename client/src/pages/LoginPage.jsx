@@ -19,6 +19,7 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
 
+  // TODO better frontend modal
   async function handleLogin() {
     setLoading(true);
 
@@ -27,30 +28,54 @@ export default function LoginPage() {
         email: email,
         password: password
       });
-
-      const body = response.data;
-      (debug)? console.log("frontend body: " + JSON.stringify(body, null, 2)) : null;
-
-      if (!body.success || !body.token) {
-        alert('Login failed: No token received'); // TODO better frontend modal
-        return;
-      }
-  
-      saveToBrowser(body.token);
-      saveState(body.user);
-      navigate('/');
+      var userBody = response.data;
+      (debug)? console.log("frontend body: " + JSON.stringify(userBody, null, 2)) : null;
     } catch (error) {
       (debug)? console.error("Login error:", error): null;
-      alert(error.response?.data?.error || 'Login Failed'); // TODO better frontend modal
-    } finally {
+      alert(error.response?.data?.error || 'Login Failed'); 
       setLoading(false);
+      return;
+    } 
+
+    if (!userBody.success || !userBody.token) {
+      alert('Login failed: No token received'); 
+      setLoading(false);
+      return;
     }
+
+    const userId = userBody.user._id;
+    const token = userBody.token
+    try {
+      const response = await axios.get(`${backendURL}/api/profiles/${userId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+      var profileBody = response.data;
+    } catch (error) {
+      alert(error.response?.data?.error || 'Error related to profile'); 
+      setLoading(false);
+      return;
+    }
+
+    const profile = profileBody.profile
+    if (!profileBody.success || !profile) {
+      alert('Login failed: Unable to fetch profile'); 
+      setLoading(false);
+      return;
+    }
+
+    saveToBrowser(userBody.token);
+    saveState(userBody.user, profileBody.profile)      
+    navigate('/');
   }
 
   /**
    * Save user to redux store for use around the app and validate authenticated state.
    */
-  function saveState(user) {
+  function saveState(user, preferences) {
     const updatedProfile = {
       user: {
         _id: user._id,
@@ -58,8 +83,15 @@ export default function LoginPage() {
         email: user.email,
         isEmailVerified: user.isEmailVerified
       },          
-      preferences: {}
-      // preferences are fetched later on
+      preferences: {
+        storage_preference: preferences.storage_preference,
+        RAM_preference: preferences.RAM_preference,
+        brand_preference: preferences.brand_preference,
+        min_budget: preferences.min_budget,
+        max_budget: preferences.max_budget,
+        rating_preference: preferences.rating_preference,
+        country: preferences.country,
+      }
     }
     dispatch(updateProfile(updatedProfile)); 
     dispatch(validateAuth());

@@ -325,7 +325,7 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
  */
 router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
   const { userId } = req.params;
-  console.log("/api/profiles/:userId got userId on params: " + JSON.stringify(userId));
+  console.log("/api/profiles/:userId GET got userId on params: " + JSON.stringify(userId));
 
   if (!userId) {
     console.error("/api/profiles/:userId GET cannot find userId on params");
@@ -357,7 +357,7 @@ router.get('/:userId?', authenticate, async (req: Request, res: Response) => {
   return res.status(200).json({
     success: true,
     message: 'Successfully retrieved profile',
-    data: profile
+    profile: profile
   })
 });
 
