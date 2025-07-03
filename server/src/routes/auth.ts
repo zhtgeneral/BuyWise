@@ -105,14 +105,15 @@ router.post('/login', async (req, res) => {
       error: 'Unknown authentication error'
     })
   }
-
-  const token = result.token;    
-  res.status(200).json({
+  
+  const returnData = {
     success: true,
     message: 'Login successful',
-    data: result.user,
-    token: token
-  });
+    user: result.user,
+    token: result.token
+  }
+  console.log("/api/auth/login POST return data: " + JSON.stringify(returnData, null, 2));
+  res.status(200).json(returnData);
 });
 
 export default router; 

@@ -365,7 +365,7 @@ describe('Auth API', () => {
       expect(response.body).to.deep.equal({
         success: true,
         message: 'Login successful',
-        data: userWithoutPassword,
+        user: userWithoutPassword,
         token: 'token123'
       })
     })

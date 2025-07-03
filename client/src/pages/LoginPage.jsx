@@ -1,42 +1,80 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import '../styles/LoginPage.css';
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+
+import { updateProfile } from '../libs/features/profileSlice';
+import { validateAuth } from '../libs/features/authenticationSlice';
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
+const debug = false;
 
 export default function LoginPage() {
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  async function handleLogin() {
+    setLoading(true);
+
     try {
-      setLoading(true);
-      const response = await axios.post(
-        `${backendURL}/api/auth/login`,
-        { email, password }
-      );
-      
-      if (response.data.success && response.data.token) {
-        // Store the token in localStorage
-        localStorage.setItem('token', response.data.token);
-        alert(`Logging in with username: ${email}`);
-        navigate('/');
-        window.location.reload();
-      } else {
-        alert('Login failed: No token received');
+      const response = await axios.post(`${backendURL}/api/auth/login`, { 
+        email: email,
+        password: password
+      });
+
+      const body = response.data;
+      (debug)? console.log("frontend body: " + JSON.stringify(body, null, 2)) : null;
+
+      if (!body.success || !body.token) {
+        alert('Login failed: No token received'); // TODO better frontend modal
+        return;
       }
+  
+      saveToBrowser(body.token);
+      saveState(body.user);
+      navigate('/');
     } catch (error) {
-      alert(error.response?.data?.error || 'Login Failed');
+      (debug)? console.error("Login error:", error): null;
+      alert(error.response?.data?.error || 'Login Failed'); // TODO better frontend modal
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const handleRegister = () => {
+  /**
+   * Save user to redux store for use around the app and validate authenticated state.
+   */
+  function saveState(user) {
+    const updatedProfile = {
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isEmailVerified: user.isEmailVerified
+      },          
+      preferences: {}
+      // preferences are fetched later on
+    }
+    dispatch(updateProfile(updatedProfile)); 
+    dispatch(validateAuth());
+  }
+
+  /**
+   * Store the token in localStorage
+   * 
+   * TODO save using cookie
+   */
+  function saveToBrowser(token) {
+    localStorage.setItem('token', token); 
+  }
+
+  function handleRegister() {
     navigate('/registration');
   };
 

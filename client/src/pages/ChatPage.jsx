@@ -3,7 +3,7 @@ import { Button } from "@mantine/core";
 import ProductGrid from "../components/ProductGrid";
 import ChatDrawer from "../components/ChatDrawer";
 import { useDispatch, useSelector } from "react-redux";
-import { selectUserOptions } from "../libs/features/userSlice";
+import { selectProfileUser } from "../libs/features/profileSlice";
 import { selectProducts } from "../libs/features/productsSlice";
 import { selectChatMessages, clearChat } from "../libs/features/chatSlice";
 import axios from "axios";
@@ -14,7 +14,7 @@ export default function ChatPage() {
   const [opened, setOpened] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
   const chat = useSelector(selectChatMessages);
-  const userOptions = useSelector(selectUserOptions);
+  const userOptions = useSelector(selectProfileUser);
 
   const dispatch = useDispatch();
   const products = dispatch(selectProducts);

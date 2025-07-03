@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userReducer from './features/userSlice';
+import profileReducer from './features/profileSlice';
 import productsReducer from './features/productsSlice'
 import chatReducer from './features/chatSlice';
+import authenticationReducer from './features/authenticationSlice'
 
 /**
  * This holds the global states.
@@ -10,9 +11,10 @@ import chatReducer from './features/chatSlice';
  */
 export const store = configureStore({
   reducer: {
-    user: userReducer,
+    profile: profileReducer,
     products: productsReducer,
-    chat: chatReducer
+    chat: chatReducer,
+    authentication: authenticationReducer
   },
 })
 

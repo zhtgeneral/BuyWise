@@ -1,6 +1,7 @@
 import '../styles/ProfilePage.css'; 
+import React from 'react'
 import { useState } from 'react';
-import { selectUser, updateUser } from '../libs/features/userSlice';
+import { selectProfile, updateProfile } from '../libs/features/profileSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 
@@ -11,12 +12,13 @@ const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
  */
 export default function ProfilePage() {
   const dispatch = useDispatch();  
-  const currentUser = useSelector(selectUser);
-  /** React useState holds temporary modified state */  
-  const [userProfile, setUserProfile] = useState(currentUser);
+  const profile = useSelector(selectProfile);
+
+  const [localProfile, setLocalProfile] = useState(profile);
+  console.log("ProfilePage profile in redux: " + JSON.stringify(localProfile, null, 2));
 
   const handleUserOptionsChange = (field, value) => {
-    setUserProfile(prev => ({
+    setLocalProfile(prev => ({
       ...prev,
       userOptions: {
         ...prev.userOptions,
@@ -26,7 +28,7 @@ export default function ProfilePage() {
   };
 
   const handleUserPreferencesChange = (field, value) => {
-    setUserProfile(prev => ({
+    setLocalProfile(prev => ({
       ...prev,
       userPreferences: {
         ...prev.userPreferences,
@@ -36,7 +38,7 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    console.log("ProfilePage saved user profile: " + JSON.stringify(userProfile, null, 2));
+    console.log("ProfilePage saved user profile: " + JSON.stringify(localProfile, null, 2));
     
     const token = localStorage.getItem('token');
     if (!token) {
@@ -44,21 +46,27 @@ export default function ProfilePage() {
       return;
     }
     
-    axios.patch(`${backendURL}/api/profiles/me`, {
-      storage_preference: userProfile.userPreferences.storagePreference,
-      RAM_preference: userProfile.userPreferences.RAMPreference,
-      brand_preference: userProfile.userPreferences.brandPreference,
-      min_budget: userProfile.userPreferences.minBudget,
-      max_budget: userProfile.userPreferences.maxBudget,
-      rating_preference: userProfile.userPreferences.ratingPreference,
-      country: userProfile.userPreferences.country
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    // TODO
+    axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
+      {
+        profileData: {
+          storage_preference: localProfile.userPreferences.storage_preference,
+          RAM_preference: localProfile.userPreferences.RAM_preference,
+          brand_preference: localProfile.userPreferences.brand_preference,
+          min_budget: localProfile.userPreferences.min_budget,
+          max_budget: localProfile.userPreferences.max_budget,
+          rating_preference: localProfile.userPreferences.rating_preference,
+          country: localProfile.userPreferences.country
+        }
+      }, 
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       }
-    }).then((response) => {
+    ).then((response) => {
       if (response.status === 200) {
-        dispatch(updateUser(userProfile));
+        dispatch(updateProfile(localProfile));
         alert('Profile updated successfully!');
       }
     }).catch((error) => {
@@ -77,8 +85,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Display name:</label>
               <input
                 type="text"
-                value={userProfile.userOptions.username}
-                onChange={(e) => handleUserOptionsChange('username', e.target.value)}
+                value={localProfile.user.name}
+                onChange={(e) => handleUserOptionsChange('name', e.target.value)}
                 className="profile-field__input"
                 autoComplete="name"
               />
@@ -87,7 +95,7 @@ export default function ProfilePage() {
               <label className="profile-field__label">Email:</label>
               <input
                 type="email"
-                value={userProfile.userOptions.email}
+                value={localProfile.user.email}
                 className="profile-field__input"
                 disabled
                 autoComplete="email"
@@ -96,8 +104,8 @@ export default function ProfilePage() {
             <div className="profile-field">
               <label className="profile-field__label">Storage Preference:</label>
               <select
-                value={userProfile.userPreferences.storagePreference}
-                onChange={(e) => handleUserPreferencesChange('storagePreference', e.target.value)}
+                value={localProfile.preferences.storage_preference}
+                onChange={(e) => handleUserPreferencesChange('storage_preference', e.target.value)}
                 className="profile-field__input"
               >
                 <option value="None">None</option>
@@ -111,8 +119,8 @@ export default function ProfilePage() {
             <div className="profile-field">
               <label className="profile-field__label">RAM Preference:</label>
               <select
-                value={userProfile.userPreferences.RAMPreference}
-                onChange={(e) => handleUserPreferencesChange('RAMPreference', e.target.value)}
+                value={localProfile.preferences.RAM_preference}
+                onChange={(e) => handleUserPreferencesChange('RAM_preference', e.target.value)}
                 className="profile-field__input"
               >
                 <option value="None">None</option>
@@ -127,8 +135,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Brand Preference:</label>
               <input
                 type="text"
-                value={userProfile.userPreferences.brandPreference}
-                onChange={(e) => handleUserPreferencesChange('brandPreference', e.target.value)}
+                value={localProfile.preferences.brand_preference}
+                onChange={(e) => handleUserPreferencesChange('brand_preference', e.target.value)}
                 className="profile-field__input"
               />
             </div>
@@ -136,8 +144,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Minimum:</label>
               <input
                 type="number"
-                value={userProfile.userPreferences.minBudget}
-                onChange={(e) => handleUserPreferencesChange('budgetMin', Number(e.target.value))}
+                value={localProfile.preferences.min_budget}
+                onChange={(e) => handleUserPreferencesChange('min_budget', Number(e.target.value))}
                 className="profile-field__input"
               />
             </div>
@@ -145,8 +153,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Budget Maximum:</label>
               <input
                 type="number"
-                value={userProfile.userPreferences.maxBudget}
-                onChange={(e) => handleUserPreferencesChange('budgetMax', Number(e.target.value))}
+                value={localProfile.preferences.max_budget}
+                onChange={(e) => handleUserPreferencesChange('max_budget', Number(e.target.value))}
                 className="profile-field__input"
               />
             </div>            
@@ -154,8 +162,8 @@ export default function ProfilePage() {
               <label className="profile-field__label">Rating Preference:</label>
               <input
                 type="number"
-                value={userProfile.userPreferences.ratingPreference}
-                onChange={(e) => handleUserPreferencesChange('ratingPreference', Number(e.target.value))}
+                value={localProfile.preferences.rating_preference}
+                onChange={(e) => handleUserPreferencesChange('rating_preference', Number(e.target.value))}
                 className="profile-field__input"
                 min="1"
                 max="5"
@@ -165,7 +173,7 @@ export default function ProfilePage() {
               <label className="profile-field__label">Country:</label>
               <input
                 type="text"
-                value={userProfile.userPreferences.country}
+                value={localProfile.preferences.country}
                 onChange={(e) => handleUserPreferencesChange('country', e.target.value)}
                 className="profile-field__input"
               />

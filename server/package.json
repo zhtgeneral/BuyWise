@@ -15,7 +15,7 @@
     "test:chat": "mocha --require ts-node/register src/tests/integration/chat.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-chat,reportFilename=chat-test",
     "test:profile": "mocha --require ts-node/register src/tests/integration/profile.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-profile,reportFilename=profile-test",
     "test:integration": "mocha --require ts-node/register src/tests/integration/*.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-integration,reportFilename=integration-tests",
-    "test:integration:report": "npx open-cli mochawesome-integration/integration-tests.html"
+    "test:integration:report": "npx http-server mochawesome-report -p 8080 -c-1"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",
