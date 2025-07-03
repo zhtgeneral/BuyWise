@@ -38,7 +38,10 @@ export default function ChatPage() {
           emailRef.current
         );
         const payload = { messages: chatRef.current, email: "Rizz@mail.ca"}; // temporary email
-        axios.post("http://localhost:3000/api/chats", payload); // fire-and-forget
+        axios.post("http://localhost:3000/api/chats", payload, {headers :  {
+          'Content-Type': 'application/json',
+          'Authorization' : `Bearer ${localStorage.getItem('token')}`
+        }}); // fire-and-forget
         dispatch(clearChat());
       }
     };

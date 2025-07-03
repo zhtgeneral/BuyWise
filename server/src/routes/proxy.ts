@@ -200,6 +200,94 @@ router.post('/create', authenticate, async (req, res) => {
 
 /**
  * @swagger
+ * /api/buywise/redirect/logs:
+ *   get:
+ *     summary: Get all proxy logs
+ *     description: Retrieves all proxy logs for admin purposes. Returns the 100 most recent logs sorted by creation date.
+ *     tags: [Proxy]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Proxy logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProxyLogsResponse'
+ *             example:
+ *               success: true
+ *               logs:
+ *                 - originalUrl: "https://amazon.com/dp/B08N5WRWNW"
+ *                   proxyUrl: "/api/buywise/redirect/1703123456789-abc123"
+ *                   params:
+ *                     ref: "buywise"
+ *                     tag: "buywise-20"
+ *                     linkCode: "ogi"
+ *                   redirectUrl: "https://amazon.com/dp/B08N5WRWNW?ref=buywise&tag=buywise-20&linkCode=ogi"
+ *                   userId: "507f1f77bcf86cd799439011"
+ *                   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+ *                   ipAddress: "192.168.1.1"
+ *                   createdAt: "2023-12-21T10:30:00.000Z"
+ *                   updatedAt: "2023-12-21T10:30:00.000Z"
+ *                 - originalUrl: "https://bestbuy.com/site/laptop"
+ *                   proxyUrl: "/api/buywise/redirect/1703123456788-def456"
+ *                   params:
+ *                     affiliate_id: "buywise123"
+ *                     campaign: "holiday_sale"
+ *                   redirectUrl: "https://bestbuy.com/site/laptop?affiliate_id=buywise123&campaign=holiday_sale"
+ *                   userId: null
+ *                   userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+ *                   ipAddress: "192.168.1.2"
+ *                   createdAt: "2023-12-21T10:25:00.000Z"
+ *                   updatedAt: "2023-12-21T10:25:00.000Z"
+ *       401:
+ *         description: Unauthorized - invalid or missing JWT token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "Authentication required"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "Internal server error"
+ */
+router.get('/logs', authenticate, async (req, res) => {
+  try {
+    console.log('/api/buywise/redirect/logs : called');
+    
+    // Import ProxyLog model
+    const ProxyLog = (await import('../models/ProxyLog')).default;
+    
+    const logs = await ProxyLog.find().sort({ createdAt: -1 }).limit(100);
+    
+    res.json({
+      success: true,
+      logs: logs.map(log => ({
+        originalUrl: log.originalUrl,
+        proxyUrl: log.proxyUrl,
+        params: log.params,
+        redirectUrl: log.redirectUrl,
+        userId: log.userId,
+        userAgent: log.userAgent,
+        ipAddress: log.ipAddress,
+        createdAt: log.createdAt,
+        updatedAt: log.updatedAt
+      }))
+    });
+  } catch (error) {
+    console.error('Error getting proxy logs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
  * /api/buywise/redirect/{proxyId}:
  *   get:
  *     summary: Redirect to original URL with parameters
@@ -261,92 +349,6 @@ router.get('/:proxyId', async (req, res) => {
     res.redirect(redirectUrl);
   } catch (error) {
     console.error('Error handling proxy redirect:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-/**
- * @swagger
- * /api/buywise/redirect/logs:
- *   get:
- *     summary: Get all proxy logs
- *     description: Retrieves all proxy logs for admin purposes. Returns the 100 most recent logs sorted by creation date.
- *     tags: [Proxy]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Proxy logs retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ProxyLogsResponse'
- *             example:
- *               success: true
- *               logs:
- *                 - originalUrl: "https://amazon.com/dp/B08N5WRWNW"
- *                   proxyUrl: "/api/buywise/redirect/1703123456789-abc123"
- *                   params:
- *                     ref: "buywise"
- *                     tag: "buywise-20"
- *                     linkCode: "ogi"
- *                   redirectUrl: "https://amazon.com/dp/B08N5WRWNW?ref=buywise&tag=buywise-20&linkCode=ogi"
- *                   userId: "507f1f77bcf86cd799439011"
- *                   userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
- *                   ipAddress: "192.168.1.1"
- *                   createdAt: "2023-12-21T10:30:00.000Z"
- *                   updatedAt: "2023-12-21T10:30:00.000Z"
- *                 - originalUrl: "https://bestbuy.com/site/laptop"
- *                   proxyUrl: "/api/buywise/redirect/1703123456788-def456"
- *                   params:
- *                     affiliate_id: "buywise123"
- *                     campaign: "holiday_sale"
- *                   redirectUrl: "https://bestbuy.com/site/laptop?affiliate_id=buywise123&campaign=holiday_sale"
- *                   userId: null
- *                   userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
- *                   ipAddress: "192.168.1.2"
- *                   createdAt: "2023-12-21T10:25:00.000Z"
- *                   updatedAt: "2023-12-21T10:25:00.000Z"
- *       401:
- *         description: Unauthorized - invalid or missing JWT token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               error: "Authentication required"
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               error: "Internal server error"
- */
-router.get('/logs', authenticate, async (req, res) => {
-  try {
-    // Import ProxyLog model
-    const ProxyLog = (await import('../models/ProxyLog')).default;
-    
-    const logs = await ProxyLog.find().sort({ createdAt: -1 }).limit(100);
-    
-    res.json({
-      success: true,
-      logs: logs.map(log => ({
-        originalUrl: log.originalUrl,
-        proxyUrl: log.proxyUrl,
-        params: log.params,
-        redirectUrl: log.redirectUrl,
-        userId: log.userId,
-        userAgent: log.userAgent,
-        ipAddress: log.ipAddress,
-        createdAt: log.createdAt,
-        updatedAt: log.updatedAt
-      }))
-    });
-  } catch (error) {
-    console.error('Error getting proxy logs:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

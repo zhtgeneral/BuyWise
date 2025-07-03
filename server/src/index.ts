@@ -9,7 +9,7 @@ import authRoutes from './routes/auth';
 import productsRoutes from './routes/products';
 import chatRoutes from './routes/chat';
 import proxyRoutes from './routes/proxy';
-import { authMiddleware } from './middleware/auth';
+import { authMiddleware, authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
 // import { postRegister } from './routes/auth';
@@ -84,7 +84,7 @@ const connectDB = async () => {
 connectDB().then(() => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  app.post('/api/chatbot', postChat);
+  app.post('/api/chatbot', authenticate, postChat);
 
   // app.get('/api/test-products', (req: Request, res: Response) => {
   //   return res.json(test_products);
