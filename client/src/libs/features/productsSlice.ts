@@ -12,11 +12,13 @@ interface Product {
 }
 
 interface ProductsState {
-  items: Product[];
+  products: Product[];
+  pastProducts: Product[];
 }
 
 const initialState: ProductsState = {
-  items: [],
+  products: [],
+  pastProducts: [],
 };
 
 const productsSlice = createSlice({
@@ -24,16 +26,20 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
     setProducts: (state, action: PayloadAction<Product[]>) => {
-      state.items = action.payload;
+      // Move current products to pastProducts, avoiding duplicates
+      const currentIds = new Set(state.products.map(p => p.id));
+      const newPast = state.products.filter(p => !state.pastProducts.some(pp => pp.id === p.id));
+      state.pastProducts = [...state.pastProducts, ...newPast];
+      state.products = action.payload;
     },
     clearProducts: (state) => {
-      state.items = [];
+      state.products = [];
+      state.pastProducts = [];
     },
   },
 });
 
 export const { setProducts, clearProducts } = productsSlice.actions;
-export const selectProducts = (state) => {
-  return state.products?.items;
-}
+export const selectProducts = (state) => state.products?.products || [];
+export const selectPastProducts = (state) => state.products?.pastProducts || [];
 export default productsSlice.reducer;

@@ -47,7 +47,7 @@ export default function Sidebar() {
             <div className="sidebar-items">
                 <nav className="sidebar-nav">
                     {/* Logo at the Top */}
-                    <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '2rem', cursor: 'pointer' }}>
+                    <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }}>
                         <img src={BuyWiseLogo} alt="BuyWise Logo" style={{ width: '180px', height: 'auto' }} />
                     </div>
                     <div onClick={() => handleNavigation('/chat')} className="sidebar-link">

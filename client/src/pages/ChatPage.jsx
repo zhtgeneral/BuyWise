@@ -52,8 +52,12 @@ export default function ChatPage() {
     const handleBeforeUnload = () => {
       if (chatRef.current.length > 0) {
         const payload = { messages: chatRef.current, email: "Rizz@mail.ca" }; // temporary email
-        navigator.sendBeacon("http://localhost:3000/api/chats", JSON.stringify(payload));
-        dispatch(clearChat());
+        fetch("http://localhost:3000/api/chats", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+          keepalive: true
+        }).catch(err => console.error('Failed to save chat on unload:', err));
       }
     };
     window.addEventListener("beforeunload", handleBeforeUnload);

@@ -212,7 +212,25 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
     
     const agentExecutor = await getAgentExecutor(sessionId);
     const result = await agentExecutor.invoke({ input: userInput });
-    const response = result.output || result.result || "Sorry, I couldn't find an answer.";
+    let response = result.output || result.result || "Sorry, I couldn't find an answer.";
+
+    // Enforce tool output for off-topic queries
+    if (result.intermediateSteps) {
+      for (const step of result.intermediateSteps) {
+        if (
+          step.action &&
+          step.action.tool === "check_topic_relevance" &&
+          step.observation
+        ) {
+          const obs = JSON.parse(step.observation);
+          if (obs.relevant === false && obs.message) {
+            response = obs.message;
+            break;
+          }
+        }
+      }
+    }
+
     // Add any new products to the session's product history
     if (lastProductData.length > 0) {
       addProductsToHistory(sessionId, lastProductData);
