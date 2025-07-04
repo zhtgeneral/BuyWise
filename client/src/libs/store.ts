@@ -3,6 +3,7 @@ import profileReducer from './features/profileSlice';
 import productsReducer from './features/productsSlice'
 import chatReducer from './features/chatSlice';
 import authenticationReducer from './features/authenticationSlice'
+import historyReducer from './features/historySlice';
 
 /**
  * This holds the global states.
@@ -14,7 +15,8 @@ export const store = configureStore({
     profile: profileReducer,
     products: productsReducer,
     chat: chatReducer,
-    authentication: authenticationReducer
+    authentication: authenticationReducer,
+    history: historyReducer,
   },
 })
 

@@ -5,7 +5,7 @@ import ChatDrawer from "../components/ChatDrawer";
 import { useDispatch, useSelector } from "react-redux";
 import { selectProfileUser } from "../libs/features/profileSlice";
 import { selectProducts } from "../libs/features/productsSlice";
-import { selectChatMessages, clearChat } from "../libs/features/chatSlice";
+import { selectChatMessages, clearChat, addMessage } from "../libs/features/chatSlice";
 import axios from "axios";
 import "../styles/ChatPage.css";
 
@@ -31,7 +31,7 @@ export default function ChatPage() {
   // Save chat on unmount
   useEffect(() => {
     const saveChat = () => {
-      if (chatRef.current.length > 0) {
+      if (chatRef.current.length > 1) {
         console.log(
           "Cleanup: Saving and clearing chat on unmount",
           chatRef.current,
@@ -53,7 +53,7 @@ export default function ChatPage() {
   // Save chat on refresh/close
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (chatRef.current.length > 0) {
+      if (chatRef.current.length > 1) {
         const payload = { messages: chatRef.current, email: "Rizz@mail.ca" }; // temporary email
         fetch("http://localhost:3000/api/chats", {
           method: "POST",
@@ -67,13 +67,20 @@ export default function ChatPage() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [dispatch]);
 
+  const handleOpenChat = () => {
+    if (chat.length === 0) {
+      dispatch(addMessage({ speaker: "bot", text: "Are you looking for a cellphone or computer?" }));
+    }
+    setOpened(true);
+  };
+
   return (
     <main className="chat-page">
       <h1>
         Welcome to <span className="buywise-highlight">BuyWise</span>
       </h1>
-      <Button className="chat-button" onClick={() => setOpened(true)}>
-        Start Chat
+      <Button className="chat-button" onClick={handleOpenChat}>
+        Open Chat
       </Button>
 
       <ChatDrawer

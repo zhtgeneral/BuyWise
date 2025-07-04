@@ -1,13 +1,16 @@
 import '../styles/Sidebar.css';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchChatHistory, selectChats, selectHistoryLoading, selectHistoryError } from '../libs/features/historySlice';
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
 import BuyWiseLogo from '../assets/BuyWiseLogo.png';
-import { useDispatch, useSelector } from 'react-redux';
 import { updateProfile } from '../libs/features/profileSlice';
-import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice'
-import RedirectRoutes from '../middleware/middleware'
+import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
+import RedirectRoutes from '../middleware/middleware';
+import PastChats from './PastChats';
 
 /**
  * This is the sidebar
@@ -19,10 +22,13 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const isAuthenticated = useSelector(selectIsAuthenticated);  
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const chats = useSelector(selectChats);
+  const loading = useSelector(selectHistoryLoading);
+  const error = useSelector(selectHistoryError);
 
   function handleNavigation(url) {
-    RedirectRoutes(url, navigate, isAuthenticated)
+    RedirectRoutes(url, navigate, isAuthenticated);
   }
 
   function handleLogout() {
@@ -36,9 +42,15 @@ export default function Sidebar() {
     window.location.reload();
   }
 
+  useEffect(() => {
+    if (location.pathname === '/chat') {
+      dispatch(fetchChatHistory());
+    }
+  }, [location.pathname, dispatch]);
+
   return (
     <aside className="sidebar">
-      <div className="sidebar-items">
+      <div className="sidebar-items" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <nav className="sidebar-nav">
           {/* Logo at the Top */}
           <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }}>
@@ -46,7 +58,7 @@ export default function Sidebar() {
           </div>
           <div onClick={() => handleNavigation('/chat')} className="sidebar-link">
             <TerminalIcon className="sidebar-icon" />
-            <span className="sidebar-text">Chat</span>
+            <span className="sidebar-text">New Chat</span>
           </div>
           <div onClick={() => handleNavigation('/profile')} className="sidebar-link">
             <EditIcon className="sidebar-icon" />
@@ -57,6 +69,11 @@ export default function Sidebar() {
             <span className="sidebar-text">About Us</span>
           </div>
         </nav>
+
+        {/* Past Chats Section (only on chat page) */}
+        {location.pathname === '/chat' && (
+          <PastChats chats={chats} loading={loading} error={error} />
+        )}
 
         {/* Auth Section at Bottom */}
         <div className="sidebar-auth">

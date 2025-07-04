@@ -13,7 +13,7 @@ interface Product {
 
 interface ProductsState {
   products: Product[];
-  pastProducts: Product[];
+  pastProducts: Product[][];
 }
 
 const initialState: ProductsState = {
@@ -26,10 +26,9 @@ const productsSlice = createSlice({
   initialState,
   reducers: {
     setProducts: (state, action: PayloadAction<Product[]>) => {
-      // Move current products to pastProducts, avoiding duplicates
-      const currentIds = new Set(state.products.map(p => p.id));
-      const newPast = state.products.filter(p => !state.pastProducts.some(pp => pp.id === p.id));
-      state.pastProducts = [...state.pastProducts, ...newPast];
+      if (state.products.length > 0) {
+        state.pastProducts.push(state.products);
+      }
       state.products = action.payload;
     },
     clearProducts: (state) => {
