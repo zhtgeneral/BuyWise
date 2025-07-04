@@ -3,17 +3,24 @@ import { Drawer, Button, Textarea } from '@mantine/core';
 import ChatMessage from './ChatMessage';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMessage, selectChatMessages } from '../libs/features/chatSlice';
+import { selectProfileUser } from '../libs/features/profileSlice';
 import axios from 'axios';
 import '../styles/ChatDrawer.css'
 import { setProducts } from '../libs/features/productsSlice'
+import { useLocation } from 'react-router-dom';
 
 export default function ChatDrawer({ 
   opened, 
   onClose,
-  setShowProduct
+  setShowProduct,
+  messages
  }) {
   const dispatch = useDispatch();
-  const chat = useSelector(selectChatMessages);
+  const reduxChat = useSelector(selectChatMessages);
+  const userProfile = useSelector(selectProfileUser);
+  const location = useLocation();
+
+  const chat = messages ?? reduxChat;
 
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +45,9 @@ export default function ChatDrawer({
 
     try {
       const response = await axios.post('http://localhost:3000/api/chatbot', {
-        message: userInput
+        message: userInput,
+        userId: userProfile?._id,
+        email: userProfile?.email
       },{headers :  {
         'Content-Type': 'application/json',
         'Authorization' : `Bearer ${localStorage.getItem('token')}`
@@ -72,6 +81,9 @@ export default function ChatDrawer({
       handleSendMessage();
     }
   };
+
+   // temporary temporary temporary!!!!
+  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
 
   return (
     <div className="chatdrawer-styles">
@@ -109,11 +121,12 @@ export default function ChatDrawer({
             minRows={1}
             maxRows={4}
             autosize
+            disabled={isPastChat} // temporary temporary temporary!!!!
           />
           <Button 
             onClick={handleSendMessage}
             loading={isLoading}
-            disabled={!userInput.trim()}
+            disabled={!userInput.trim() || isPastChat}  // temporary temporary temporary!!!!
             className="chatdrawer-button"
           >
             Send

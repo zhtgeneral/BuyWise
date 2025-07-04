@@ -42,14 +42,14 @@ const initialState: HistoryState = {
 
 export const fetchChatHistory = createAsyncThunk(
   'history/fetchChatHistory',
-  async (_, { rejectWithValue }) => {
+  async (email: string, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:3000/api/chats?email=Rizz@mail.ca');
+      const response = await fetch(`http://localhost:3000/api/chats?email=${encodeURIComponent(email)}`);
       if (!response.ok) {
         throw new Error('Failed to fetch chat history');
       }
       const data = await response.json();
-      return data;
+      return data.chats || data.chat || data || [];
     } catch (error: any) {
       return rejectWithValue(error.message || 'Unknown error');
     }
@@ -86,6 +86,7 @@ export const historySlice = createSlice({
         state.error = null;
       })
       .addCase(fetchChatHistory.fulfilled, (state, action: PayloadAction<ChatHistory[]>) => {
+        // chats array is now properly extracted in the thunk
         state.chats = action.payload;
         state.loading = false;
         state.error = null;

@@ -19,6 +19,7 @@ export interface IMessage {
 }
 
 export interface IChat {
+  _id: string;
   messages: Partial<IMessage>[],
   email: string,
   createdAt?: string; 
@@ -62,7 +63,11 @@ const ChatSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+    index: true, // Index for time-based deduplication queries
   }
 });
+
+// Compound index for efficient deduplication queries
+ChatSchema.index({ email: 1, createdAt: -1 });
 
 export default mongoose.model('Chat', ChatSchema);

@@ -4,9 +4,12 @@ import "../styles/ProductGrid.css";
 import { selectProducts, selectPastProducts } from "../libs/features/productsSlice";
 
 export default function ProductGrid({
+  products,
   showProduct
 }) {
-  const products = useSelector(selectProducts);
+  // Use products prop if provided, otherwise use selector
+  const selectorProducts = useSelector(selectProducts);
+  const actualProducts = products || selectorProducts;
   const pastProducts = useSelector(selectPastProducts);
 
   if (!showProduct) {
@@ -19,7 +22,7 @@ export default function ProductGrid({
     <>
       <h3>Recommended Products</h3>    
       <div className="product-list">
-        {products?.map((product) => (
+        {actualProducts?.map((product) => (
           <div className="product-card" key={product.id}>
             <img src={product.image} alt={product.title} />
             <div className="product-container">

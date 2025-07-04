@@ -1,8 +1,8 @@
 import '../styles/Sidebar.css';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchChatHistory, selectChats, selectHistoryLoading, selectHistoryError } from '../libs/features/historySlice';
+import { fetchChatHistory, selectChats, selectHistoryLoading, selectHistoryError, setActiveChatId, selectActiveChatId } from '../libs/features/historySlice';
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
@@ -26,8 +26,48 @@ export default function Sidebar() {
   const chats = useSelector(selectChats);
   const loading = useSelector(selectHistoryLoading);
   const error = useSelector(selectHistoryError);
+  const userEmail = useSelector(state => state.profile?.user?.email);
+  const activeChatId = useSelector(selectActiveChatId); // Use Redux state instead of local state
+  const [showNewChatTempEntry, setShowNewChatTempEntry] = useState(false);
+  const shouldRefreshRef = useRef(false);
+  const chat = useSelector(state => state.chat.messages);
 
-  function handleNavigation(url) {
+  function handleChatSelect(chatId) {
+    dispatch(setActiveChatId(chatId));
+    if (!chatId) {
+      setShowNewChatTempEntry(true);
+      shouldRefreshRef.current = true;
+    } else {
+      setShowNewChatTempEntry(false);
+    }
+  }
+
+  async function handleNavigation(url) {
+    if (url === '/chat') {
+      // If already on /chat and there is an active chat, save it
+      if (location.pathname === '/chat' && chat && chat.length > 1) {
+        const payload = { messages: chat, email: userEmail };
+        try {
+          await fetch("http://localhost:3000/api/chats", {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" },
+            keepalive: true
+          });
+          dispatch(clearChat());
+          if (userEmail) {
+            dispatch(fetchChatHistory(userEmail));
+          }
+        } catch (err) {
+          console.error('Failed to save chat before starting new chat:', err);
+        }
+      }
+      setShowNewChatTempEntry(true);
+      dispatch(setActiveChatId(null));
+      shouldRefreshRef.current = true;
+    } else {
+      setShowNewChatTempEntry(false);
+    }
     RedirectRoutes(url, navigate, isAuthenticated);
   }
 
@@ -43,10 +83,10 @@ export default function Sidebar() {
   }
 
   useEffect(() => {
-    if (location.pathname === '/chat') {
-      dispatch(fetchChatHistory());
+    if (userEmail) {
+      dispatch(fetchChatHistory(userEmail));
     }
-  }, [location.pathname, dispatch]);
+  }, [location.pathname, dispatch, userEmail]);
 
   return (
     <aside className="sidebar">
@@ -70,9 +110,16 @@ export default function Sidebar() {
           </div>
         </nav>
 
-        {/* Past Chats Section (only on chat page) */}
-        {location.pathname === '/chat' && (
-          <PastChats chats={chats} loading={loading} error={error} />
+        {/* Past Chats Section */}
+        {isAuthenticated && (
+          <PastChats 
+            chats={chats} 
+            loading={loading} 
+            error={error} 
+            showNewChatTempEntry={showNewChatTempEntry}
+            onChatSelect={handleChatSelect}
+            activeChatId={activeChatId}
+          />
         )}
 
         {/* Auth Section at Bottom */}

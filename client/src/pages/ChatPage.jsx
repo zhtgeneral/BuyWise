@@ -1,71 +1,86 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { Button } from "@mantine/core";
 import ProductGrid from "../components/ProductGrid";
 import ChatDrawer from "../components/ChatDrawer";
 import { useDispatch, useSelector } from "react-redux";
-import { selectProfileUser } from "../libs/features/profileSlice";
 import { selectProducts } from "../libs/features/productsSlice";
-import { selectChatMessages, clearChat, addMessage } from "../libs/features/chatSlice";
-import axios from "axios";
+import { addMessage, clearChat } from "../libs/features/chatSlice";
+import { fetchChatHistory, selectChats } from "../libs/features/historySlice";
 import "../styles/ChatPage.css";
 
-/** This is tha page where the user can chat with the AI for products */
+/** This is the page where the user can chat with the AI for products */
 export default function ChatPage() {
   const [opened, setOpened] = useState(false);
   const [showProduct, setShowProduct] = useState(false);
-  const chat = useSelector(selectChatMessages);
-  const userOptions = useSelector(selectProfileUser);
-
+  
+  // Get chat messages directly from Redux
+  const chat = useSelector(state => state.chat.messages);
+  const products = useSelector(selectProducts);
+  const userEmail = useSelector(state => state.profile?.user?.email); // adjust selector as needed
+  const pastChats = useSelector(state => state.history?.chats || []);
+  const allChats = useSelector(selectChats);
   const dispatch = useDispatch();
-  const products = dispatch(selectProducts);
-
-  // Refs to always have latest chat and email
   const chatRef = useRef(chat);
-  const emailRef = useRef(userOptions.email);
-
+  const emailRef = useRef(userEmail);
+  const pastChatsRef = useRef(pastChats);
+  const location = useLocation();
   useEffect(() => {
     chatRef.current = chat;
-    emailRef.current = userOptions.email;
-  }, [chat, userOptions.email]);
+    emailRef.current = userEmail;
+    pastChatsRef.current = pastChats;
+  }, [chat, userEmail, pastChats]);
 
-  // Save chat on unmount
+  // Show products if there are any in the current chat/products state
+  useEffect(() => {
+    if (products && products.length > 0) {
+      setShowProduct(true);
+    } else {
+      setShowProduct(false);
+    }
+  }, [products]);
+
   useEffect(() => {
     const saveChat = () => {
       if (chatRef.current.length > 1) {
-        console.log(
-          "Cleanup: Saving and clearing chat on unmount",
-          chatRef.current,
-          emailRef.current
-        );
-        const payload = { messages: chatRef.current, email: "Rizz@mail.ca"}; // temporary email
-        axios.post("http://localhost:3000/api/chats", payload, {headers :  {
-          'Content-Type': 'application/json',
-          'Authorization' : `Bearer ${localStorage.getItem('token')}`
-        }}); // fire-and-forget
+        const payload = { messages: chatRef.current, email: emailRef.current };
+        axios.post("http://localhost:3000/api/chats", payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }); // fire-and-forget
         dispatch(clearChat());
+        if (userEmail) {
+          dispatch(fetchChatHistory(userEmail));
+        }
       }
     };
     return () => {
       saveChat();
     };
-  }, [dispatch]);
+  }, [location.pathname, dispatch]);
 
   // Save chat on refresh/close
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (chatRef.current.length > 1) {
-        const payload = { messages: chatRef.current, email: "Rizz@mail.ca" }; // temporary email
-        fetch("http://localhost:3000/api/chats", {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: { "Content-Type": "application/json" },
-          keepalive: true
-        }).catch(err => console.error('Failed to save chat on unload:', err));
+useEffect(() => {
+  const handleBeforeUnload = () => {
+    if (chatRef.current.length > 1) {
+      const payload = { messages: chatRef.current, email: emailRef.current };
+      fetch("http://localhost:3000/api/chats", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        keepalive: true
+      }).catch(err => console.error('Failed to save chat on unload:', err));
+      if (userEmail) {
+        dispatch(fetchChatHistory(emailRef.current));
       }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [dispatch]);
+    }
+  };
+  window.addEventListener("beforeunload", handleBeforeUnload);
+  return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+}, [dispatch]);
 
   const handleOpenChat = () => {
     if (chat.length === 0) {
@@ -73,6 +88,21 @@ export default function ChatPage() {
     }
     setOpened(true);
   };
+
+  // TEMP TEMP TEMP Determine if viewing a past chat
+  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
+  let displayMessages = chat;
+  let displayProducts = products;
+  if (isPastChat) {
+    const chatId = location.pathname.split('/chat/')[1];
+    const found = allChats.find(c => c._id === chatId);
+    if (found) {
+      displayMessages = found.messages;
+      displayProducts = found.messages
+        .filter(m => m.speaker === 'bot' && m.recommendedProducts && m.recommendedProducts.length > 0)
+        .flatMap(m => m.recommendedProducts);
+    }
+  }
 
   return (
     <main className="chat-page">
@@ -87,9 +117,10 @@ export default function ChatPage() {
         opened={opened}
         onClose={() => setOpened(false)}
         setShowProduct={setShowProduct}
+        messages={displayMessages}
       />
 
-      <ProductGrid products={products} showProduct={showProduct} />
+      <ProductGrid products={displayProducts} showProduct={showProduct} />
     </main>
   );
 }

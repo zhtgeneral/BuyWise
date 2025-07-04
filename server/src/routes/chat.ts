@@ -133,7 +133,7 @@ const router = express.Router();
  *                   type: string
  */
 router.post('/', async (req, res) => {
-  const { messages, email } = req.body;
+  const { messages, email, sessionId } = req.body;
   if (messages === undefined || email === undefined) {
     return res.status(400).json({
       success: false,
@@ -160,7 +160,7 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    var chat = await ChatService.saveChat(messages, email);    
+    var chat = await ChatService.saveChat(messages, email, sessionId);    
   } catch (error: any) {
     console.error("/api/chat POST error " + JSON.stringify(error, null, 2));
     res.status(500).json({ 

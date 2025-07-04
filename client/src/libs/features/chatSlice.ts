@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 export interface RecommendedProduct {
   id: string;
@@ -25,6 +25,35 @@ interface ChatState {
 const initialState: ChatState = {
   messages: [],
 };
+
+// Define the argument type for saving chat
+interface SaveChatArgs {
+  messages: ChatMessage[];
+  email: string;
+}
+
+// Thunk to save the current chat to the backend
+export const saveChatAsync = createAsyncThunk(
+  'chat/saveChat',
+  async ({ messages, email }: SaveChatArgs, { rejectWithValue }) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/chats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ messages, email }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save chat');
+      }
+      return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Unknown error');
+    }
+  }
+);
 
 export const chatSlice = createSlice({
   name: 'chat',

@@ -99,9 +99,17 @@ const focusCheckTool = new DynamicTool({
     const isRelevant = techKeywords.some(keyword => inputLower.includes(keyword));
     
     if (!isRelevant) {
+      const redirectMessages = [
+        "That's interesting! I'm really focused on helping with tech shopping though. Are you looking for any new devices?",
+        "I'd love to help with that, but I'm specialized in tech products! What kind of laptop, phone, or computer are you interested in?",
+        "That's outside my expertise, but I'm great with tech shopping! Need help finding any devices?",
+        "I focus on helping people find amazing tech products! What device can I help you with today?"
+      ];
+      const randomMessage = redirectMessages[Math.floor(Math.random() * redirectMessages.length)];
+      
       return JSON.stringify({
         relevant: false,
-        message: "I'm BuyWise, your shopping assistant for laptops, phones, and computers. I can help you find the perfect tech products, compare prices, and get recommendations. What device are you looking for?"
+        message: randomMessage
       });
     }
     
@@ -115,36 +123,34 @@ const focusCheckTool = new DynamicTool({
 // Default tools (without userId) for backward compatibility
 const defaultTools = [categoryTool, focusCheckTool];
 
-const llm = new ChatOpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  modelName: "gpt-4.1-nano",
-  temperature: 0.2,
-  maxTokens: 1000,
-});
-
-// TODO: Chatbot can sometimes be kinda rude, maybe make it less aggressive
 const systemPrompt = `
-You are BuyWise, a specialized shopping assistant ONLY for laptops, phones, and computers. You must ONLY help with technology shopping and product recommendations.
+You are BuyWise, a super friendly, upbeat, and genuinely enthusiastic shopping assistant who specializes in laptops, phones, and computers. You love helping people find the perfect tech products, and you make every conversation feel like chatting with a fun, knowledgeable friend!
 
-STRICT RULES:
-- NEVER answer questions unrelated to laptops, phones, computers, or tech shopping
-- If asked about anything else (weather, cooking, general knowledge, etc.), politely redirect to tech shopping
-- Always use the check_topic_relevance tool for unclear or non-tech questions
-- Your sole purpose is helping users find and compare tech products
+Your personality:
+- Warm, personable, and playful—never robotic or clinical
+- You love a bit of light banter and small talk, and you answer friendly questions about yourself or your day with charm and humor (but never mention being an AI, chatbot, or language model)
+- If the user asks about your day, how you are, or makes small talk, respond with warmth and a smile, then gently and playfully steer the conversation back to tech shopping (feel free to use emojis or exclamations for extra friendliness!)
+- If the user asks about something truly off-topic (politics, sports, etc.), politely and cheerfully redirect to tech shopping with a fun twist
+- Remember what users mentioned earlier in the conversation and build on it naturally
+- Use casual, friendly language, and don't be afraid to show excitement about cool tech
+- Never sound meta, analytical, or summarize the user's intent—just respond as a direct conversational partner
 
-Your capabilities:
-- Search for laptops, phones, and computers
-- Compare prices and find budget-friendly options  
-- Provide category insights and tech recommendations
-- Remember conversation context for personalized shopping advice
+What you help with:
+- Finding laptops, phones, and computers that match specific needs
+- Comparing prices and features between different options
+- Explaining tech specs in simple, relatable terms
+- Budget-friendly recommendations and alternatives
+- Product recommendations based on use cases (gaming, work, photography, etc.)
 
-Guidelines:
-- Be enthusiastic about technology shopping
-- Ask follow-up questions about tech needs (budget, use case, preferences)
-- When showing products, highlight key features
-- If users mention budget concerns, suggest alternatives
-- ALWAYS redirect non-tech topics back to device shopping
-- Use tools appropriately: product_search for finding products, price_comparison for budget questions, category_insights for recommendations, check_topic_relevance for off-topic questions
+Conversation flow:
+- When users ask about tech products, dive right in with excitement and helpfulness
+- If they ask non-tech questions, gently and playfully redirect: "Haha, that's fun! But you know what really gets me excited? Helping people find awesome tech! 😊 Looking for a new device?"
+- If users make small talk or ask about you, answer in a friendly, positive, and slightly playful way, then ask if they need help with tech
+- Vary your responses—never repeat the same phrase twice in a row
+- Ask about budget, intended use, brand preferences, and anything else to give the best recommendations
+- Sprinkle in emojis or exclamations for a lively, engaging vibe
+
+Remember: Be conversational, never robotic or meta. Avoid repetitive phrases, never mention being an AI, and always engage naturally and enthusiastically with what users are saying! Never summarize or reflect the user's last message—just respond as if you were chatting in person.
 `;
 
 // Use BufferMemory for conversation context
@@ -167,8 +173,8 @@ async function getAgentExecutor(sessionId: string, userId?: string) {
   
   const chatModel = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-    modelName: "gpt-4.1-nano",
-    temperature: 0.2,
+    modelName: "gpt-4.1-mini",
+    temperature: 0.5,
     maxTokens: 1000,
   });
   
@@ -202,27 +208,24 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
   try {
     // Clear previous product data
     lastProductData = [];
-    
+
     // Pre-filter obviously off-topic questions
     const offTopicKeywords = ['weather', 'recipe', 'cooking', 'movie', 'music', 'sports', 'politics', 'news', 'joke', 'story', 'game', 'math', 'history', 'geography'];
     const techKeywords = ['laptop', 'phone', 'computer', 'pc', 'mobile', 'device', 'tech', 'buy', 'purchase', 'price', 'compare', 'recommendation', 'specs', 'features', 'apple', 'samsung', 'dell', 'hp', 'android', 'ios', 'windows', 'mac'];
-    
     const inputLower = userInput.toLowerCase();
     const hasOffTopicKeywords = offTopicKeywords.some(keyword => inputLower.includes(keyword));
     const hasTechKeywords = techKeywords.some(keyword => inputLower.includes(keyword));
-    
     // If clearly off-topic and no tech keywords, redirect immediately
     if (hasOffTopicKeywords && !hasTechKeywords) {
       return {
-        message: "I'm BuyWise, your specialized shopping assistant for laptops, phones, and computers! I can help you find the perfect tech products, compare prices, and get recommendations. What device are you looking for today?",
-        productData: null
+        message: "That's interesting! I'm really focused on helping with tech shopping though. Are you looking for a new laptop, phone, or computer? I'd love to help you find something perfect for your needs!",
+        productData: null,
+        productHistory: getProductHistory(sessionId)
       };
     }
-    
     const agentExecutor = await getAgentExecutor(sessionId, userId);
     const result = await agentExecutor.invoke({ input: userInput });
     let response = result.output || result.result || "Sorry, I couldn't find an answer.";
-
     // Enforce tool output for off-topic queries
     if (result.intermediateSteps) {
       for (const step of result.intermediateSteps) {
@@ -233,8 +236,12 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
         ) {
           const obs = JSON.parse(step.observation);
           if (obs.relevant === false && obs.message) {
-            response = obs.message;
-            break;
+            // Return the tool's message directly to the user, bypassing LLM meta-reasoning
+            return {
+              message: obs.message,
+              productData: null,
+              productHistory: getProductHistory(sessionId)
+            };
           }
         }
       }
