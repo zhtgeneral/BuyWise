@@ -11,6 +11,7 @@ import { updateProfile } from '../libs/features/profileSlice';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
 import RedirectRoutes from '../middleware/middleware';
 import PastChats from './PastChats';
+import { clearChat } from '../libs/features/chatSlice';
 
 /**
  * This is the sidebar
