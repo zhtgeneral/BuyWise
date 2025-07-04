@@ -35,16 +35,22 @@ export default function ProductGrid({
       {pastProducts && pastProducts.length > 0 && (
         <>
           <h4 style={{marginTop: '2rem'}}>Previously Recommended</h4>
-          <div className="product-list">
-            {pastProducts.map((product) => (
-              <div className="product-card" key={product.id}>
-                <img src={product.image} alt={product.title} />
-                <div className="product-container">
-                  <h4>{product.title}</h4>
-                  <p>Price: ${product.price}</p>
-                  <Link to={product.url} className="product-link">
-                    Link to Product
-                  </Link>
+          <div>
+            {pastProducts.map((batch, batchIdx) => (
+              <div key={batchIdx} style={{ borderTop: batchIdx !== 0 ? '2px solid #e0e0e0' : undefined, paddingTop: batchIdx !== 0 ? '1rem' : undefined, marginTop: batchIdx !== 0 ? '1.5rem' : undefined }}>
+                <div className="product-list">
+                  {batch.map((product) => (
+                    <div className="product-card" key={product.id}>
+                      <img src={product.image} alt={product.title} />
+                      <div className="product-container">
+                        <h4>{product.title}</h4>
+                        <p>Price: ${product.price}</p>
+                        <Link to={product.url} className="product-link">
+                          Link to Product
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}

@@ -15,12 +15,6 @@ export default function ChatDrawer({
   const dispatch = useDispatch();
   const chat = useSelector(selectChatMessages);
 
-  useEffect(() => {
-    if (chat.length === 0) {
-      dispatch(addMessage({ speaker: "bot", text: "Are you looking for a cellphone or computer?" }));
-    }
-  }, [chat.length, dispatch]);
-
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);  
