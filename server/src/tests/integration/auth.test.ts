@@ -214,7 +214,6 @@ describe('Auth API', () => {
     });
   })  
 
-  // TODO fix
   describe('/api/auth/login POST', () => {
     it('should return 400 for missing email', async () => {
       const response = await request(app)

@@ -763,7 +763,7 @@ describe('Profile API', () => {
 
     it('should return 400 for missing newPassword', async () => {
       const response = await request(app)
-        .patch('/api/profiles/passwords')
+        .patch('/api/profiles/passwords/test123')
         .send({
           currentPassword: 'currentPassword'
         })
@@ -778,7 +778,7 @@ describe('Profile API', () => {
 
     it('should return 400 for missing currentPassword', async () => {
       const response = await request(app)
-        .patch('/api/profiles/passwords')
+        .patch('/api/profiles/passwords/test123')
         .send({
           newPassword: 'newPassword'
         })
@@ -793,7 +793,7 @@ describe('Profile API', () => {
 
     it('should return 400 for non string currentPassword', async () => {
       const response = await request(app)
-        .patch('/api/profiles/passwords')
+        .patch('/api/profiles/passwords/test123')
         .send({
           currentPassword: 123,
           newPassword: 'newPassword'
@@ -809,7 +809,7 @@ describe('Profile API', () => {
 
     it('should return 400 for non string currentPassword', async () => {
       const response = await request(app)
-        .patch('/api/profiles/passwords')
+        .patch('/api/profiles/passwords/test123')
         .send({
           currentPassword: 'test current',
           newPassword: 123

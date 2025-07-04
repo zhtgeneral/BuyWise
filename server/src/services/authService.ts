@@ -24,22 +24,19 @@ export class AuthService {
    */
   static async register(name: string, email: string, passwordData: string): Promise<AuthData> {
     const user = await UserService.createUser({ name, email, password: passwordData });
-    console.log("user", user);
     
-    const profile = await ProfileService.createProfile(
-      (user as Document & { _id: any })._id.toString(), 
-      {      
-        storage_preference: 'none',
-        RAM_preference: 'none',
-        brand_preference: '',
-        min_budget: 100,
-        max_budget: 1000,
-        rating_preference: 3,
-        country: 'Canada',
-        email: user.email
-      }
-    );
-    console.log("profile", profile);
+    const userId = (user as any)._id;
+    const profileData = {      
+      storage_preference: 'none',
+      RAM_preference: 'none',
+      brand_preference: '',
+      min_budget: 100,
+      max_budget: 1000,
+      rating_preference: 3,
+      country: 'Canada',
+      email: user.email
+    }
+    const profile = await ProfileService.createProfile(userId, profileData);
 
     const payload: CustomJwtPayload = {
       id: (user as Document & { _id: any })._id.toString()

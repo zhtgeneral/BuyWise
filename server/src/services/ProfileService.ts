@@ -2,46 +2,23 @@ import Profile, { IProfile } from '../models/Profile';
 import { AppError } from '../utils/AppError';
 
 export class ProfileService {
-  // Create a new profile for a user
+  /**
+   * Assume user is already created. Assume that profile with userId doesn't already exist
+   */
   static async createProfile(userId: string, profileData: Partial<IProfile>): Promise<IProfile> {
-    try {
-      console.log('Creating profile for userId:', profileData);
-      
-      const profile = new Profile({
-        userId,
+    try {      
+      var profile = new Profile({
+        userId: userId,
         ...profileData
       });
       await profile.save();
-      
-      console.log('Profile created successfully for userId:', userId);
-      return profile;
     } catch (error: any) {
-      console.log('ProfileService createProfile error:', {
-        message: error.message,
-        code: error.code,
-        name: error.name,
-        keyPattern: error.keyPattern,
-        keyValue: error.keyValue
-      });
-      
-      if (error.code === 11000) {
-        // Check if it's a userId duplicate or something else
-        if (error.keyPattern && error.keyPattern.userId) {
-          throw new AppError('Profile already exists for this user', 400);
-        } else {
-          console.error('Unexpected duplicate key error:', error.keyPattern);
-          throw new AppError('Profile creation failed due to duplicate data', 400);
-        }
-      }
-      
-      // Handle validation errors
-      if (error.name === 'ValidationError') {
-        const validationErrors = Object.values(error.errors).map((err: any) => err.message);
-        throw new AppError(validationErrors.join(', '), 400);
-      }
-      
+      console.error('ProfileService createProfile error: ', JSON.stringify(error, null, 2));      
       throw error;
     }
+
+    console.log('ProfileService::createProfile created profile: ', JSON.stringify(profile, null, 2));
+    return profile;
   }
 
   // Get profile by user ID
