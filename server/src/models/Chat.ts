@@ -14,14 +14,14 @@ export interface IRecommendedProduct {
 export interface IMessage {
   speaker: string,
   text: string,
-  timestamp?: string,
+  timestamp?: string;  
   recommendedProducts?: IRecommendedProduct[]
 }
 
 export interface IChat {
-  messages: IMessage[],
+  messages: Partial<IMessage>[],
   email: string,
-  createdAt?: string
+  createdAt?: string; 
 }
 
 const RecommendedProductSchema = new mongoose.Schema({

@@ -1,5 +1,4 @@
 import Chat, { IChat, IMessage } from '../models/Chat';
-import { AppError } from '../utils/AppError';
 
 export class ChatService {
   /**
@@ -11,7 +10,6 @@ export class ChatService {
     const chat = new Chat({ 
       messages: messages,
       email: email,
-      createdAt: new Date().toISOString()
     });
     await chat.save();
     const obj = chat.toObject();
@@ -21,7 +19,7 @@ export class ChatService {
       messages: obj.messages.map((m: any) => ({
         speaker: m.speaker,
         text: m.text,
-        timestamp: m.timestamp?.toISOString(),
+        timestamp: m.timestamp,
         recommendedProducts: (m.recommendedProducts || []).map((p: any) => ({
           id: p.id,
           source: p.source,
@@ -36,12 +34,33 @@ export class ChatService {
     };
   }
 
-  // Get all chats for a specific user by email
-  static async getChatsByEmail(email: string) {
-    if (!email) {
-      throw new AppError('email is required', 400);
-    }
-    const chats = await Chat.find({ email });
-    return chats;
+  /**
+   * Get all chats for a specific user by email
+   */
+  static async getChatsByEmail(email: string): Promise<IChat[]> {
+    const chats = await Chat.find({ email: email });
+    return chats.map(c => ChatService.formatChat(c.toObject()));
+  }
+
+  static formatChat(chat): IChat {
+    return {
+      email: chat.email as string,
+      createdAt: chat.createdAt.toISOString() as string, // assumes Date object
+      messages: chat.messages.map((m: any) => ({
+        speaker: m.speaker,
+        text: m.text,
+        timestamp: new Date(m.timestamp).toISOString(), // force conversion
+        recommendedProducts: m.recommendedProducts?.map((p: any) => ({
+          id: p.id,
+          source: p.source,
+          title: p.title,
+          image: p.image,
+          price: p.price,
+          url: p.url,
+          rating: p.rating,
+          reviews: p.reviews
+        }))
+      })) as IMessage[]
+    };
   }
 }

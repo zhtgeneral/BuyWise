@@ -12,10 +12,10 @@
     "test:chatbot": "mocha --require ts-node/register src/tests/integration/chatbot.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-chatbot,reportFilename=chatbot-test",
     "test:auth": "mocha --require ts-node/register src/tests/integration/auth.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-auth,reportFilename=auth-test",
     "test:product": "mocha --require ts-node/register src/tests/integration/products.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-product,reportFilename=product-test",
-    "test:chat": "mocha --require ts-node/register src/tests/integration/chat.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-chat,reportFilename=chat-test",
+    "test:chats": "mocha --require ts-node/register src/tests/integration/chats.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-chat,reportFilename=chat-test",
     "test:profile": "mocha --require ts-node/register src/tests/integration/profile.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-profile,reportFilename=profile-test",
     "test:integration": "mocha --require ts-node/register src/tests/integration/*.test.ts --timeout 20000 --reporter mochawesome --reporter-options reportDir=mochawesome-integration,reportFilename=integration-tests",
-    "test:integration:report": "npx http-server mochawesome-report -p 8080 -c-1"
+    "test:integration:report": "npx http-server mochawesome-integration -p 8080 -c-1"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",

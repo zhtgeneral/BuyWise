@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/chat:
+ * /api/chats:
  *   post:
  *     summary: Save a new chat with user email
  *     tags: [Chat]
@@ -24,9 +24,14 @@ const router = express.Router();
  *                 description: Array of chat messages
  *                 items:
  *                   type: object
+ *                   required:
+ *                     - speaker
+ *                     - text
+ *                     - timestamp
  *                   properties:
  *                     speaker:
  *                       type: string
+ *                       enum: [user, bot]
  *                       example: "user"
  *                     text:
  *                       type: string
@@ -34,6 +39,7 @@ const router = express.Router();
  *                     timestamp:
  *                       type: string
  *                       format: date-time
+ *                       example: "2023-05-15T10:00:00Z"
  *               email:
  *                 type: string
  *                 format: email
@@ -43,12 +49,88 @@ const router = express.Router();
  *         description: Chat saved successfully
  *         content:
  *           application/json:
+ *             example:
+ *               _id: "507f1f77bcf86cd799439011"
+ *               email: "user@example.com"
+ *               messages:
+ *                 - speaker: "user"
+ *                   text: "Hello!"
+ *                   timestamp: "2023-05-15T10:00:00Z"
+ *                 - speaker: "bot"
+ *                   text: "Hi there!"
+ *                   timestamp: "2023-05-15T10:00:01Z"
+ *               createdAt: "2023-05-15T10:05:00Z"
+ *               updatedAt: "2023-05-15T10:05:00Z"
  *             schema:
- *               $ref: '#/components/schemas/Chat'
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 messages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       speaker:
+ *                         type: string
+ *                       text:
+ *                         type: string
+ *                       timestamp:
+ *                         type: string
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                 updatedAt:
+ *                   type: string
+ *                   format: date-time
  *       400:
- *         description: Missing required fields
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             examples:
+ *               missingFields:
+ *                 summary: Missing required fields
+ *                 value:
+ *                   success: false
+ *                   error: "messages and email required"
+ *               invalidEmailType:
+ *                 summary: Invalid email type
+ *                 value:
+ *                   success: false
+ *                   error: "email needs to be a string"
+ *               invalidMessagesType:
+ *                 summary: Invalid messages type
+ *                 value:
+ *                   success: false
+ *                   error: "messages needs to be an array"
+ *               invalidMessageContent:
+ *                 summary: Invalid message content
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid speaker or text found on message"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
  *       500:
  *         description: Failed to save chat
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: "Unable to save chat"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
  */
 router.post('/', async (req, res) => {
   const { messages, email } = req.body;
@@ -93,7 +175,7 @@ router.post('/', async (req, res) => {
 
 /**
  * @swagger
- * /api/chat:
+ * /api/chats:
  *   get:
  *     summary: Get all chats for a specific user by email
  *     tags: [Chat]
@@ -104,29 +186,129 @@ router.post('/', async (req, res) => {
  *         schema:
  *           type: string
  *           format: email
+ *           example: "user@example.com"
  *         description: User's email address
  *     responses:
  *       200:
  *         description: List of chats for the user
  *         content:
  *           application/json:
+ *             examples:
+ *               successWithChats:
+ *                 summary: Success with chat data
+ *                 value:
+ *                   success: true
+ *                   chats:
+ *                     - _id: "507f1f77bcf86cd799439011"
+ *                       email: "user@example.com"
+ *                       messages:
+ *                         - speaker: "user"
+ *                           text: "Hello!"
+ *                           timestamp: "2023-05-15T10:00:00Z"
+ *                         - speaker: "bot"
+ *                           text: "Hi there!"
+ *                           timestamp: "2023-05-15T10:00:01Z"
+ *                       createdAt: "2023-05-15T10:05:00Z"
+ *                       updatedAt: "2023-05-15T10:05:00Z"
+ *                     - _id: "507f1f77bcf86cd799439012"
+ *                       email: "user@example.com"
+ *                       messages:
+ *                         - speaker: "user"
+ *                           text: "How are you?"
+ *                           timestamp: "2023-05-16T11:00:00Z"
+ *                       createdAt: "2023-05-16T11:05:00Z"
+ *                       updatedAt: "2023-05-16T11:05:00Z"
+ *               successNoChats:
+ *                 summary: Success with no chats
+ *                 value:
+ *                   success: true
+ *                   chats: []
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Chat'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 chats:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       messages:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             speaker:
+ *                               type: string
+ *                             text:
+ *                               type: string
+ *                             timestamp:
+ *                               type: string
+ *                               format: date-time
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
  *       400:
- *         description: Email query parameter is required
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: "email missing from query params"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
  *       500:
  *         description: Failed to fetch chats
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               error: "Failed to fetch chats"
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 error:
+ *                   type: string
  */
 router.get('/', async (req, res) => {
-  try {
-    const { email } = req.query;
-    const chats = await ChatService.getChatsByEmail(email as string);
-    res.json(chats);
-  } catch (err: any) {
-    res.status(err.statusCode || 500).json({ error: err.message || 'Failed to fetch chats.' });
+  const { email } = req.query;
+  if (!email) {
+    console.error("/api/chats GET no email on query");
+    return res.status(400).json({
+      success: false,
+      error: "email missing from query params"
+    })
   }
+
+  try {
+    var chats = await ChatService.getChatsByEmail(email as string);
+  } catch (error: any) {
+    console.log("/api/chats GET error during fetch: " + JSON.stringify(error, null, 2));
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch chats'
+    });
+  }
+
+  console.log("/api/chats GET got chats: " + JSON.stringify(chats, null, 2));
+  return res.status(200).json({
+    success: true,
+    chats: chats
+  });
 });
 
 export default router;

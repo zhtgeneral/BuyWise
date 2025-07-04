@@ -131,7 +131,7 @@ describe('Auth API', () => {
 
       expect(response.body).to.deep.equal({
         success: false,
-        error: 'Unable to determine validity of email'
+        error: 'Unable to register with that email'
       })
     });
 
@@ -155,7 +155,7 @@ describe('Auth API', () => {
 
       expect(response.body).to.deep.equal({
         success: false,
-        error: 'Email already exists. Pleast try logging in instead'
+        error: 'Email already exists. Please try logging in instead'
       })
     });
 
