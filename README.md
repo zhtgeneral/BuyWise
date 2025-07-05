@@ -75,12 +75,13 @@ Then navigate to:
 
 ## 📚 **Technologies Used**
 
-* **React.js** — Frontend framework
-* **Vite.js** — Fast frontend tooling
-* **Auth0** — Authentication and user management
+* **React.js + Vite.js** — Frontend framework and fast frontned tooling
+* **MongoDB + Mongoose** — Database
+* **JWT** — Authentication and user management
 * **Docker** — Containerization and easy deployment
 * **Natural Language Processing** — For intelligent search interpretation
 * **LLM (Language Models)** — For dynamic product recommendation generation
+* **Mocha, Chai, Sinon + Mocha reporter** — For integration testing of REST API endpoints and test reporter
 
 ---
 
@@ -97,6 +98,42 @@ With this milestone, we have developed the core front-end of our app. The user l
 
 ## **Milestone 2**
 With this milestone, we developed the backend and databse of our app. We also began adding in core funcitonality of our BuyWise chat where users can find products with the help of SerpAPI. We also made the decision to create an internal account authenticaion system. Although we are still working through bugs and kinks we currently have a proof-of-concept model of what we would like to iterate on. There a few tests created and through the next iterations we will expand and increase coverage.
+
+
+## **Milestone 3**
+With this milestone, we updated our AI model to improve the responses and the ability to detect user contexts using LangChain instead of Meta-llama. We added to our suite of REST API with a new route to generate proxy links and save metadata to the database when a linked in clicked on. We created integration tests and improved backend validation. 
+
+Proxy API and updated chatbot guides are available in the M3 demo video.
+Below is the guide to open the test report and to visit the updated API docs.
+
+#### With Docker
+
+Run all containers:
+`docker-compose up --build`
+
+To run the tests within docker:
+- Wait roughly 30 seconds or until the tests pass
+- visit `http://127.0.0.1:8080` and follow the files to the test report.
+
+To visit the updated API docs:
+- visit `http://localhost:3000/api-docs`
+
+#### Without Docker
+
+To run the tests and the reporter from root
+```
+cd server ; npm run test:integration ; npm run test:integration:report
+```
+- visit `http://127.0.0.1:8080`
+- click on `integration-tests.html`
+
+
+#### Updated API docs
+
+To run the backend service:
+- ensure `/server` directory
+- `npm run dev`
+- visit `http://localhost:3000/api-docs`
 
 ---
 
