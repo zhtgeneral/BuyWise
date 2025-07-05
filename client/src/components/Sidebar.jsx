@@ -12,6 +12,7 @@ import { selectIsAuthenticated, validateAuth } from '../libs/features/authentica
 import RedirectRoutes from '../middleware/middleware';
 import PastChats from './PastChats';
 import { clearChat } from '../libs/features/chatSlice';
+import { clearProducts } from '../libs/features/productsSlice';
 
 /**
  * This is the sidebar
@@ -55,6 +56,7 @@ export default function Sidebar() {
             headers: { "Content-Type": "application/json" },
             keepalive: true
           });
+          dispatch(clearProducts());
           dispatch(clearChat());
           if (userEmail) {
             dispatch(fetchChatHistory(userEmail));

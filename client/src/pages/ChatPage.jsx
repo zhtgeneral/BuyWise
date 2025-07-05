@@ -26,6 +26,22 @@ export default function ChatPage() {
   const emailRef = useRef(userEmail);
   const pastChatsRef = useRef(pastChats);
   const location = useLocation();
+
+  // TEMP TEMP TEMP Determine if viewing a past chat
+  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
+  let displayMessages = chat;
+  let displayProducts = products;
+  if (isPastChat) {
+    const chatId = location.pathname.split('/chat/')[1];
+    const found = allChats.find(c => c._id === chatId);
+    if (found) {
+      displayMessages = found.messages;
+      displayProducts = found.messages
+        .filter(m => m.speaker === 'bot' && m.recommendedProducts && m.recommendedProducts.length > 0)
+        .flatMap(m => m.recommendedProducts);
+    }
+  }
+
   useEffect(() => {
     chatRef.current = chat;
     emailRef.current = userEmail;
@@ -34,12 +50,12 @@ export default function ChatPage() {
 
   // Show products if there are any in the current chat/products state
   useEffect(() => {
-    if (products && products.length > 0) {
+    if (displayProducts && displayProducts.length > 0) {
       setShowProduct(true);
     } else {
       setShowProduct(false);
     }
-  }, [products]);
+  }, [displayProducts]);
 
   useEffect(() => {
     const saveChat = () => {
@@ -88,21 +104,6 @@ useEffect(() => {
     }
     setOpened(true);
   };
-
-  // TEMP TEMP TEMP Determine if viewing a past chat
-  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
-  let displayMessages = chat;
-  let displayProducts = products;
-  if (isPastChat) {
-    const chatId = location.pathname.split('/chat/')[1];
-    const found = allChats.find(c => c._id === chatId);
-    if (found) {
-      displayMessages = found.messages;
-      displayProducts = found.messages
-        .filter(m => m.speaker === 'bot' && m.recommendedProducts && m.recommendedProducts.length > 0)
-        .flatMap(m => m.recommendedProducts);
-    }
-  }
 
   return (
     <main className="chat-page">
