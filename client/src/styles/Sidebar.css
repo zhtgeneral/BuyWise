@@ -77,21 +77,8 @@
   margin-top: auto;
 }
 
-.auth-button {
-  width: 100%;
-  padding: 0.75rem;
-  background-color: #1976d2;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 100%;  
-}
-
 .login-button {
+  width: 100%;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -107,24 +94,35 @@
 }
 
 .login-button:hover {
-  opacity: 0.6;
+  opacity: 0.8;
 }
 
-
 .logout-button {
-  margin-top: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
   background-color: #d32f2f;
+  display: inline; 
+  color: white;
+  font-weight: 600;
 }
 
 .logout-button:hover {
   background-color: #9a0007;
 }
 
+.sidebar-user-name {
+  padding-bottom: 1em;
+}
+
 .sidebar-user-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* margin-bottom: 0.75rem; */
 }
 
 .user-avatar {

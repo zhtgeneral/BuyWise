@@ -1,21 +1,22 @@
+import '../styles/AuthPage.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../styles/LoginPage.css';
+
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
 export default function RegistrationPage() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
 
-  const navigate = useNavigate();
-
-  const handleCancel = () => {
+  function handleCancel() {
     navigate('/login');
   };
 
-  const handleCreateAccount = async () => {
+  async function handleCreateAccount() {
     try {
       const response = await axios.post(
         `${backendURL}/api/auth/register`,
@@ -84,9 +85,9 @@ export default function RegistrationPage() {
               />
             </div>
           </div>
-          <div className="login-actions">  
-            <button className="login-button edit" onClick={handleCancel}>Cancel</button>
-            <button className="login-button edit" onClick={handleCreateAccount}>Create Account</button>
+          <div className="auth-actions">  
+            <button className="auth-button secondary" onClick={handleCancel}>Cancel</button>
+            <button className="auth-button primary" onClick={handleCreateAccount}>Create Account</button>
           </div>
         </div>
       </div>

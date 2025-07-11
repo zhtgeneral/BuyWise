@@ -1,4 +1,4 @@
-import '../styles/LoginPage.css';
+import '../styles/AuthPage.css';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -90,8 +90,8 @@ export default function LoginPage() {
     <main className="login-container">
       <div className="login-scrollable">
         <div className="login-padding">
-        <h1 className="login-header">Login</h1>
-          <div className="login-section">
+          <h1 className="login-header">Login</h1>
+          <span>
             <div className="login-field">
               <label className="login-field__label">Email:</label>
               <input
@@ -113,12 +113,12 @@ export default function LoginPage() {
                 className="login-field__input"
               />
             </div>
-          </div>
-          <div className="login-actions">
-            <button className="login-button edit" onClick={handleLogin} disabled={loading}>
+          </span>
+          <div className="auth-actions">
+            <button className="auth-button secondary" onClick={handleRegister}>Register</button>
+            <button className="auth-button primary" onClick={handleLogin} disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <button className="login-button edit" onClick={handleRegister}>Register</button>
           </div>
         </div>
       </div>

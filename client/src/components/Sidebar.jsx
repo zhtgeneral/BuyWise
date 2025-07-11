@@ -171,18 +171,18 @@ function AuthSection({
         !isAuthenticated ? (
           <button
             onClick={() => navigate('/login', { state: { from: location.pathname } })}
-            className="auth-button login-button"
+            className="login-button"
           >
             Log In
           </button>
         ) : (
           <div className="sidebar-user-info">
-            <div>
+            <div className='sidebar-user-name'>
               Welcome {displayName}!
             </div>
             <button
               onClick={handleLogout}
-              className="auth-button logout-button"
+              className="logout-button"
             >
               Log Out
             </button>

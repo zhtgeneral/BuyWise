@@ -1,0 +1,239 @@
+/* .login-container {
+  margin: 0 auto;
+  height: 100%;   
+  width: 100%;
+  display: inline;
+  background-color: white;
+  border-radius: 8px;
+}
+  
+.login-padding {
+  padding: 4em 6em;
+  max-width: 600px;
+}
+  
+.login-scrollable {
+  flex: 1;
+  overflow-y: auto;
+}
+  
+.login-header {
+  text-align: left;  
+  color: #333;
+  line-height: 100%;
+  margin-bottom: 1.5rem;
+}
+  
+.login-subheader {
+  text-align: left;
+  color: #444;
+  margin: 1.5rem 0 1rem 0;
+}
+  
+.login-field {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+  
+.login-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+  
+.login-field input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+  
+.login-field input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+  
+.login-field input:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+  
+.auth-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: end;
+}
+
+.auth-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 10s ease infinite;  
+  display: inline; 
+  color: white;
+  font-weight: 600;
+}
+
+.auth-button .primary {
+
+}
+
+.auth-button .secondary {
+
+}
+
+
+
+.auth-button:hover {
+  opacity: 0.8;
+}
+
+.login-scrollable::-webkit-scrollbar {
+  width: 16px;
+}
+  
+.login-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+  
+.login-scrollable::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 8px;
+}
+  
+.login-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+} */
+
+.login-container {
+  margin: 0 auto;
+  height: 100%;   
+  width: 100%;
+  display: inline;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.login-padding {
+  padding: 4em 6em;
+  max-width: 600px;
+}
+
+.login-scrollable {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.login-header {
+  text-align: left;
+  color: #333;
+  font-size: 2rem;
+  line-height: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.login-field {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.login-field__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.login-field__input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.login-field__input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.auth-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.auth-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.auth-button.primary {
+  border: none;
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 10s ease infinite;
+  color: white;
+}
+
+.auth-button.secondary {
+  background: transparent;
+  border: 2px solid #0a67ad;
+  color: #0a67ad;
+}
+
+.auth-button.secondary:hover {
+  background: rgba(10, 103, 173, 0.1);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Scrollbar styles */
+.login-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.login-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.login-scrollable::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 8px;
+}
+
+.login-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
