@@ -95,7 +95,7 @@ export default function ChatbotPanel({
   const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
 
   return (
-    <main className="chatbot-panel-container">      
+    <div className="chatbot-panel-container">      
       <h1>
         Talk to <span className="buywise-highlight">BuyWise</span>
       </h1>
@@ -117,7 +117,7 @@ export default function ChatbotPanel({
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
-            rows={1}
+            rows={3}
           />
           <button
             className="chatbot-send-button"
@@ -132,6 +132,6 @@ export default function ChatbotPanel({
           </button>
         </div>
       </div>          
-    </main>
+    </div>
   );
 }

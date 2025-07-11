@@ -9,10 +9,15 @@
   overflow-x: hidden; 
   height: calc(100vh - 2em); 
 }
-
-@media (max-width: 960px) {
+@media (max-width: 1960px) {
   .chat-page {
     padding: 1em 2em;
+  }
+}
+
+@media (max-width: 1440px) {
+  .chat-page {
+    flex-direction: column;
   }
 }
 
