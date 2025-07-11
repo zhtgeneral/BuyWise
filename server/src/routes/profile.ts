@@ -660,45 +660,50 @@ router.patch('/:userId?', authenticate, async (req: Request, res: Response) => {
   const { profileData } = req.body;
   if (!userId) {
     console.error("/api/profiles/:userId PATCH missing userId on params")
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'userId missing from params'
     })
+    return;
   }
   if (!profileData) {
     console.error("/api/profiles/:userId PATCH missing profileData in body")
-    return res.status(400).json({
+    res.status(400).json({
       success: false,
       error: 'profileData missing from body'
     })
+    return;
   }
 
   try {
     var profile = await ProfileService.getProfileByUserId(userId);
   } catch (error: any) {
-    console.error("/api/profiles/:userId PATCH error during fetching profile: " + JSON.stringify(error, null, 2));
-    return res.status(500).json({
+    console.error("/api/profiles/:userId PATCH error during fetching profile: " + error);
+    res.status(500).json({
       success: false,
       error: 'Unknown error during getting profile'
     })
+    return;
   }
 
   if (!profile) {
     console.error("/api/profiles/:userId PATCH profile not found");
-    return res.status(404).json({
+    res.status(404).json({
       success: false,
       error: 'No profile found'
     })
+    return;
   }
 
   try {
     var updatedProfile = await ProfileService.updateProfile(profile, profileData);    
   } catch (error: any) {
-    console.error("/api/profiles/:userId PATCH error during updating profile: " + JSON.stringify(error, null, 2));
+    console.error("/api/profiles/:userId PATCH error during updating profile:", error);
     res.status(500).json({
       success: false,
       error: 'Unable to update profile'
     });
+    return;
   }
 
   console.log("/api/profiles/:userId PATCH got updated profile " + JSON.stringify(updatedProfile, null, 2));
@@ -707,6 +712,7 @@ router.patch('/:userId?', authenticate, async (req: Request, res: Response) => {
     message: 'Profile updated successfully',
     data: updatedProfile
   });
+  return;
 });
 
 export default router; 

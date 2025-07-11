@@ -9,6 +9,7 @@ import {
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
 import { clearChat } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
+import { selectProfileUser } from '../libs/features/profileSlice';
 import PastChats from './PastChats';
 
 import TerminalIcon from '../icons/terminal.svg?react';
@@ -139,18 +140,20 @@ function LogoAndRoutes({
       <div onClick={() => handleNavigation("/")} className="sidebar-logo" style={{ marginBottom: '1rem', cursor: 'pointer' }}>
         <img src={BuyWiseLogo} alt="BuyWise Logo" style={{ width: '180px', height: 'auto' }} />
       </div>
-      <div onClick={() => handleNavigation('/chat')} className={activeClassName('/chat')}>
-        <TerminalIcon className="sidebar-icon" />
-        <span className="sidebar-text">Create new chat</span>
-      </div>
-      <div onClick={() => handleNavigation('/profile')} className={activeClassName('/profile')}>
-        <EditIcon className="sidebar-icon" />
-        <span className="sidebar-text">Profile</span>
-      </div>
-      <div onClick={() => handleNavigation('/about')} className={activeClassName('/about')}>
-        <AboutUsIcon className="sidebar-icon" />
-        <span className="sidebar-text">About Us</span>
-      </div>
+      <span className='sidebar-separator'>
+        <div onClick={() => handleNavigation('/chat')} className={activeClassName('/chat')}>
+          <TerminalIcon className="sidebar-icon" />
+          <span className="sidebar-text">Create new chat</span>
+        </div>
+        <div onClick={() => handleNavigation('/profile')} className={activeClassName('/profile')}>
+          <EditIcon className="sidebar-icon" />
+          <span className="sidebar-text">Profile</span>
+        </div>
+        <div onClick={() => handleNavigation('/about')} className={activeClassName('/about')}>
+          <AboutUsIcon className="sidebar-icon" />
+          <span className="sidebar-text">About Us</span>
+        </div>
+      </span>
     </nav>
   )
 }
@@ -160,28 +163,32 @@ function AuthSection({
   navigate,
   handleLogout
 }) {
+  const { name } = useSelector(selectProfileUser);
+  const displayName = name? name : 'Wise Buyer';
   return (
     <div className="sidebar-auth">
-      {!isAuthenticated ? (
-        <button
-          onClick={() => navigate('/login', { state: { from: location.pathname } })}
-          className="auth-button"
-        >
-          Log In
-        </button>
-      ) : (
-        <div className="sidebar-user-info">
-          <div>
-            Welcome Wise Buyer!
-          </div>
+      {
+        !isAuthenticated ? (
           <button
-            onClick={handleLogout}
-            className="auth-button logout-button"
+            onClick={() => navigate('/login', { state: { from: location.pathname } })}
+            className="auth-button login-button"
           >
-            Log Out
+            Log In
           </button>
-        </div>
-      )}
+        ) : (
+          <div className="sidebar-user-info">
+            <div>
+              Welcome {displayName}!
+            </div>
+            <button
+              onClick={handleLogout}
+              className="auth-button logout-button"
+            >
+              Log Out
+            </button>
+          </div>
+        )
+      }
     </div>
   )
 }

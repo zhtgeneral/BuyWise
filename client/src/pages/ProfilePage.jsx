@@ -22,7 +22,7 @@ export default function ProfilePage() {
     setLocalProfile(prev => ({
       ...prev,
       user: {
-        ...prev.userOptions,
+        ...prev.user,
         [field]: value
       }
     }));
@@ -32,7 +32,7 @@ export default function ProfilePage() {
     setLocalProfile(prev => ({
       ...prev,
       preferences: {
-        ...prev.userPreferences,
+        ...prev.preferences,
         [field]: value
       }
     }));
@@ -51,13 +51,13 @@ export default function ProfilePage() {
     axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
       {
         profileData: {
-          storage_preference: localProfile.userPreferences.storage_preference,
-          RAM_preference: localProfile.userPreferences.RAM_preference,
-          brand_preference: localProfile.userPreferences.brand_preference,
-          min_budget: localProfile.userPreferences.min_budget,
-          max_budget: localProfile.userPreferences.max_budget,
-          rating_preference: localProfile.userPreferences.rating_preference,
-          country: localProfile.userPreferences.country
+          storage_preference: localProfile.preferences.storage_preference,
+          RAM_preference: localProfile.preferences.RAM_preference,
+          brand_preference: localProfile.preferences.brand_preference,
+          min_budget: localProfile.preferences.min_budget,
+          max_budget: localProfile.preferences.max_budget,
+          rating_preference: localProfile.preferences.rating_preference,
+          country: localProfile.preferences.country
         }
       }, 
       {

@@ -1,3 +1,4 @@
+import { profileEnd } from 'console';
 import Profile, { IProfile } from '../models/Profile';
 import { AppError } from '../utils/AppError';
 
@@ -24,7 +25,7 @@ export class ProfileService {
   // Get profile by user ID
   static async getProfileByUserId(userId: string): Promise<Partial<IProfile>> {
     const profile = await Profile.findOne({ userId });
-    return profile.toObject();
+    return profile;
   }
 
   // Get profile by ID
@@ -41,14 +42,14 @@ export class ProfileService {
    * Assume that the profile exists in db.
    */
   static async updateProfile(profile: Partial<IProfile>, updateData: Partial<IProfile>): Promise<Partial<IProfile>> {
-    // Don't allow userId updates through this endpoint
     delete updateData.userId;
-
-    Object.assign(profile, updateData);
-    await profile.save();
-
-    return profile;
-  }
+    const updatedProfile = await Profile.findOneAndUpdate(
+        { _id: profile._id },
+        { $set: updateData },
+        { new: true }
+    );
+    return updatedProfile;
+}
 
   // Update profile by ID
   static async updateProfileById(id: string, updateData: Partial<IProfile>): Promise<IProfile> {

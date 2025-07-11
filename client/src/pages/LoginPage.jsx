@@ -68,34 +68,10 @@ export default function LoginPage() {
     }
 
     saveToBrowser(userBody.token);
-    saveState(userBody.user, profileBody.profile)      
+    saveState(userBody.user, profileBody.profile, dispatch)      
     navigate('/');
   }
 
-  /**
-   * Save user to redux store for use around the app and validate authenticated state.
-   */
-  function saveState(user, preferences) {
-    const updatedProfile = {
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isEmailVerified: user.isEmailVerified
-      },          
-      preferences: {
-        storage_preference: preferences.storage_preference,
-        RAM_preference: preferences.RAM_preference,
-        brand_preference: preferences.brand_preference,
-        min_budget: preferences.min_budget,
-        max_budget: preferences.max_budget,
-        rating_preference: preferences.rating_preference,
-        country: preferences.country,
-      }
-    }
-    dispatch(updateProfile(updatedProfile)); 
-    dispatch(validateAuth());
-  }
 
   /**
    * Store the token in localStorage
@@ -150,3 +126,29 @@ export default function LoginPage() {
   );
 }
 
+
+
+/**
+ * Save user to redux store for use around the app and validate authenticated state.
+ */
+function saveState(user, preferences, dispatch) {
+  const updatedProfile = {
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isEmailVerified: user.isEmailVerified
+    },          
+    preferences: {
+      storage_preference: preferences.storage_preference,
+      RAM_preference: preferences.RAM_preference,
+      brand_preference: preferences.brand_preference,
+      min_budget: preferences.min_budget,
+      max_budget: preferences.max_budget,
+      rating_preference: preferences.rating_preference,
+      country: preferences.country,
+    }
+  }
+  dispatch(updateProfile(updatedProfile)); 
+  dispatch(validateAuth());
+}
