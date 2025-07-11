@@ -1,38 +1,45 @@
+import '../styles/ChatbotPanel.css';
 import { useState, useRef, useEffect } from 'react';
-import { Drawer, Button, Textarea } from '@mantine/core';
-import ChatMessage from './ChatMessage';
+import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+
+import ChatMessage from './ChatMessage';
+
 import { addMessage, selectChatMessages } from '../libs/features/chatSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
-import axios from 'axios';
-import '../styles/ChatDrawer.css'
-import { setProducts } from '../libs/features/productsSlice'
-import { useLocation } from 'react-router-dom';
+import { setProducts } from '../libs/features/productsSlice';
 
-export default function ChatDrawer({ 
-  opened, 
-  onClose,
+export default function ChatbotPanel({
+  messages,
   setShowProduct,
-  messages
- }) {
+}) {
   const dispatch = useDispatch();
   const reduxChat = useSelector(selectChatMessages);
   const userProfile = useSelector(selectProfileUser);
   const location = useLocation();
 
   const chat = messages ?? reduxChat;
-
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef(null);  
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
   // Auto-scroll to bottom when chat updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chat]);
 
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [userInput]);
+
   const handleSendMessage = async () => {
-    if (!userInput.trim()) return; 
+    if (!userInput.trim()) return;
     
     const newUserMessage = { 
       speaker: "user", 
@@ -48,10 +55,13 @@ export default function ChatDrawer({
         message: userInput,
         userId: userProfile?._id,
         email: userProfile?.email
-      },{headers :  {
-        'Content-Type': 'application/json',
-        'Authorization' : `Bearer ${localStorage.getItem('token')}`
-      }});
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
       if (response.status === 200) {
         const chatbotMessage = response.data.chatbotMessage;
         const productData = response.data.productData;
@@ -68,7 +78,7 @@ export default function ChatDrawer({
       }      
     } catch (error) {
       console.error('Error:', error);
-      const errorMessage = "Sorry, I encountered an error. Please try again later." 
+      const errorMessage = "Sorry, I encountered an error. Please try again later.";
       dispatch(addMessage({ speaker: "bot", text: errorMessage }));
     } finally {
       setIsLoading(false);
@@ -82,26 +92,15 @@ export default function ChatDrawer({
     }
   };
 
-   // temporary temporary temporary!!!!
   const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
 
   return (
-    <div className="chatdrawer-styles">
-      <Drawer
-        position="right"
-        opened={opened}
-        onClose={onClose}
-        title="Talk to BuyWise"
-        size="xl"
-        styles={{
-          body: {
-            display: 'flex',
-            flexDirection: 'column',
-            height: 'calc(100% - 60px)',
-          }
-        }}
-      >
-        <div style={{ flex: 1, overflowY: 'auto', marginBottom: '0.5rem' }}>
+    <main className="chatbot-panel-container">      
+      <h1>
+        Talk to <span className="buywise-highlight">BuyWise</span>
+      </h1>
+      <div className="chatbot-panel-background">
+        <div className="chatbot-messages-container">
           {
             chat.map((msg, i) => (
               <ChatMessage key={i} speaker={msg.speaker} text={msg.text} />
@@ -110,29 +109,29 @@ export default function ChatDrawer({
           <div ref={messagesEndRef} />
         </div>
 
-        <div style={{ display: 'flex', gap: '0.7rem' }}>
-          <Textarea
-            placeholder="Type your message to BuyWise..."
+        <div className="chatbot-input-container">
+          <textarea
+            ref={textareaRef}
+            className="chatbot-textarea"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            style={{ flex: 1 }}
-            className="chatdrawer-input"
-            minRows={1}
-            maxRows={4}
-            autosize
-            disabled={isPastChat} // temporary temporary temporary!!!!
+            placeholder="Type your message here..."
+            rows={1}
           />
-          <Button 
+          <button
+            className="chatbot-send-button"
             onClick={handleSendMessage}
-            loading={isLoading}
-            disabled={!userInput.trim() || isPastChat}  // temporary temporary temporary!!!!
-            className="chatdrawer-button"
+            disabled={!userInput.trim() || isLoading || isPastChat}
           >
-            Send
-          </Button>
+            {isLoading ? (
+              <span className="chatbot-loading-indicator">...</span>
+            ) : (
+              'Send'
+            )}
+          </button>
         </div>
-      </Drawer>
-    </div>
+      </div>          
+    </main>
   );
 }

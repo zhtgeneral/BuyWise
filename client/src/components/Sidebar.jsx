@@ -10,7 +10,7 @@ import { selectIsAuthenticated, validateAuth } from '../libs/features/authentica
 import { clearChat } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
-import PastChats from './PastChats';
+import PastChats from './ChatHistory';
 
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';

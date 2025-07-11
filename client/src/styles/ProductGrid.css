@@ -1,4 +1,10 @@
+.product-grid-container {
+  width: 50%;
+}
+
 .product-list {
+  background-color: #f9f9f9;
+  border-radius: 8px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
@@ -8,7 +14,7 @@
 .product-card {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   overflow: hidden;
   padding: 1rem;

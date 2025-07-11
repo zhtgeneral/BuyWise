@@ -19,8 +19,8 @@ export default function ProductGrid({
   }
   
   return (
-    <>
-      <h3>Recommended Products</h3>    
+    <div className='product-grid-container'>
+      <h1>Recommended Products</h1>
       <div className="product-list">
         {actualProducts?.map((product) => (
           <div className="product-card" key={product.id}>
@@ -60,6 +60,6 @@ export default function ProductGrid({
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

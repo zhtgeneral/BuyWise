@@ -1,15 +1,15 @@
 .chat-page {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: white;
+  flex-direction: row;
+  gap: 2rem;
   width: 100%;
-  height: 100%;
-  padding: 1em;
-  border-radius: 8px;
+  background-color: white;
   padding: 2em 4em;
+  box-sizing: border-box; 
+  overflow-x: hidden; 
+  height: calc(100vh - 2em); 
 }
-/* reduce padding on mid-smaller screens */
+
 @media (max-width: 960px) {
   .chat-page {
     padding: 1em 2em;
@@ -98,9 +98,9 @@
   background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
   background-size: 300% 300%;
   animation: gradientAnimation 4s ease infinite;
-  -webkit-background-clip: text; /* For Safari */
+  -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent; /* For Safari */
-  color: transparent; /* Standard property */
-  display: inline; /* Ensures gradient works properly */
-}
+  -webkit-text-fill-color: transparent; 
+  color: transparent; 
+  display: inline; 
+} 
