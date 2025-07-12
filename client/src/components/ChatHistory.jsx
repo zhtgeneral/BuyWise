@@ -65,11 +65,6 @@ export default function PastChats({
       <ConditionalErrorMsg 
         errorMsg={errorMsg}
       />
-
-      <ActiveChatIndicator 
-        isNewChatActive={isNewChatActive}
-        canClearChat={canClearChat}
-      />
       
       <PreviousChatLinks 
         sortedChats={sortedChats}
@@ -94,21 +89,6 @@ function ConditionalErrorMsg({
 }) {
   if (errorMsg) {
     return <div className="sidebar-error">An error occured: {errorMsg}</div>
-  }
-}
-
-function ActiveChatIndicator({
-  isNewChatActive, 
-  canClearChat
-}) {
-  if (canClearChat) {
-    return (
-      <div className="sidebar-chat-item sidebar-chat-item-temp sidebar-chat-item-active">
-        <div className={isNewChatActive ? 'active' : ''}>
-          <div className="sidebar-chat-message">Current Chat</div>
-        </div>
-      </div>
-    )
   }
 }
 

@@ -22,7 +22,7 @@ import RedirectRoutes from '../middleware/middleware';
 /**
  * This is the sidebar
  *
- * If the user logs out, it clears the token from browser and  the user from redux sture
+ * If the user logs out, it clears the token from browser and the user from redux sture
  * */
 export default function Sidebar() {
   const location = useLocation();
@@ -49,7 +49,7 @@ export default function Sidebar() {
       preferences: {}
     }));
     alert("You have successfully logged out!");
-    window.location.reload();
+    navigate('/');
   }
 
   return (
@@ -99,15 +99,24 @@ function LogoAndRoutes({
       return;
     }
 
+    // Check authentication before allowing access to chat
+    if (!isAuthenticated) {
+      RedirectRoutes('/chat', navigate, isAuthenticated);
+      return;
+    }
+
     // Clear current chat and start new conversation
     dispatch(clearProducts());
-    dispatch(startNewConversation()); // This clears messages and conversationId
+    dispatch(startNewConversation());
     dispatch(setActiveChatId(null));
+    if (userEmail) {
+      dispatch(fetchChatHistory(userEmail));
+    }
     
     setCanClearChat(true);
     shouldRefreshRef.current = true;
   
-    RedirectRoutes(url, navigate, isAuthenticated);
+    navigate('/chat', { replace: true }); // Not sure if this is a good idea, but can't think of better way to force create a new chat if user is engaged in active conversation
   }
 
   function activeClassName(target) {
