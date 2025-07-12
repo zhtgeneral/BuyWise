@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import ChatMessage from './ChatMessage';
 
-import { addMessage, selectChatMessages } from '../libs/features/chatSlice';
+import { addMessage, selectChatMessages, selectConversationId, setConversationId } from '../libs/features/chatSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
 import { setProducts } from '../libs/features/productsSlice';
 
@@ -16,6 +16,7 @@ export default function ChatbotPanel({
 }) {
   const dispatch = useDispatch();
   const reduxChat = useSelector(selectChatMessages);
+  const conversationId = useSelector(selectConversationId);
   const userProfile = useSelector(selectProfileUser);
   const location = useLocation();
 
@@ -51,44 +52,44 @@ export default function ChatbotPanel({
     setIsLoading(true);
 
     try {
-      var response = await axios.post('http://localhost:3000/api/chatbot', {
+      const response = await axios.post('http://localhost:3000/api/chatbot', {
         message: userInput,
-        userId: userProfile?._id,
-        email: userProfile?.email
+        conversationId: conversationId, // Send current conversationId for incremental saving
       }, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+      
+      if (response.status === 200) {
+        const chatbotMessage = response.data.chatbotMessage;
+        const productData = response.data.productData;
+        const responseConversationId = response.data.conversationId;
+        
+        // Update conversationId in Redux if we got one back
+        if (responseConversationId && responseConversationId !== conversationId) {
+          dispatch(setConversationId(responseConversationId));
+        }
+        
+        const botMessage = { speaker: "bot", text: chatbotMessage };
+        if (productData && productData.length > 0) {
+          botMessage.recommendedProducts = productData;
+          dispatch(setProducts(productData));
+          setShowProduct(true);
+        }
+        dispatch(addMessage(botMessage));
+      } else {
+        const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
+        dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));
+      }      
     } catch (error) {
-      console.error('ChatbotPanel error:', error);
+      console.error('Error:', error);
       const errorMessage = "Sorry, I encountered an error. Please try again later.";
       dispatch(addMessage({ speaker: "bot", text: errorMessage }));
+    } finally {
       setIsLoading(false);
-      return;
-    } 
-
-    if (response.status === 200) {
-      const chatbotMessage = response.data.chatbotMessage;
-      const productData = response.data.productData;
-      const botMessage = { 
-        speaker: "bot", 
-        text: chatbotMessage 
-      };
-
-      if (productData && productData.length > 0) {
-        botMessage.recommendedProducts = productData;
-        dispatch(setProducts(productData));
-        setShowProduct(true);
-      }
-      dispatch(addMessage(botMessage));
-    } else {
-      const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
-      dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));
-    }      
-
-    setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e) => {

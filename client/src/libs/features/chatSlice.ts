@@ -20,40 +20,13 @@ export interface ChatMessage {
 
 interface ChatState {
   messages: ChatMessage[];
+  conversationId: string | null; // Track the MongoDB _id for the current conversation
 }
 
 const initialState: ChatState = {
   messages: [],
+  conversationId: null,
 };
-
-// Define the argument type for saving chat
-interface SaveChatArgs {
-  messages: ChatMessage[];
-  email: string;
-}
-
-// Thunk to save the current chat to the backend
-export const saveChatAsync = createAsyncThunk(
-  'chat/saveChat',
-  async ({ messages, email }: SaveChatArgs, { rejectWithValue }) => {
-    try {
-      const response = await fetch('http://localhost:3000/api/chats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ messages, email }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save chat');
-      }
-      return await response.json();
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Unknown error');
-    }
-  }
-);
 
 export const chatSlice = createSlice({
   name: 'chat',
@@ -64,13 +37,23 @@ export const chatSlice = createSlice({
     },
     clearChat: (state) => {
       state.messages = [];
+      state.conversationId = null; // Clear conversation ID when clearing chat
     },
     setChat: (state, action: PayloadAction<ChatMessage[]>) => {
       state.messages = action.payload;
     },
+    setConversationId: (state, action: PayloadAction<string | null>) => {
+      state.conversationId = action.payload;
+    },
+    // Action for starting a new conversation
+    startNewConversation: (state) => {
+      state.messages = [];
+      state.conversationId = null;
+    },
   },
 });
 
-export const { addMessage, clearChat, setChat } = chatSlice.actions;
+export const { addMessage, clearChat, setChat, setConversationId, startNewConversation } = chatSlice.actions;
 export const selectChatMessages = (state) => state.chat.messages;
+export const selectConversationId = (state) => state.chat.conversationId;
 export default chatSlice.reducer;
