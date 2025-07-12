@@ -51,7 +51,7 @@ export default function ChatbotPanel({
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/chatbot', {
+      var response = await axios.post('http://localhost:3000/api/chatbot', {
         message: userInput,
         userId: userProfile?._id,
         email: userProfile?.email
@@ -61,28 +61,34 @@ export default function ChatbotPanel({
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      
-      if (response.status === 200) {
-        const chatbotMessage = response.data.chatbotMessage;
-        const productData = response.data.productData;
-        const botMessage = { speaker: "bot", text: chatbotMessage };
-        if (productData && productData.length > 0) {
-          botMessage.recommendedProducts = productData;
-          dispatch(setProducts(productData));
-          setShowProduct(true);
-        }
-        dispatch(addMessage(botMessage));
-      } else {
-        const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
-        dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));
-      }      
     } catch (error) {
-      console.error('Error:', error);
+      console.error('ChatbotPanel error:', error);
       const errorMessage = "Sorry, I encountered an error. Please try again later.";
       dispatch(addMessage({ speaker: "bot", text: errorMessage }));
-    } finally {
       setIsLoading(false);
-    }
+      return;
+    } 
+
+    if (response.status === 200) {
+      const chatbotMessage = response.data.chatbotMessage;
+      const productData = response.data.productData;
+      const botMessage = { 
+        speaker: "bot", 
+        text: chatbotMessage 
+      };
+
+      if (productData && productData.length > 0) {
+        botMessage.recommendedProducts = productData;
+        dispatch(setProducts(productData));
+        setShowProduct(true);
+      }
+      dispatch(addMessage(botMessage));
+    } else {
+      const unsuccessfulMessage = "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience.";
+      dispatch(addMessage({ speaker: "bot", text: unsuccessfulMessage }));
+    }      
+
+    setIsLoading(false);
   };
 
   const handleKeyDown = (e) => {
@@ -110,25 +116,43 @@ export default function ChatbotPanel({
         </div>
 
         <div className="chatbot-input-container">
-          <textarea
-            ref={textareaRef}
-            className="chatbot-textarea"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message here..."
-            rows={3}
-          />
+          {
+            isPastChat? (
+              <textarea
+                ref={textareaRef}
+                className="chatbot-textarea"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Past chats are not editable!"
+                rows={3}
+                disabled={true}
+              />
+            ) :
+            (
+              <textarea
+                ref={textareaRef}
+                className="chatbot-textarea"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your message here..."
+                rows={3}
+              />
+            )
+          }          
           <button
             className="chatbot-send-button"
             onClick={handleSendMessage}
             disabled={!userInput.trim() || isLoading || isPastChat}
           >
-            {isLoading ? (
-              <span className="chatbot-loading-indicator">...</span>
-            ) : (
-              'Send'
-            )}
+            {
+              isLoading ? (
+                <span className="chatbot-loading-indicator">...</span>
+              ) : (
+                'Send'
+              )
+            }
           </button>
         </div>
       </div>          
