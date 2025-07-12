@@ -1,13 +1,11 @@
 import "../styles/ChatPage.css";
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import ProductGrid from "../components/ProductGrid";
 import { selectProducts } from "../libs/features/productsSlice";
-import { clearChat } from "../libs/features/chatSlice";
-import { fetchChatHistory, selectChats } from "../libs/features/historySlice";
+import { selectChats } from "../libs/features/historySlice";
 import ChatbotPanel from "../components/ChatbotPanel";
 
 /** This is the page where the user can chat with the AI for products */
@@ -67,18 +65,6 @@ export default function ChatPage() {
         displayProducts={displayProducts} 
         setShowProduct={setShowProduct}           
       />
-      <SaveChatOnUnload 
-        chatRef={chatRef}
-        emailRef={emailRef}
-        userEmail={userEmail}
-        dispatch={dispatch}
-      />
-      <PostChatData 
-        chatRef={chatRef}
-        emailRef={emailRef}
-        dispatch={dispatch}
-        userEmail={userEmail}
-      />
     </>   
   );
 }
@@ -95,62 +81,4 @@ function DisplayProductsForChat({
       setShowProduct(false);
     }
   }, [displayProducts, setShowProduct]);
-}
-
-// Save chat on refresh/close
-function SaveChatOnUnload({
-  chatRef, 
-  emailRef,
-  userEmail,
-  dispatch
-}) {
-   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (chatRef.current.length > 1) {
-        const payload = { messages: chatRef.current, email: emailRef.current };
-        fetch("http://localhost:3000/api/chats", {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: { "Content-Type": "application/json" },
-          keepalive: true
-        }).catch(err => console.error('Failed to save chat on unload:', err));
-        if (userEmail) {
-          dispatch(fetchChatHistory(emailRef.current));
-        }
-      }
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [dispatch, userEmail]);
-}
-
-function PostChatData({
-  chatRef,
-  emailRef,
-  dispatch,
-  userEmail
-}) {
-  useEffect(() => {
-    const saveChat = () => {
-      if (chatRef.current.length > 1) {
-        const payload = { 
-          messages: chatRef.current, 
-          email: emailRef.current 
-        };
-        axios.post("http://localhost:3000/api/chats", payload, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }); // fire-and-forget
-        dispatch(clearChat());
-        if (userEmail) {
-          dispatch(fetchChatHistory(userEmail));
-        }
-      }
-    };
-    return () => {
-      saveChat();
-    };
-  }, [location.pathname]);
 }

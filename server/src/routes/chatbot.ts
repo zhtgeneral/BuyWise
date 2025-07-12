@@ -1,9 +1,6 @@
 import { Request, Response } from 'express';
-import { chatWithAgent } from '../agent/chatbotAgent';
-import { authenticate } from '../middleware/auth';
-
-
-// TODO should we make this route protected?
+import { ChatbotService } from '../services/ChatbotService';
+import User from '../models/User';
 
 /**
  * @swagger
@@ -25,6 +22,9 @@ import { authenticate } from '../middleware/auth';
  *               message:
  *                 type: string
  *                 description: The message to get AI response for
+ *               conversationId:
+ *                 type: string
+ *                 description: Optional unique identifier for the conversation/chat (MongoDB _id)
  *     responses:
  *       200:
  *         description: Successful response from AI
@@ -36,6 +36,9 @@ import { authenticate } from '../middleware/auth';
  *                 chatbotMessage:
  *                   type: string
  *                   description: The AI's response
+ *                 conversationId:
+ *                   type: string
+ *                   description: The conversation ID (MongoDB _id) for this chat
  *                 productData:
  *                   type: array
  *                   description: Product data if products were found (null if no products)
@@ -66,7 +69,9 @@ import { authenticate } from '../middleware/auth';
  *         description: Server error or incomplete AI response
  */
 export const postChat = async (req: Request, res: Response) => {  
-  const { message } = req.body;
+  const { message, conversationId } = req.body;
+  
+  // Input validation
   if (!message) {
     console.log(`/api/chatbot POST did not receive message: ${message}`);
     return res.status(400).json({ error: 'Message is required' });
@@ -78,23 +83,46 @@ export const postChat = async (req: Request, res: Response) => {
   }
   
   if (message === '') {
-    console.error(`/api/chatbot POST did not recieve message: ${message}`);
+    console.error(`/api/chatbot POST did not receive message: ${message}`);
     return res.status(400).json({ error: 'Message cannot be empty' });
   }
 
   try {
-    // Not sure if it's sufficient to just use sessionId, figure it out later
-    const sessionId = req.ip || 'default';
-    
-    // Get user ID from authenticated request
+    // Extract authenticated user info
     const userId = (req as any).user?.id;
-    const agentResponse = await chatWithAgent(message, sessionId, userId);
-    console.log('/api/chatbot POST got LangChain response: ' + agentResponse.message);
     
-    return res.status(200).json({
-      chatbotMessage: agentResponse.message,
-      productData: agentResponse.productData
-    });
+    // Require authentication
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required to use chatbot' });
+    }
+    
+    let userEmail = null;
+    
+    // Fetch user's email from the database
+    try {
+      const user = await User.findById(userId);
+      userEmail = user?.email || null;
+      console.log('Chatbot route: Found user email:', userEmail, 'for userId:', userId);
+      
+      if (!userEmail) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+    } catch (userError) {
+      console.error('Chatbot route: Error fetching user:', userError);
+      return res.status(500).json({ error: 'Error fetching user information' });
+    }
+    
+    console.log('Chatbot route: Processing message from user:', userEmail, 'conversationId:', conversationId);
+    
+    // Process message through ChatbotService
+    const result = await ChatbotService.processMessage(
+      message,
+      conversationId,
+      userEmail,
+      userId
+    );
+    
+    return res.status(200).json(result);
   } catch (error: unknown) {
     console.log(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
     return res.status(500).json({ error: 'AI response failed' });    

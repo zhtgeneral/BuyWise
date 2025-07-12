@@ -39,3 +39,7 @@
   color: red;
   font-size: 0.85rem;
 }
+
+.sidebar-chat-item-active {
+  text-decoration: underline;
+}
