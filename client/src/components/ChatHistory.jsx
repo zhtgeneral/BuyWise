@@ -10,6 +10,7 @@ import {
   selectActiveChatId,
   setActiveChatId, 
 } from '../libs/features/historySlice';
+import { setConversationId, startNewConversation } from '../libs/features/chatSlice';
 
 export default function PastChats({ 
   canClearChat, 
@@ -36,9 +37,13 @@ export default function PastChats({
   function onChatSelect(chatId) {
     dispatch(setActiveChatId(chatId));
     if (!chatId) {
+      // Starting new chat
+      dispatch(startNewConversation());
       setCanClearChat(true);
       shouldRefreshRef.current = true;
     } else {
+      // Selecting existing chat and set the conversationId for potential continuation
+      dispatch(setConversationId(chatId));
       setCanClearChat(false);
     }
   }
@@ -61,8 +66,7 @@ export default function PastChats({
         errorMsg={errorMsg}
       />
 
-      <LinkToClearChat 
-        onChatSelect={onChatSelect}
+      <ActiveChatIndicator 
         isNewChatActive={isNewChatActive}
         canClearChat={canClearChat}
       />
@@ -93,22 +97,17 @@ function ConditionalErrorMsg({
   }
 }
 
-function LinkToClearChat({
-  onChatSelect,
+function ActiveChatIndicator({
   isNewChatActive, 
   canClearChat
 }) {
   if (canClearChat) {
     return (
-      <Link
-        to="/chat"
-        className="sidebar-chat-item sidebar-chat-item-temp"
-        onClick={() => onChatSelect && onChatSelect(null)}
-      >
+      <div className="sidebar-chat-item sidebar-chat-item-temp sidebar-chat-item-active">
         <div className={isNewChatActive ? 'active' : ''}>
-          <div className="sidebar-chat-message">Continue Chat</div>
+          <div className="sidebar-chat-message">Current Chat</div>
         </div>
-      </Link>
+      </div>
     )
   }
 }

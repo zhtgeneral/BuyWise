@@ -7,7 +7,7 @@ import {
   setActiveChatId, 
 } from '../libs/features/historySlice';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
-import { clearChat } from '../libs/features/chatSlice';
+import { startNewConversation } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
 import PastChats from './ChatHistory';
@@ -91,7 +91,6 @@ function LogoAndRoutes({
   dispatch,
   shouldRefreshRef
 }) {
-  const chat = useSelector(state => state.chat.messages);
 
   async function handleNavigation(url) {
     if (url !== '/chat') {
@@ -100,31 +99,12 @@ function LogoAndRoutes({
       return;
     }
 
-    // If already on /chat and there is an active chat, save it
-    if (location.pathname === '/chat' && chat && chat.length >= 1) {
-      const payload = { 
-        messages: chat, 
-        email: userEmail 
-      };
-      try {
-        await fetch("http://localhost:3000/api/chats", {
-          method: "POST",
-          body: JSON.stringify(payload),
-          headers: { "Content-Type": "application/json" },
-          keepalive: true
-        });
-
-        dispatch(clearProducts());
-        dispatch(clearChat());
-        userEmail? dispatch(fetchChatHistory(userEmail)): null;
-      } catch (err) {
-        console.error('Sidebar: Failed to save chat before starting new chat:', err);
-      }
-    }
-
-    setCanClearChat(true);
+    // Clear current chat and start new conversation
+    dispatch(clearProducts());
+    dispatch(startNewConversation()); // This clears messages and conversationId
     dispatch(setActiveChatId(null));
     
+    setCanClearChat(true);
     shouldRefreshRef.current = true;
   
     RedirectRoutes(url, navigate, isAuthenticated);
