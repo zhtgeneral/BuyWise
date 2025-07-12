@@ -120,7 +120,7 @@ export default function ChatbotPanel({
             isPastChat? (
               <textarea
                 ref={textareaRef}
-                className="chatbot-textarea"
+                className="chatbot-textarea textarea-disabled"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyDown={handleKeyDown}

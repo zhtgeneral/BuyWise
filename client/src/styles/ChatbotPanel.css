@@ -51,6 +51,10 @@
   transition: border-color 0.2s ease;
 }
 
+.textarea-disabled {
+  cursor: not-allowed;
+}
+
 .chatbot-textarea:focus {
   outline: none;
   border-color: #4a90e2;
