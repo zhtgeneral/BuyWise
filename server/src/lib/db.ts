@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://buywise_admin:RIoO1kE87tmbXL7y@buywise.qcwpmpn.mongodb.net/BuyWise?retryWrites=true&w=majority&appName=BuyWise';
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env');

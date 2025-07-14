@@ -1,7 +1,7 @@
 import "../styles/ChatPage.css";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import ProductGrid from "../components/ProductGrid";
 import { selectProducts } from "../libs/features/productsSlice";
@@ -16,7 +16,7 @@ export default function ChatPage() {
   const userEmail = useSelector(state => state.profile?.user?.email); // adjust selector as needed
   const pastChats = useSelector(state => state.history?.chats || []);
   const allChats = useSelector(selectChats);
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const chatRef = useRef(chat);
   const emailRef = useRef(userEmail);
   const pastChatsRef = useRef(pastChats);

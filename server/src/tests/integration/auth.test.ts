@@ -1,5 +1,5 @@
+import { describe, beforeAll, afterEach, it, expect } from 'vitest';
 import sinon from 'sinon';
-import { expect } from 'chai';
 import express from 'express';
 import request from 'supertest'
 
@@ -12,8 +12,8 @@ process.env.JWT_SECRET = "test-secret";
 
 describe('Auth API', () => {
   let app: express.Express;
-  
-  before(() => {
+
+  beforeAll(() => {
     app = express();
     app.use(express.json());
     app.use('/api/auth', authRoutes);    

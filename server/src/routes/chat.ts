@@ -298,7 +298,7 @@ router.get('/', async (req, res) => {
     var chats = await ChatService.getChatsByEmail(email as string);
   } catch (error: any) {
     console.log("/api/chats GET error during fetch: " + JSON.stringify(error, null, 2));
-    res.status(500).json({ 
+    return res.status(500).json({ 
       success: false,
       error: 'Failed to fetch chats'
     });

@@ -1,22 +1,17 @@
+import { describe, beforeAll, afterEach, it, expect } from 'vitest';
 import sinon from 'sinon';
-import { expect } from 'chai';
 import express from 'express';
 import request from 'supertest'
 
-import { AuthService } from '../../services/authService';
-import { IUser } from '../../models/User';
-import authRoutes from '../../routes/auth';
-import { UserService } from '../../services/UserService';
 import chatRouter from '../../routes/chat';
 import { ChatService } from '../../services/ChatService';
-import { IMessage } from '../../models/Chat';
 
 process.env.JWT_SECRET = "test-secret";
 
 describe('Chat API', () => {
   let app: express.Express;
-  
-  before(() => {
+
+  beforeAll(() => {
     app = express();
     app.use(express.json());
     app.use('/api/chats', chatRouter);    

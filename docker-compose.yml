@@ -22,29 +22,29 @@ services:
     depends_on:
       - server
 
-  # server-tests:
-  #   build: ./server
-  #   container_name: backend-tests
-  #   command: npm run test
-  #   volumes:
-  #     - mochawesome_reports:/app/mochawesome-report
+  server-tests:
+    build: ./server
+    container_name: backend-tests
+    command: npm run test:vi
+    volumes:
+      - reports:/app/reports
 
-  # report-server:
-  #   image: node:22
-  #   container_name: mochawesome-report-server
-  #   working_dir: /app
-  #   command: npx http-server mochawesome-report -p 8080 -c-1
-  #   volumes:
-  #     - mochawesome_reports:/app/mochawesome-report
-  #   ports:
-  #     - "8080:8080"
-  #   depends_on:
-  #     - server-tests
+  report-server:
+    image: node:22
+    container_name: vitest-report-server
+    working_dir: /app
+    command: npx http-server reports -p 8080 -c-1
+    volumes:
+      - reports:/app/reports
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server-tests
 
 volumes:
   frontend_node_modules:
   backend_node_modules:
-  mochawesome_reports:
+  reports:
 
 # Message to fix issue
 # Error: Cannot find module @rollup/rollup-linux-x64-gnu. 

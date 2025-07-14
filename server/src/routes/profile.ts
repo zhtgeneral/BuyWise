@@ -231,14 +231,14 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
     await UserService.resendVerificationEmail(user);    
   } catch (error: any) {
     console.error("/api/profiles/resend-verification POST unknown error during resending verification: " + JSON.stringify(error, null, 2));
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Unable to resend verification email'
     });
   }
 
   console.log("/api/profiles/resend-verification POST succesffuly sent verification email");
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: 'Verification email sent'
   });
@@ -530,13 +530,13 @@ router.patch('/passwords/:userId?', authenticate, async (req: Request, res: Resp
     await UserService.updatePassword(user, newPassword);
   } catch (error: any) {
     console.error('/api/profiles/passwords/:userId unknown error during updating password: ' + JSON.stringify(error, null, 2));
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Unable to update password'
     });
   }
   console.log('/api/profiles/passwords/:userId successfully updated password');
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     message: 'Password updated successfully'
   });

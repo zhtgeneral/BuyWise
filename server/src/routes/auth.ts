@@ -162,7 +162,7 @@ router.post('/register', async (req: Request, res: Response) => {
     var result = await AuthService.register(name, email, password);
   } catch (error: any) {
     console.error('/api/register POST Registration error: ', JSON.stringify(error, null, 2));
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: 'Registration failed. Please try again'
     });

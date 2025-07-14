@@ -7,7 +7,7 @@ import axios from 'axios';
 import ChatMessage from './ChatMessage';
 
 import { addMessage, selectChatMessages, selectConversationId, setConversationId } from '../libs/features/chatSlice';
-import { selectProfileUser } from '../libs/features/profileSlice';
+// import { selectProfileUser } from '../libs/features/profileSlice';
 import { setProducts } from '../libs/features/productsSlice';
 
 export default function ChatbotPanel({
@@ -17,7 +17,7 @@ export default function ChatbotPanel({
   const dispatch = useDispatch();
   const reduxChat = useSelector(selectChatMessages);
   const conversationId = useSelector(selectConversationId);
-  const userProfile = useSelector(selectProfileUser);
+  // const userProfile = useSelector(selectProfileUser);
   const location = useLocation();
 
   const chat = messages ?? reduxChat;

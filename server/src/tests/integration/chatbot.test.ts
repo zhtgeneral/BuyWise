@@ -1,4 +1,4 @@
-import * as chai from 'chai';
+import { describe, beforeAll, afterEach, it, expect } from 'vitest';
 import sinon from 'sinon';
 import request from 'supertest';
 import express from 'express';
@@ -7,7 +7,6 @@ import { postChat } from '../../routes/chatbot';
 import { AIService } from '../../services/AIService';
 import { ProductService } from '../../services/ProductService';
 
-const expect = chai.expect;
 
 /**
  * NOTE
@@ -21,7 +20,7 @@ const expect = chai.expect;
 describe('Chatbot API', () => {
   let app: express.Express;
 
-  before(() => {
+  beforeAll(() => {
     app = express();
     app.use(express.json());
     app.post('/api/chatbot', postChat);

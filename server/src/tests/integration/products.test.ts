@@ -1,14 +1,14 @@
+import { describe, beforeAll, afterEach, it, expect } from 'vitest';
 import express from 'express';
 import request from 'supertest';
 import sinon from 'sinon';
-import { expect } from 'chai';
 import productsRouter from '../../routes/products';
 import { ProductService } from '../../services/ProductService';
 
 describe('Products API', () => {
   let app: express.Express;
-
-  before(() => {
+  
+  beforeAll(() => {
     app = express();
     app.use('/api/products', productsRouter);
   });
