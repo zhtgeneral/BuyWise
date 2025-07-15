@@ -304,7 +304,7 @@ router.get('/', async (req, res) => {
     });
   }
 
-  console.log("/api/chats GET got chats: " + JSON.stringify(chats, null, 2));
+  console.log("/api/chats GET got chats: " + chats.length);
   return res.status(200).json({
     success: true,
     chats: chats

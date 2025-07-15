@@ -15,6 +15,7 @@ import PastChats from './ChatHistory';
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
+import ExploreIcon from '../icons/compass.svg?react';
 import BuyWiseLogo from '../assets/BuyWiseLogo.png';
 import { updateProfile } from '../libs/features/profileSlice';
 import RedirectRoutes from '../middleware/middleware';
@@ -136,7 +137,11 @@ function LogoAndRoutes({
         </div>
         <div onClick={() => handleNavigation('/profile')} className={activeClassName('/profile')}>
           <EditIcon className="sidebar-icon" />
-          <span className="sidebar-text">Profile</span>
+          <span className="sidebar-text">Edit Profile</span>
+        </div>
+        <div onClick={() => handleNavigation('/explore-products')} className={activeClassName('/explore')}>
+          <ExploreIcon className="sidebar-icon" />
+          <span className="sidebar-text">Explore Products</span>
         </div>
         <div onClick={() => handleNavigation('/about')} className={activeClassName('/about')}>
           <AboutUsIcon className="sidebar-icon" />

@@ -13,6 +13,7 @@ import ChatPage from './pages/ChatPage';
 import VerificationPage from './pages/VerificationPage';
 import AboutPage from './pages/AboutPage';
 import RegistrationPage from './pages/RegistrationPage';
+import ExplorePage from './pages/ExplorePage'
 
 /**
  * This defines the routes in our app.
@@ -56,6 +57,10 @@ const router = createBrowserRouter([
         path: 'about',
         element: <AboutPage />
       },
+      {
+        path: 'explore-products',
+        element: <ExplorePage />
+      }
     ]
   }
 ]);

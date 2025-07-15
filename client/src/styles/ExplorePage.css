@@ -1,0 +1,17 @@
+.explore-container {  
+  margin: 0 auto;
+  height: 100%;   
+  width: 100%;
+  display: inline;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.explore-padding {
+  padding: 3em 6em;
+}
+
+.explore-error {
+  color: red;
+  padding-bottom: 1rem;
+}

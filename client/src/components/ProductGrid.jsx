@@ -1,10 +1,10 @@
 import "../styles/ProductGrid.css";
-import { Link } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { 
   selectProducts, 
   selectPastProducts 
 } from "../libs/features/productsSlice";
+import ProductCard from './ProductCard'
 
 export default function ProductGrid({
   products,
@@ -76,22 +76,5 @@ function ConditionalPreviousResults({
         }
       </div>
     </>
-  )
-}
-
-function ProductCard({
-  product
-}) {
-  return (
-    <div className="product-card" key={product.id}>
-      <img src={product.image} alt={product.title} />
-      <div className="product-container">
-        <h4>{product.title}</h4>
-        <p>Price: ${product.price}</p>
-        <Link target="_blank" to={product.url} className="product-link">
-          Link to Product
-        </Link>
-      </div>
-    </div>
   )
 }
