@@ -1,9 +1,8 @@
-.chatbot-panel-container {
+/* .chatbot-panel-container {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100vh - 6em); /* full viewport height */
-  /* overflow: hidden; */
+  height: calc(100vh - 6em); 
 }
 
 @media (max-width: 1440px) {
@@ -15,14 +14,14 @@
 .chatbot-panel-background {
   display: flex;
   flex-direction: column;
-  flex: 1; /* take up remaining space */
+  flex: 1; 
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 1em;
-  overflow: hidden; /* prevent spill */
+  overflow: hidden;
 }
 
-.chatbot-messages-container {
+.chatbot-messages-portal {
   flex: 1;
   overflow-y: auto;
   margin-bottom: 1rem;
@@ -30,6 +29,12 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chatbot-messages-container {
+  flex: 1; 
+  overflow-y: auto; 
+  padding-bottom: 0.5rem; 
 }
 
 .chatbot-input-container {
@@ -86,10 +91,8 @@
   opacity: 0.9;
 }
 
-.chatbot-loading-indicator {
-  display: inline-block;
-  width: 1em;
-  text-align: left;
+.chatbot-disabled-indicator {
+  text-align: center;
 }
 
 @keyframes gradientAnimation {
@@ -101,5 +104,167 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+} */
+ /* Container for the entire chatbot panel */
+.chatbot-panel-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 6em); /* Full viewport height minus header/footer */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 1440px) {
+  .chatbot-panel-container {
+    height: 50%;
+  }
+}
+
+/* Background panel */
+.chatbot-panel-background {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take up remaining space */
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1em;
+  overflow: hidden; /* Prevent spill */
+}
+
+/* Messages portal (container for messages and loading indicator) */
+.chatbot-messages-portal {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Take up available space */
+  overflow: hidden; /* Contain children */
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Messages container (scrollable area for messages) */
+.chatbot-messages-container {
+  flex: 1; /* Take up remaining space above loading indicator */
+  overflow-y: auto; /* Scrollable */
+  padding-bottom: 0.5rem; /* Space between messages and loading indicator */
+}
+
+/* Loading indicator */
+.conditional-loading-indicator {
+  height: 20px; /* Fixed height */
+  flex-shrink: 0; /* Prevent shrinking */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ensure the spinner inside ConditionalLoadingIndicator is styled */
+.conditional-loading-indicator .spinner-container {
+  max-width: 14px;
+  max-height: 14px;
+  font-size: 10px;
+}
+
+/* Input container */
+.chatbot-input-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+/* Textarea styles */
+.chatbot-textarea {
+  flex: 1;
+  min-height: 50px;
+  max-height: 150px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: none;
+  overflow-y: auto;
+  transition: border-color 0.2s ease;
+}
+
+.textarea-disabled {
+  cursor: not-allowed;
+}
+
+.chatbot-textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Send button styles */
+.chatbot-send-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-image: linear-gradient(-45deg, #073b63, #0a67ad, #073b63, #0a67ad);
+  background-size: 300% 300%;
+  animation: gradientAnimation 10s ease infinite;
+  color: white;
+  font-weight: 600;
+  height: 100%;
+  width: 100px;
+}
+
+.chatbot-send-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chatbot-send-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Disabled indicator */
+.chatbot-disabled-indicator {
+  text-align: center;
+}
+
+/* Gradient animation for send button */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Spinner animation (from previous response) */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Spinner color cycle (from previous response) */
+@keyframes colorCycle {
+  0% {
+    stroke: #1e3a8a; /* Dark blue */
+  }
+  25% {
+    stroke: #3b82f6; /* Vibrant blue */
+  }
+  50% {
+    stroke: #60a5fa; /* Light blue */
+  }
+  75% {
+    stroke: #93c5fd; /* Very light blue */
+  }
+  100% {
+    stroke: #1e3a8a; /* Back to dark blue */
   }
 }

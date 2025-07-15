@@ -37,18 +37,9 @@ function SearchResults({
       <h1>Search Results</h1>
       <div className="product-list">
         {
-          products?.map((product) => (
-            <div className="product-card" key={product.id}>
-              <img src={product.image} alt={product.title} />
-              <div className="product-container">
-                <h4>{product.title}</h4>
-                <p>Price: ${product.price}</p>
-                <Link target="_blank" to={product.url} className="product-link">
-                  Link to Product
-                </Link>
-              </div>
-            </div>
-          ))
+          products?.map(
+            (product) => <ProductCard product={product} />
+          )
         }
       </div>
     </>
@@ -75,18 +66,9 @@ function ConditionalPreviousResults({
             >
               <div className="product-list">
                 {
-                  batch.map((product) => (
-                    <div className="product-card" key={product.id}>
-                      <img src={product.image} alt={product.title} />
-                      <div className="product-container">
-                        <h4>{product.title}</h4>
-                        <p>Price: ${product.price}</p>
-                        <Link target="_blank" to={product.url} className="product-link">
-                          Link to Product
-                        </Link>
-                      </div>
-                    </div>
-                  ))
+                  batch.map(
+                    (product) => <ProductCard product={product} />
+                  )
                 }
               </div>
             </div>
@@ -94,5 +76,22 @@ function ConditionalPreviousResults({
         }
       </div>
     </>
+  )
+}
+
+function ProductCard({
+  product
+}) {
+  return (
+    <div className="product-card" key={product.id}>
+      <img src={product.image} alt={product.title} />
+      <div className="product-container">
+        <h4>{product.title}</h4>
+        <p>Price: ${product.price}</p>
+        <Link target="_blank" to={product.url} className="product-link">
+          Link to Product
+        </Link>
+      </div>
+    </div>
   )
 }

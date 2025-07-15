@@ -18,8 +18,10 @@
     "axios": "^1.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-loading-indicators": "^1.0.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.1",
+    "respinner": "^4.0.3",
     "vite": "^6.3.5"
   },
   "devDependencies": {
@@ -35,9 +37,9 @@
     "vite-plugin-svgr": "^4.3.0"
   },
   "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.0.0",
-    "@rollup/rollup-linux-arm64-gnu": "^4.0.0",
+    "@rollup/rollup-darwin-arm64": "^4.0.0",
     "@rollup/rollup-darwin-x64": "^4.0.0",
-    "@rollup/rollup-darwin-arm64": "^4.0.0"
+    "@rollup/rollup-linux-arm64-gnu": "^4.0.0",
+    "@rollup/rollup-linux-x64-gnu": "^4.0.0"
   }
 }
