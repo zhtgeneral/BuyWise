@@ -126,6 +126,7 @@ export default function ChatbotPanel({
             />
             <ConditionalLoadingIndicator 
               isLoading={isLoading}
+              isPastChat={isPastChat}
             />      
           </div>
 
@@ -170,9 +171,10 @@ function ChatbotMessages({
 }
 
 function ConditionalLoadingIndicator({
-  isLoading
+  isLoading,
+  isPastChat
 }) {
-  if (!isLoading) return null;
+  if (isPastChat || !isLoading) return null;
   return (
     <span style={{ textAlign: 'left' }}>
       <ThreeDot
