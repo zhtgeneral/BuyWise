@@ -12,6 +12,7 @@ import proxyRoutes from './routes/proxy';
 import { authMiddleware, authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
+import { startMemoryCleanup } from './agent/chatbotAgent';
 // import { postRegister } from './routes/auth';
 
 dotenv.config();
@@ -116,5 +117,8 @@ connectDB().then(() => {
 
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+    
+    // Memory cleanup listener
+    startMemoryCleanup();
   });
 }); 

@@ -1,9 +1,9 @@
-import { chatWithAgent } from '../agent/chatbotAgent';
+import { chatWithAgent, restoreMemoryFromDatabase } from '../agent/chatbotAgent';
 import { ChatService } from './ChatService';
 
 export interface ChatbotResponse {
   chatbotMessage: string;
-  conversationId: string;
+  responseConversationId: string;
   productData: any[] | null;
 }
 
@@ -41,6 +41,14 @@ export class ChatbotService {
       // Existing conversation
       console.log('ChatbotService: Continuing existing conversation:', conversationId, 'for user:', userEmail);
       sessionId = conversationId;
+      
+      // Attempt to restore memory from database for existing conversations
+      try {
+        await restoreMemoryFromDatabase(sessionId, userEmail);
+        console.log('ChatbotService: Memory restoration attempted for session:', sessionId);
+      } catch (error) {
+        console.error('ChatbotService: Memory restoration failed, but continuing:', error);
+      }
     }
     
     // Get AI response using the real MongoDB _id
@@ -61,7 +69,7 @@ export class ChatbotService {
     
     return {
       chatbotMessage: agentResponse.message,
-      conversationId: sessionId,
+      responseConversationId: sessionId,
       productData: agentResponse.productData
     };
   }
