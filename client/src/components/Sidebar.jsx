@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   fetchChatHistory, 
-  setActiveChatId, 
 } from '../libs/features/historySlice';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
-import { startNewConversation } from '../libs/features/chatSlice';
+import { clearChat } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
 import PastChats from './ChatHistory';
@@ -35,12 +34,17 @@ export default function Sidebar() {
 
   const [canClearChat, setCanClearChat] = useState(false);
   const shouldRefreshRef = useRef(false);
+  const hasLoadedHistoryRef = useRef(false);
 
+  // Fetch chat history at authentication
   useEffect(() => {
-    if (userEmail) {
+    if (isAuthenticated && userEmail && !hasLoadedHistoryRef.current) {
       dispatch(fetchChatHistory(userEmail));
+      hasLoadedHistoryRef.current = true;
+    } else if (!isAuthenticated) {
+      hasLoadedHistoryRef.current = false;
     }
-  }, [location.pathname, dispatch, userEmail]);
+  }, [isAuthenticated, userEmail, dispatch]);
 
   function handleLogout() {
     localStorage.removeItem('token'); // TODO use cookies instead of local storage
@@ -106,14 +110,7 @@ function LogoAndRoutes({
       return;
     }
 
-    // Clear current chat and start new conversation
-    dispatch(clearProducts());
-    dispatch(startNewConversation());
-    dispatch(setActiveChatId(null));
-    if (userEmail) {
-      dispatch(fetchChatHistory(userEmail));
-    }
-    
+    // Navigate to new chat
     setCanClearChat(true);
     shouldRefreshRef.current = true;
   

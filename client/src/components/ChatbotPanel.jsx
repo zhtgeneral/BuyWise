@@ -12,11 +12,11 @@ import {
   setConversationId 
 } from '../libs/features/chatSlice';
 import { setProducts } from '../libs/features/productsSlice';
+import { addNewChatToHistory, updateChatInHistory } from '../libs/features/historySlice';
 import { OrbitProgress, ThreeDot } from 'react-loading-indicators'
 
 export default function ChatbotPanel({
   messages,
-  setShowProduct,
 }) {
   const dispatch = useDispatch();
   const reduxChat = useSelector(selectChatMessages);
@@ -29,6 +29,29 @@ export default function ChatbotPanel({
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Helper function to update chat history
+  function updateChatHistory(updatedMessages, responseConversationId = null) {
+    const finalConversationId = responseConversationId || conversationId;
+    if (finalConversationId) {
+      const chatHistoryEntry = {
+        _id: finalConversationId,
+        messages: updatedMessages,
+        createdAt: new Date().toISOString()
+      };
+
+      if (responseConversationId && responseConversationId !== conversationId) {
+        // New chat - add to history
+        dispatch(addNewChatToHistory(chatHistoryEntry));
+      } else {
+        // Existing chat - update in history
+        dispatch(updateChatInHistory({ 
+          chatId: finalConversationId, 
+          updatedChat: chatHistoryEntry 
+        }));
+      }
+    }
+  }
 
   async function handleSendMessage() {
     if (!userInput.trim()) return;
@@ -54,19 +77,29 @@ export default function ChatbotPanel({
       });      
     } catch (error) {
       console.error('ChatbotPanel error:', error);
-      dispatch(addMessage({ 
+      const errorMessage = { 
         speaker: "bot", 
         text: "Sorry, I encountered an error. Please try again later."
-      }));
+      };
+      dispatch(addMessage(errorMessage));
+      
+      // Update history with error message
+      updateChatHistory([...chat, errorMessage]);
+      
       setIsLoading(false);
       return;
     } 
 
     if (response.status !== 200) {
-      dispatch(addMessage({ 
+      const errorMessage = { 
         speaker: "bot", 
         text: "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience."
-      }));
+      };
+      dispatch(addMessage(errorMessage));
+      
+      // Update history with error message
+      updateChatHistory([...chat, errorMessage]);
+      
       setIsLoading(false);
       return;
     }
@@ -81,23 +114,29 @@ export default function ChatbotPanel({
     if (responseConversationId && responseConversationId !== conversationId) {
       dispatch(setConversationId(responseConversationId));
     }
-    
-    if (productData?.length > 0) {
-      dispatch(addMessage({
-        speaker: "bot", 
-        text: chatbotMessage,
-        recommendedProducts: productData
-      }));
-      dispatch(setProducts(productData));
-      setShowProduct(true);
-      setIsLoading(false);
-      return;
-    } 
 
-    dispatch(addMessage({
-      speaker: "bot", 
-      text: chatbotMessage     
-    }));        
+    // Add bot message to current chat
+    const botMessage = productData?.length > 0 
+      ? {
+          speaker: "bot", 
+          text: chatbotMessage,
+          recommendedProducts: productData
+        }
+      : {
+          speaker: "bot", 
+          text: chatbotMessage     
+        };
+    
+    dispatch(addMessage(botMessage));
+    
+    // Update products if any
+    if (productData?.length > 0) {
+      dispatch(setProducts(productData));
+    }
+
+    // Update chat history
+    updateChatHistory([...chat, botMessage], responseConversationId);
+    
     setIsLoading(false);
   };
 
@@ -109,8 +148,6 @@ export default function ChatbotPanel({
       }
     }
   }
-
-  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
 
   return (
     <>
@@ -128,13 +165,11 @@ export default function ChatbotPanel({
             />
             <ConditionalLoadingIndicator 
               isLoading={isLoading}
-              isPastChat={isPastChat}
             />      
           </div>
 
           <div className="chatbot-input-container">
             <ChatbotInput 
-              isPastChat={isPastChat}
               textareaRef={textareaRef}
               userInput={userInput}
               handleKeyDown={handleKeyDown}
@@ -142,7 +177,6 @@ export default function ChatbotPanel({
             />
             <ChatbotButton 
               isLoading={isLoading}
-              isPastChat={isPastChat}
               handleSendMessage={handleSendMessage}
               isInputEmpty={userInput.trim() === ''}
             />
@@ -173,10 +207,9 @@ function ChatbotMessages({
 }
 
 function ConditionalLoadingIndicator({
-  isLoading,
-  isPastChat
+  isLoading
 }) {
-  if (isPastChat || !isLoading) return null;
+  if (!isLoading) return null;
   return (
     <span style={{ textAlign: 'left' }}>
       <ThreeDot
@@ -191,26 +224,11 @@ function ConditionalLoadingIndicator({
 }
 
 function ChatbotInput({
-  isPastChat,
   textareaRef, 
   userInput,
   handleKeyDown,
   setUserInput
 }) {
-  if (isPastChat) {
-    return (
-      <textarea
-        ref={textareaRef}
-        className="chatbot-textarea textarea-disabled"
-        value={userInput}
-        onChange={(e) => setUserInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Past chats are not editable!"
-        rows={3}
-        disabled={true}
-      />
-    )
-  } 
   return (
     <textarea
       ref={textareaRef}
@@ -226,14 +244,11 @@ function ChatbotInput({
 
 function ChatbotButton({
   isLoading,
-  isPastChat,
   handleSendMessage,
   isInputEmpty
 }) {  
   let buttonText;
-  if (isPastChat) {
-    buttonText = <span className="chatbot-disabled-indicator">🔒</span>
-  } else if (isLoading) {
+  if (isLoading) {
     buttonText = 
       <OrbitProgress 
         style={{ fontSize: '8px' }} 
@@ -249,7 +264,7 @@ function ChatbotButton({
     <button
       className="chatbot-send-button"
       onClick={handleSendMessage}
-      disabled={isInputEmpty || isLoading || isPastChat}
+      disabled={isInputEmpty || isLoading}
     >
       {buttonText}
     </button>

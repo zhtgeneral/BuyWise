@@ -28,14 +28,12 @@ export interface ChatHistory {
 
 interface HistoryState {
   chats: ChatHistory[];
-  activeChatId: string | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: HistoryState = {
   chats: [],
-  activeChatId: null,
   loading: false,
   error: null,
 };
@@ -64,12 +62,8 @@ export const historySlice = createSlice({
       state.chats = action.payload;
       state.error = null;
     },
-    setActiveChatId: (state, action: PayloadAction<string | null>) => {
-      state.activeChatId = action.payload;
-    },
     clearChats: (state) => {
       state.chats = [];
-      state.activeChatId = null;
       state.error = null;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
@@ -77,6 +71,16 @@ export const historySlice = createSlice({
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+    },
+    addNewChatToHistory: (state, action: PayloadAction<ChatHistory>) => {
+      state.chats.unshift(action.payload); // Add to beginning (most recent first)
+    },
+    updateChatInHistory: (state, action: PayloadAction<{ chatId: string; updatedChat: ChatHistory }>) => {
+      const { chatId, updatedChat } = action.payload;
+      const index = state.chats.findIndex(chat => chat._id === chatId);
+      if (index !== -1) {
+        state.chats[index] = updatedChat;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -98,9 +102,10 @@ export const historySlice = createSlice({
   },
 });
 
-export const { setChats, setActiveChatId, clearChats, setLoading, setError } = historySlice.actions;
+export const { setChats, clearChats, setLoading, setError, addNewChatToHistory, updateChatInHistory } = historySlice.actions;
 export const selectChats = (state: any) => state.history?.chats || [];
-export const selectActiveChatId = (state: any) => state.history?.activeChatId || null;
 export const selectHistoryLoading = (state: any) => state.history?.loading || false;
 export const selectHistoryError = (state: any) => state.history?.error || null;
+export const selectChatById = (chatId: string) => (state: any) => 
+  state.history?.chats?.find((chat: ChatHistory) => chat._id === chatId) || null;
 export default historySlice.reducer;

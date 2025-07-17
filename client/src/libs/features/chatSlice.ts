@@ -20,7 +20,7 @@ export interface ChatMessage {
 
 interface ChatState {
   messages: ChatMessage[];
-  conversationId: string | null; // Track the MongoDB _id for the current conversation
+  conversationId: string | null;
 }
 
 const initialState: ChatState = {
@@ -37,23 +37,20 @@ export const chatSlice = createSlice({
     },
     clearChat: (state) => {
       state.messages = [];
-      state.conversationId = null; // Clear conversation ID when clearing chat
-    },
-    setChat: (state, action: PayloadAction<ChatMessage[]>) => {
-      state.messages = action.payload;
+      state.conversationId = null;
     },
     setConversationId: (state, action: PayloadAction<string | null>) => {
       state.conversationId = action.payload;
     },
-    // Action for starting a new conversation
-    startNewConversation: (state) => {
-      state.messages = [];
-      state.conversationId = null;
+    loadPastChat: (state, action: PayloadAction<{ chatId: string; messages: ChatMessage[] }>) => {
+      const { chatId, messages } = action.payload;
+      state.messages = messages;
+      state.conversationId = chatId;
     },
   },
 });
 
-export const { addMessage, clearChat, setChat, setConversationId, startNewConversation } = chatSlice.actions;
+export const { addMessage, clearChat, setConversationId, loadPastChat } = chatSlice.actions;
 export const selectChatMessages = (state) => state.chat.messages;
 export const selectConversationId = (state) => state.chat.conversationId;
 export default chatSlice.reducer;
