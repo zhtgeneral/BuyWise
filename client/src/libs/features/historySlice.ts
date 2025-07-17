@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
+// TODO remove async thunk and make login page fetch requests. Other components no longer fetch using useEffects.
+
 export interface RecommendedProduct {
   id: string;
   source: string;
@@ -38,6 +40,7 @@ const initialState: HistoryState = {
   error: null,
 };
 
+// TODO remove since fetching chats is done in login component, not sidebar component
 export const fetchChatHistory = createAsyncThunk(
   'history/fetchChatHistory',
   async (email: string, { rejectWithValue }) => {

@@ -1,29 +1,18 @@
 import "../styles/ProductGrid.css";
-import { useSelector } from 'react-redux';
-import { 
-  selectProducts, 
-  selectPastProducts 
-} from "../libs/features/productsSlice";
 import ProductCard from './ProductCard'
 
 export default function ProductGrid({
-  products,
-  showProduct
+  showProduct,
+  products = [],
+  pastProducts = []
 }) {
-  // Use products prop if provided, otherwise use selector
-  const selectorProducts = useSelector(selectProducts);
-  const actualProducts = products || selectorProducts;
-  const pastProducts = useSelector(selectPastProducts);
-
   if (!showProduct) {
-    return (
-      <></>
-    )
+    return null;
   }
   
   return (
     <div className='product-grid-container'>
-      <SearchResults products={actualProducts} />
+      <SearchResults products={products} />
       <ConditionalPreviousResults products={pastProducts} />
     </div>
   );
@@ -67,7 +56,7 @@ function ConditionalPreviousResults({
               <div className="product-list">
                 {
                   batch.map(
-                    (product) => <ProductCard product={product} />
+                    (product) => <ProductCard key={product.id} product={product} />
                   )
                 }
               </div>

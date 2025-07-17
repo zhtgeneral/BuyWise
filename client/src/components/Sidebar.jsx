@@ -1,14 +1,9 @@
 import '../styles/Sidebar.css';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchChatHistory, 
-} from '../libs/features/historySlice';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
-import { clearChat } from '../libs/features/chatSlice';
-import { clearProducts } from '../libs/features/productsSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
+import { clearChats } from '../libs/features/historySlice';
 import PastChats from './ChatHistory';
 
 import TerminalIcon from '../icons/terminal.svg?react';
@@ -25,26 +20,10 @@ import RedirectRoutes from '../middleware/middleware';
  * If the user logs out, it clears the token from browser and the user from redux sture
  * */
 export default function Sidebar() {
-  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const userEmail = useSelector(state => state.profile?.user?.email);
-
-  const [canClearChat, setCanClearChat] = useState(false);
-  const shouldRefreshRef = useRef(false);
-  const hasLoadedHistoryRef = useRef(false);
-
-  // Fetch chat history at authentication
-  useEffect(() => {
-    if (isAuthenticated && userEmail && !hasLoadedHistoryRef.current) {
-      dispatch(fetchChatHistory(userEmail));
-      hasLoadedHistoryRef.current = true;
-    } else if (!isAuthenticated) {
-      hasLoadedHistoryRef.current = false;
-    }
-  }, [isAuthenticated, userEmail, dispatch]);
 
   function handleLogout() {
     localStorage.removeItem('token'); // TODO use cookies instead of local storage
@@ -53,6 +32,7 @@ export default function Sidebar() {
       user: {},
       preferences: {}
     }));
+    dispatch(clearChats());
     alert("You have successfully logged out!");
     navigate('/');
   }
@@ -62,21 +42,12 @@ export default function Sidebar() {
       <div className="sidebar-items" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <LogoAndRoutes 
           isAuthenticated={isAuthenticated}
-          navigate={navigate}
-          setCanClearChat={setCanClearChat}
-          userEmail={userEmail}
-          dispatch={dispatch}
-          shouldRefreshRef={shouldRefreshRef}
+          navigate={navigate}        
         />
 
-        {isAuthenticated && (
-          <PastChats 
-            canClearChat={canClearChat}
-            setCanClearChat={setCanClearChat}
-            dispatch={dispatch}
-            shouldRefreshRef={shouldRefreshRef}
-          />
-        )}
+        {
+          isAuthenticated && <PastChats />
+        }
         
         <AuthSection 
           isAuthenticated={isAuthenticated}
@@ -91,35 +62,13 @@ export default function Sidebar() {
 function LogoAndRoutes({
   isAuthenticated,
   navigate,
-  setCanClearChat,
-  userEmail,
-  dispatch,
-  shouldRefreshRef
 }) {
-
   async function handleNavigation(url) {
-    if (url !== '/chat') {
-      setCanClearChat(false);
-      RedirectRoutes(url, navigate, isAuthenticated);
-      return;
-    }
-
-    // Check authentication before allowing access to chat
-    if (!isAuthenticated) {
-      RedirectRoutes('/chat', navigate, isAuthenticated);
-      return;
-    }
-
-    // Navigate to new chat
-    setCanClearChat(true);
-    shouldRefreshRef.current = true;
-  
-    navigate('/chat', { replace: true }); // Not sure if this is a good idea, but can't think of better way to force create a new chat if user is engaged in active conversation
+    RedirectRoutes(url, navigate, isAuthenticated);
   }
 
   function activeClassName(target) {
-    return (location.pathname === target)? 'sidebar-link active': 'sidebar-link'
-    
+    return (location.pathname === target)? 'sidebar-link active': 'sidebar-link'    
   }
 
   return (
@@ -156,29 +105,20 @@ function AuthSection({
 }) {
   const { name } = useSelector(selectProfileUser);
   const displayName = name? name : 'Wise Buyer';
+
+  function navigateToLogin() {
+    navigate('/login', { state: { from: location.pathname } })
+  }
+  
   return (
     <div className="sidebar-auth">
       {
-        !isAuthenticated ? (
-          <button
-            onClick={() => navigate('/login', { state: { from: location.pathname } })}
-            className="login-button"
-          >
-            Log In
-          </button>
-        ) : (
-          <div className="sidebar-user-info">
-            <div className='sidebar-user-name'>
-              Welcome {displayName}!
-            </div>
-            <button
-              onClick={handleLogout}
-              className="logout-button"
-            >
-              Log Out
-            </button>
-          </div>
-        )
+        !isAuthenticated 
+        ? <button className="login-button" onClick={navigateToLogin} >Log In</button>
+        : <div className="sidebar-user-info">
+            <div className='sidebar-user-name'>Welcome {displayName}!</div>
+            <button className="logout-button" onClick={handleLogout}>Log Out</button>
+          </div>        
       }
     </div>
   )

@@ -1,5 +1,4 @@
 import '../styles/ProfilePage.css'; 
-import React from 'react'
 import { useState } from 'react';
 import { selectProfile, updateProfile } from '../libs/features/profileSlice';
 import { useSelector, useDispatch } from 'react-redux';
@@ -38,7 +37,7 @@ export default function ProfilePage() {
     }));
   };
 
-  const handleSave = () => {
+  function handleSave () {
     console.log("ProfilePage saved user profile: " + JSON.stringify(localProfile, null, 2));
     
     if (!isAuthenticated) {

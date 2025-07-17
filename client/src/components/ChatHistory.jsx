@@ -5,22 +5,16 @@ import { useSelector } from 'react-redux';
 
 import { 
   selectChats, 
-  selectHistoryLoading,
   selectHistoryError,
 } from '../libs/features/historySlice';
 
-export default function PastChats({ 
-  // canClearChat, 
-  setCanClearChat,
-  dispatch,
-  shouldRefreshRef
-}) {
-  const chats = useSelector(selectChats);
-  const loading = useSelector(selectHistoryLoading);
-  const errorMsg = useSelector(selectHistoryError);
+export default function PastChats() {
+  const chats = useSelector(selectChats) || [];
+  const errorMsg = useSelector(selectHistoryError) || '';
   const location = useLocation();
 
   // Get current chat ID from URL path
+  // TODO use redux store for current chatId
   const currentChatId = location.pathname.startsWith('/chat/') 
     ? location.pathname.split('/')[2] 
     : null;
@@ -35,37 +29,28 @@ export default function PastChats({
       });
     }
   }, [currentChatId]);
-
-  if (loading) return null;
-  if ((!chats || chats.length === 0)) {
-    return null;
-  }
-
-  const sortedChats = sortChatsByDate(chats);
-  // const isNewChatActive = canClearChat && !activeChatId;
-
-  return (
-    <div className="sidebar-past-chats">
-      <div className="sidebar-chat-history-title">
-        Chat history
+  
+  const sortedChats = sortChatsByDate(chats);  
+ 
+  if (chats.length > 0) {
+    return (
+      <div className="sidebar-past-chats">
+        <div className="sidebar-chat-history-title">Chat history</div>
+        <ConditionalErrorMsg errorMsg={errorMsg}/>        
+        <PreviousChatLinks 
+          sortedChats={sortedChats}
+          currentChatId={currentChatId}
+          activeChatRef={activeChatRef}
+        />
       </div>
-
-      <ConditionalErrorMsg 
-        errorMsg={errorMsg}
-      />
-      
-      <PreviousChatLinks 
-        sortedChats={sortedChats}
-        currentChatId={currentChatId}
-        activeChatRef={activeChatRef}
-      />
-    </div>
-  );
+    );
+  }
+  
 }
 
 
 function sortChatsByDate(chats) {
-  if (!chats || chats.length === 0) return [];
+  if (chats.length === 0) return [];
   return chats
     .slice()
     .sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
@@ -84,22 +69,24 @@ function PreviousChatLinks({
   currentChatId,
   activeChatRef
 }) {
+  function formatMessage(msg) {
+    return msg ? msg.text.slice(0, 70) + '...' : 'No messages';
+  }
+  function conditionalClassName(isActive) {
+    return `sidebar-chat-message${isActive ? ' active' : ''}`;
+  }
+
   return (
     <>
       {sortedChats.map(chat => {
+        const id = chat._id;
         const lastMsg = chat.messages?.[chat.messages.length - 1] || null;
         const isActive = currentChatId === chat._id;
 
         return (
-          <Link
-            to={`/chat/${chat._id}`}
-            key={chat._id}
-          >
-            <div
-              ref={isActive ? activeChatRef : null}
-              className={`sidebar-chat-message${isActive ? ' active' : ''}`}
-            >
-              {lastMsg ? lastMsg.text.slice(0, 70) + '...' : 'No messages'}
+          <Link to={`/chat/${id}`} key={id}>
+            <div ref={isActive ? activeChatRef : null} className={conditionalClassName(isActive)}>
+              {formatMessage(lastMsg)}
             </div>
           </Link>
         );

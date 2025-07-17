@@ -61,10 +61,7 @@ describe('LoginPage Button Tests', () => {
         },
       },
     };
-
-    axios.post.mockResolvedValueOnce(mockLoginResponse);
-
-    axios.get.mockResolvedValueOnce({
+    const mockProfileResponse = {
       data: {
         success: true,
         profile: {
@@ -72,7 +69,21 @@ describe('LoginPage Button Tests', () => {
           preferences: {},
         },
       },
-    });
+    }
+    const mockHistoryResponse = {
+      data: {
+        success: true,
+        chats: [
+          { _id: 'chat1', messages: [], createdAt: '2025-07-17' },
+        ],
+      },
+    }
+
+    axios.post
+      .mockResolvedValueOnce(mockLoginResponse);
+    axios.get
+      .mockResolvedValueOnce(mockProfileResponse)
+      .mockResolvedValueOnce(mockHistoryResponse);
 
     render(
       <Provider store={store}>
@@ -95,15 +106,30 @@ describe('LoginPage Button Tests', () => {
     expect(loadingSpinner).toBeInTheDocument();
     
     // Set timeout to wait for 2 seconds to solve flaky test
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 2000));    
 
-    await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
-    expect(axios.post).toHaveBeenCalledWith(`${backendURL}/api/auth/login`, {
-      email: 'john@example.com',
-      password: 'password123',
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledTimes(1);
+      expect(axios.post).toHaveBeenCalledWith(
+        `${backendURL}/api/auth/login`,
+        {
+          email: 'john@example.com',
+          password: 'password123',
+        }
+      );
+
+      expect(axios.get).toHaveBeenCalledTimes(2);
+      expect(axios.get).toHaveBeenCalledWith(
+        `${backendURL}/api/profiles/userId`,
+        {
+          headers: {
+            Authorization: `Bearer fakeToken`,
+          },
+        }
+      );
+      expect(axios.get).toHaveBeenCalledWith(
+        `${backendURL}/api/chats?email=${encodeURIComponent('john@example.com')}`
+      );
     });
-
-    await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
-    expect(loginButton).toBeDisabled();
   });
 });

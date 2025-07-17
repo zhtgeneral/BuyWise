@@ -65,7 +65,6 @@ export const profileSlice = createSlice({
       state.preferences = {
         ...preferences
       }
-      console.log("redux profile: " + JSON.stringify(state, null, 2));
     },
   },
 });

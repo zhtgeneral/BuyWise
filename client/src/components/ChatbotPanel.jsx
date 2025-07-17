@@ -1,42 +1,39 @@
 import '../styles/ChatbotPanel.css';
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
 import ChatMessage from './ChatMessage';
 import { 
   addMessage, 
-  selectChatMessages, 
   selectConversationId, 
-  setConversationId 
+  setConversationId,
+  selectChatMessages
 } from '../libs/features/chatSlice';
 import { setProducts } from '../libs/features/productsSlice';
-import { addNewChatToHistory, updateChatInHistory } from '../libs/features/historySlice';
+import { 
+  addNewChatToHistory, 
+  updateChatInHistory 
+} from '../libs/features/historySlice';
 import { OrbitProgress, ThreeDot } from 'react-loading-indicators'
 
-export default function ChatbotPanel({
-  messages,
-}) {
+export default function ChatbotPanel() {
+  let chat = useSelector(selectChatMessages);
   const dispatch = useDispatch();
-  const reduxChat = useSelector(selectChatMessages);
   const conversationId = useSelector(selectConversationId);
-  const location = useLocation();
 
-  const chat = messages ?? reduxChat;
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // Helper function to update chat history
-  function updateChatHistory(updatedMessages, responseConversationId = null) {
+  function addChatToHistorySidebar(newMessage, responseConversationId = null) {
     const finalConversationId = responseConversationId || conversationId;
     if (finalConversationId) {
       const chatHistoryEntry = {
         _id: finalConversationId,
-        messages: updatedMessages,
+        messages: [...chat, newMessage],
         createdAt: new Date().toISOString()
       };
 
@@ -62,13 +59,14 @@ export default function ChatbotPanel({
     };
 
     dispatch(addMessage(newUserMessage));
+    chat = [...chat, newUserMessage];
     setUserInput("");
 
     setIsLoading(true);
     try {
       var response = await axios.post('http://localhost:3000/api/chatbot', {
         message: userInput,
-        conversationId: conversationId, // Send current conversationId for incremental saving
+        conversationId: conversationId, 
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -82,10 +80,7 @@ export default function ChatbotPanel({
         text: "Sorry, I encountered an error. Please try again later."
       };
       dispatch(addMessage(errorMessage));
-      
-      // Update history with error message
-      updateChatHistory([...chat, errorMessage]);
-      
+      addChatToHistorySidebar(errorMessage);      
       setIsLoading(false);
       return;
     } 
@@ -95,11 +90,8 @@ export default function ChatbotPanel({
         speaker: "bot", 
         text: "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience."
       };
-      dispatch(addMessage(errorMessage));
-      
-      // Update history with error message
-      updateChatHistory([...chat, errorMessage]);
-      
+      dispatch(addMessage(errorMessage));      
+      addChatToHistorySidebar(errorMessage);
       setIsLoading(false);
       return;
     }
@@ -109,13 +101,7 @@ export default function ChatbotPanel({
       responseConversationId,
       productData
     } = response.data;
-    
-    // Update conversationId in Redux if we got one back
-    if (responseConversationId && responseConversationId !== conversationId) {
-      dispatch(setConversationId(responseConversationId));
-    }
 
-    // Add bot message to current chat
     const botMessage = productData?.length > 0 
       ? {
           speaker: "bot", 
@@ -128,15 +114,14 @@ export default function ChatbotPanel({
         };
     
     dispatch(addMessage(botMessage));
-    
-    // Update products if any
+    addChatToHistorySidebar(botMessage, responseConversationId);
     if (productData?.length > 0) {
       dispatch(setProducts(productData));
     }
-
-    // Update chat history
-    updateChatHistory([...chat, botMessage], responseConversationId);
-    
+    if (responseConversationId && responseConversationId !== conversationId) {
+      // Update conversationId in Redux if we got one back
+      dispatch(setConversationId(responseConversationId));
+    }
     setIsLoading(false);
   };
 
