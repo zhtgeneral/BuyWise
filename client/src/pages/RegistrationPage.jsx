@@ -1,3 +1,4 @@
+import React from 'react';
 import '../styles/AuthPage.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -79,6 +80,7 @@ export default function RegistrationPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Name"
                 className="login-field__input"
+                data-testid="name-input"
               />
             </div>
             <div className="login-field">
@@ -89,6 +91,7 @@ export default function RegistrationPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
                 className="login-field__input"
+                data-testid="email-input"
               />
             </div>
             <div className="login-field">
@@ -100,12 +103,13 @@ export default function RegistrationPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
                 className="login-field__input"
+                data-testid="password-input"
               />
             </div>
           </div>
           <div className="auth-actions">  
             <button className="auth-button secondary" onClick={handleCancel}>Cancel</button>
-            <button className="auth-button primary" onClick={handleCreateAccount}>
+            <button className="auth-button primary" onClick={handleCreateAccount} data-testid="register-button">
               <ConditionalLoadingIndicator isLoading={isLoading}/>
             </button>
           </div>
@@ -125,8 +129,9 @@ function ConditionalLoadingIndicator({
         color={["#77abd4", "#206599", "#77abd4", "#206599"]} 
         dense
         speedPlus='0'
+        data-testid="loading-spinner"
       />
     )
   }
-  return 'Login';
+  return 'Register';
 }

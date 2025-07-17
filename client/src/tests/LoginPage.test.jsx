@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -11,9 +11,8 @@ import { vi } from 'vitest';
 import axios from 'axios';
 import '@testing-library/jest-dom/vitest';
 
-// Mock axios and alert
 vi.mock('axios');
-global.alert = vi.fn(); // Mock window.alert
+global.alert = vi.fn();
 
 describe('LoginPage Button Tests', () => {
   const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
@@ -94,6 +93,9 @@ describe('LoginPage Button Tests', () => {
     expect(loginButton).toBeDisabled();
     const loadingSpinner = screen.getByLabelText(/Loading/i);
     expect(loadingSpinner).toBeInTheDocument();
+    
+    // Set timeout to wait for 2 seconds to solve flaky test
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
     expect(axios.post).toHaveBeenCalledWith(`${backendURL}/api/auth/login`, {
@@ -102,5 +104,6 @@ describe('LoginPage Button Tests', () => {
     });
 
     await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+    expect(loginButton).toBeDisabled();
   });
 });
