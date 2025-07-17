@@ -14,4 +14,7 @@
 .explore-error {
   color: red;
   padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  stroke: red;
 }

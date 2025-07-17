@@ -13,7 +13,7 @@ import {
 import { setConversationId, startNewConversation } from '../libs/features/chatSlice';
 
 export default function PastChats({ 
-  canClearChat, 
+  // canClearChat, 
   setCanClearChat,
   dispatch,
   shouldRefreshRef
@@ -54,7 +54,7 @@ export default function PastChats({
   }
 
   const sortedChats = sortChatsByDate(chats);
-  const isNewChatActive = canClearChat && !activeChatId;
+  // const isNewChatActive = canClearChat && !activeChatId;
 
   return (
     <div className="sidebar-past-chats">
@@ -114,7 +114,7 @@ function PreviousChatLinks({
               ref={isActive ? activeChatRef : null}
               className={`sidebar-chat-message${isActive ? ' active' : ''}`}
             >
-              {lastMsg ? lastMsg.text.slice(0, 70) : 'No messages'}...
+              {lastMsg ? lastMsg.text.slice(0, 70) + '...' : 'No messages'}
             </div>
           </Link>
         );

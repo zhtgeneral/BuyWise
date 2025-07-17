@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { updateProfile } from '../libs/features/profileSlice';
 import { validateAuth } from '../libs/features/authenticationSlice';
+import { OrbitProgress } from 'react-loading-indicators'
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 const debug = false;
@@ -22,6 +23,7 @@ export default function LoginPage() {
   // TODO better frontend modal
   async function handleLogin() {
     setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));  // TODO only for test
 
     try {
       const response = await axios.post(`${backendURL}/api/auth/login`, { 
@@ -117,7 +119,7 @@ export default function LoginPage() {
           <div className="auth-actions">
             <button className="auth-button secondary" onClick={handleRegister}>Register</button>
             <button className="auth-button primary" onClick={handleLogin} disabled={loading}>
-              {loading ? 'Logging in...' : 'Login'}
+              <ConditionalLoadingIndicator isLoading={loading}/>
             </button>
           </div>
         </div>
@@ -126,7 +128,21 @@ export default function LoginPage() {
   );
 }
 
-
+function ConditionalLoadingIndicator({
+  isLoading
+}) {
+  if (isLoading) {
+    return (
+      <OrbitProgress 
+        style={{ fontSize: '6px' }} 
+        color={["#77abd4", "#206599", "#77abd4", "#206599"]} 
+        dense
+        speedPlus='0'
+      />
+    )
+  }
+  return 'Login';
+}
 
 /**
  * Save user to redux store for use around the app and validate authenticated state.

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+import { OrbitProgress } from 'react-loading-indicators'
+
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
 export default function RegistrationPage() {
@@ -11,41 +13,57 @@ export default function RegistrationPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleCancel() {
     navigate('/login');
   };
 
   async function handleCreateAccount() {
+    if (password.length < 8) {
+      alert("Password must be at least 8 characters");
+      return;
+    }
+
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));  // TODO only for test
+
     try {
-      const response = await axios.post(
-        `${backendURL}/api/auth/register`,
-        { name, email, password }
-      );
-      
-      if (response.data.success && response.data.token) {
-        // Store the token in localStorage
-        localStorage.setItem('token', response.data.token);
-        alert(`Registration successful! Your account has been created and verified.`);
-        navigate('/login');
-      } else {
-        alert('Registration failed: No token received');
-      }
-    } catch (error) {
-      console.error(error);
-      
-      // Handle specific error cases gracefully
-      if (error.response?.data?.error) {
-        if (error.response.data.error.includes('Email already exists')) {
-          alert('An account with this email already exists. Please try logging in instead.');
-        } else {
-          alert(error.response.data.error);
+      var response = await axios.post(`${backendURL}/api/auth/register`,
+        { 
+          name: name, 
+          email: email, 
+          password: password
         }
+      );
+    } catch (error) {
+      console.error('Register Page: ' + error);
+      if (error.response?.data?.error) {
+        alert(error.response.data.error);        
       } else {
         alert('Registration failed. Please try again.');
       }
+      setIsLoading(false);
+      return;
     }
+
+    const { success, token } = response.data;
+    if (success && token) {        
+        saveToBrowser(token);
+        alert(`Registration successful! Your account has been created and verified.`);
+        setIsLoading(false);
+        navigate('/login');
+        return;
+      } 
+
+      alert('Registration failed: No token received');
+      setIsLoading(false);      
   };
+
+  // TODO change to cookies
+  function saveToBrowser(token) {
+    localStorage.setItem('token', token);
+  }
 
   return (
     <main className="login-container">
@@ -87,7 +105,9 @@ export default function RegistrationPage() {
           </div>
           <div className="auth-actions">  
             <button className="auth-button secondary" onClick={handleCancel}>Cancel</button>
-            <button className="auth-button primary" onClick={handleCreateAccount}>Create Account</button>
+            <button className="auth-button primary" onClick={handleCreateAccount}>
+              <ConditionalLoadingIndicator isLoading={isLoading}/>
+            </button>
           </div>
         </div>
       </div>
@@ -95,3 +115,18 @@ export default function RegistrationPage() {
   );
 }
 
+function ConditionalLoadingIndicator({
+  isLoading
+}) {
+  if (isLoading) {
+    return (
+      <OrbitProgress 
+        style={{ fontSize: '6px' }} 
+        color={["#77abd4", "#206599", "#77abd4", "#206599"]} 
+        dense
+        speedPlus='0'
+      />
+    )
+  }
+  return 'Login';
+}
