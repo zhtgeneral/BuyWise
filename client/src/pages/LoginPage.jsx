@@ -1,3 +1,4 @@
+import React from 'react';
 import '../styles/AuthPage.css';
 import { useState } from 'react';
 import axios from 'axios';
@@ -102,6 +103,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter Email"
                 className="login-field__input"
+                data-testid="email-input"
               />
             </div>
             <div className="login-field">
@@ -113,12 +115,13 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter Password"
                 className="login-field__input"
+                data-testid="password-input"
               />
             </div>
           </span>
           <div className="auth-actions">
-            <button className="auth-button secondary" onClick={handleRegister}>Register</button>
-            <button className="auth-button primary" onClick={handleLogin} disabled={loading}>
+            <button className="auth-button secondary" onClick={handleRegister} data-testid="register-button">Register</button>
+            <button className="auth-button primary" onClick={handleLogin} disabled={loading} data-testid="login-button">
               <ConditionalLoadingIndicator isLoading={loading}/>
             </button>
           </div>
@@ -138,6 +141,7 @@ function ConditionalLoadingIndicator({
         color={["#77abd4", "#206599", "#77abd4", "#206599"]} 
         dense
         speedPlus='0'
+        data-testid="loading-spinner"
       />
     )
   }
