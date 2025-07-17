@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   fetchChatHistory, 
-  setActiveChatId, 
 } from '../libs/features/historySlice';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
-import { startNewConversation } from '../libs/features/chatSlice';
+import { clearChat } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
 import PastChats from './ChatHistory';
@@ -106,14 +105,7 @@ function LogoAndRoutes({
       return;
     }
 
-    // Clear current chat and start new conversation
-    dispatch(clearProducts());
-    dispatch(startNewConversation());
-    dispatch(setActiveChatId(null));
-    if (userEmail) {
-      dispatch(fetchChatHistory(userEmail));
-    }
-    
+    // Navigate to new chat
     setCanClearChat(true);
     shouldRefreshRef.current = true;
   

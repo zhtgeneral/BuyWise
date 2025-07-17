@@ -16,7 +16,6 @@ import { OrbitProgress, ThreeDot } from 'react-loading-indicators'
 
 export default function ChatbotPanel({
   messages,
-  setShowProduct,
 }) {
   const dispatch = useDispatch();
   const reduxChat = useSelector(selectChatMessages);
@@ -89,7 +88,6 @@ export default function ChatbotPanel({
         recommendedProducts: productData
       }));
       dispatch(setProducts(productData));
-      setShowProduct(true);
       setIsLoading(false);
       return;
     } 
@@ -110,8 +108,6 @@ export default function ChatbotPanel({
     }
   }
 
-  const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
-
   return (
     <>
       <ScrollChatToBottom messagesEndRef={messagesEndRef} chat={chat} />
@@ -128,13 +124,11 @@ export default function ChatbotPanel({
             />
             <ConditionalLoadingIndicator 
               isLoading={isLoading}
-              isPastChat={isPastChat}
             />      
           </div>
 
           <div className="chatbot-input-container">
             <ChatbotInput 
-              isPastChat={isPastChat}
               textareaRef={textareaRef}
               userInput={userInput}
               handleKeyDown={handleKeyDown}
@@ -142,7 +136,6 @@ export default function ChatbotPanel({
             />
             <ChatbotButton 
               isLoading={isLoading}
-              isPastChat={isPastChat}
               handleSendMessage={handleSendMessage}
               isInputEmpty={userInput.trim() === ''}
             />
@@ -173,10 +166,9 @@ function ChatbotMessages({
 }
 
 function ConditionalLoadingIndicator({
-  isLoading,
-  isPastChat
+  isLoading
 }) {
-  if (isPastChat || !isLoading) return null;
+  if (!isLoading) return null;
   return (
     <span style={{ textAlign: 'left' }}>
       <ThreeDot
@@ -191,26 +183,11 @@ function ConditionalLoadingIndicator({
 }
 
 function ChatbotInput({
-  isPastChat,
   textareaRef, 
   userInput,
   handleKeyDown,
   setUserInput
 }) {
-  if (isPastChat) {
-    return (
-      <textarea
-        ref={textareaRef}
-        className="chatbot-textarea textarea-disabled"
-        value={userInput}
-        onChange={(e) => setUserInput(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder="Past chats are not editable!"
-        rows={3}
-        disabled={true}
-      />
-    )
-  } 
   return (
     <textarea
       ref={textareaRef}
@@ -226,14 +203,11 @@ function ChatbotInput({
 
 function ChatbotButton({
   isLoading,
-  isPastChat,
   handleSendMessage,
   isInputEmpty
 }) {  
   let buttonText;
-  if (isPastChat) {
-    buttonText = <span className="chatbot-disabled-indicator">🔒</span>
-  } else if (isLoading) {
+  if (isLoading) {
     buttonText = 
       <OrbitProgress 
         style={{ fontSize: '8px' }} 
@@ -249,7 +223,7 @@ function ChatbotButton({
     <button
       className="chatbot-send-button"
       onClick={handleSendMessage}
-      disabled={isInputEmpty || isLoading || isPastChat}
+      disabled={isInputEmpty || isLoading}
     >
       {buttonText}
     </button>

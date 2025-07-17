@@ -1,16 +1,13 @@
 import '../styles/PastChat.css';
 import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { 
   selectChats, 
   selectHistoryLoading,
   selectHistoryError,
-  selectActiveChatId,
-  setActiveChatId, 
 } from '../libs/features/historySlice';
-import { setConversationId, startNewConversation } from '../libs/features/chatSlice';
 
 export default function PastChats({ 
   // canClearChat, 
@@ -21,7 +18,12 @@ export default function PastChats({
   const chats = useSelector(selectChats);
   const loading = useSelector(selectHistoryLoading);
   const errorMsg = useSelector(selectHistoryError);
-  const activeChatId = useSelector(selectActiveChatId); 
+  const location = useLocation();
+
+  // Get current chat ID from URL path
+  const currentChatId = location.pathname.startsWith('/chat/') 
+    ? location.pathname.split('/')[2] 
+    : null;
 
   const activeChatRef = useRef(null);
 
@@ -32,21 +34,7 @@ export default function PastChats({
         block: 'nearest' 
       });
     }
-  }, [activeChatId]);
-
-  function onChatSelect(chatId) {
-    dispatch(setActiveChatId(chatId));
-    if (!chatId) {
-      // Starting new chat
-      dispatch(startNewConversation());
-      setCanClearChat(true);
-      shouldRefreshRef.current = true;
-    } else {
-      // Selecting existing chat and set the conversationId for potential continuation
-      dispatch(setConversationId(chatId));
-      setCanClearChat(false);
-    }
-  }
+  }, [currentChatId]);
 
   if (loading) return null;
   if ((!chats || chats.length === 0)) {
@@ -68,8 +56,7 @@ export default function PastChats({
       
       <PreviousChatLinks 
         sortedChats={sortedChats}
-        activeChatId={activeChatId}
-        onChatSelect={onChatSelect}
+        currentChatId={currentChatId}
         activeChatRef={activeChatRef}
       />
     </div>
@@ -94,21 +81,19 @@ function ConditionalErrorMsg({
 
 function PreviousChatLinks({
   sortedChats,
-  activeChatId,
-  onChatSelect,
+  currentChatId,
   activeChatRef
 }) {
   return (
     <>
       {sortedChats.map(chat => {
         const lastMsg = chat.messages?.[chat.messages.length - 1] || null;
-        const isActive = activeChatId === chat._id;
+        const isActive = currentChatId === chat._id;
 
         return (
           <Link
             to={`/chat/${chat._id}`}
             key={chat._id}
-            onClick={() => onChatSelect && onChatSelect(chat._id)}
           >
             <div
               ref={isActive ? activeChatRef : null}

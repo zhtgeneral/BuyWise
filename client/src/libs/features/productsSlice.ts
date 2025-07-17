@@ -27,7 +27,7 @@ const productsSlice = createSlice({
   reducers: {
     setProducts: (state, action: PayloadAction<Product[]>) => {
       if (state.products.length > 0) {
-        state.pastProducts.push(state.products);
+        state.pastProducts.unshift(state.products);
       }
       state.products = action.payload;
     },
@@ -35,10 +35,15 @@ const productsSlice = createSlice({
       state.products = [];
       state.pastProducts = [];
     },
+    loadPastProducts: (state, action: PayloadAction<{ products: Product[]; pastProducts?: Product[][] }>) => {
+      const { products, pastProducts = [] } = action.payload;
+      state.products = products;
+      state.pastProducts = pastProducts;
+    },
   },
 });
 
-export const { setProducts, clearProducts } = productsSlice.actions;
+export const { setProducts, clearProducts, loadPastProducts } = productsSlice.actions;
 export const selectProducts = (state) => state.products?.products || [];
 export const selectPastProducts = (state) => state.products?.pastProducts || [];
 export default productsSlice.reducer;
