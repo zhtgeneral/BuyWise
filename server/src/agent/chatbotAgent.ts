@@ -2,8 +2,18 @@ import { ChatOpenAI } from "@langchain/openai";
 import { DynamicTool } from "@langchain/core/tools";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { BufferMemory } from "langchain/memory";
+import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { ProductService } from "../services/ProductService";
 import { randomUUID } from 'crypto';
+
+// Memory with TTL tracking
+interface MemoryActivity {
+  memory: BufferMemory;
+  lastActivity: number;
+}
+
+const MEMORY_TTL = 30 * 60 * 1000; // 30 minutes
+let cleanupInterval: NodeJS.Timeout | null = null;
 
 // TODO: Find a better way to sync product data with asynchronous tool calls
 let lastProductData: any[] = [];
@@ -153,23 +163,111 @@ Conversation flow:
 Remember: Be conversational, never robotic or meta. Avoid repetitive phrases, never mention being an AI, and always engage naturally and enthusiastically with what users are saying! Never summarize or reflect the user's last message—just respond as if you were chatting in person.
 `;
 
-// Use BufferMemory for conversation context
-const memoryMap = new Map<string, BufferMemory>();
+// Use BufferMemory for conversation context with TTL tracking
+const memoryMap = new Map<string, MemoryActivity>();
 
-// Wrapper to initialize the agent executor
-async function getAgentExecutor(sessionId: string, userId?: string) {
-  if (!memoryMap.has(sessionId)) {
-    memoryMap.set(
-      sessionId,
-      new BufferMemory({
+// Memory restoration function
+async function restoreMemoryFromDatabase(sessionId: string, userEmail: string): Promise<boolean> {
+  try {
+    
+    // Import ChatService dynamically to avoid circular dependency
+    const { ChatService } = await import('../services/ChatService');
+    const chats = await ChatService.getChatsByEmail(userEmail);
+    const chat = chats.find(c => c._id === sessionId);
+    
+    if (chat && chat.messages.length > 0) {
+      const memory = new BufferMemory({
         memoryKey: "chat_history",
         returnMessages: true,
         inputKey: "input",
         outputKey: "output",
-      })
-    );
+      });
+      
+      // Replay conversation history to rebuild memory
+      for (const msg of chat.messages) {
+        if (msg.speaker === 'user') {
+          await memory.chatHistory.addMessage(new HumanMessage(msg.text));
+        } else if (msg.speaker === 'bot') {
+          await memory.chatHistory.addMessage(new AIMessage(msg.text));
+        }
+      }
+      
+      // Store memory with current timestamp
+      memoryMap.set(sessionId, {
+        memory,
+        lastActivity: Date.now()
+      });
+      return true;
+    }
+    
+    console.log(`No existing chat found for session ${sessionId}`);
+    return false;
+  } catch (error) {
+    console.error('Error restoring memory from database:', error);
+    return false;
   }
-  const memory = memoryMap.get(sessionId)!;
+}
+
+// Memory cleanup function
+function startMemoryCleanup(): void {
+  if (cleanupInterval) {
+    return;
+  }
+  
+  cleanupInterval = setInterval(() => {
+    const now = Date.now();
+    let cleanedCount = 0;
+    
+    for (const [sessionId, activity] of memoryMap.entries()) {
+      if (now - activity.lastActivity > MEMORY_TTL) {
+        memoryMap.delete(sessionId);
+        productHistoryMap.delete(sessionId);
+        cleanedCount++;
+      }
+    }
+    
+    if (cleanedCount > 0) {
+      console.log(`Cleaned up ${cleanedCount} expired memory sessions`);
+    }
+  }, 5 * 60 * 1000); // Check every 5 minutes for sessions to kill
+  
+  console.log('Memory cleanup service started (30-minute TTL)');
+}
+
+// Function to clear specific memory (for testing or manual cleanup)
+function clearMemoryForSession(sessionId: string): void {
+  memoryMap.delete(sessionId);
+  productHistoryMap.delete(sessionId);
+}
+
+// Function to update activity timestamp
+function touchMemoryActivity(sessionId: string): void {
+  const activity = memoryMap.get(sessionId);
+  if (activity) {
+    activity.lastActivity = Date.now();
+  }
+}
+
+// Wrapper to initialize the agent executor
+async function getAgentExecutor(sessionId: string, userId?: string) {
+  let memoryActivity = memoryMap.get(sessionId);
+  
+  if (!memoryActivity) {
+    // Create new memory if none exists
+    memoryActivity = {
+      memory: new BufferMemory({
+        memoryKey: "chat_history",
+        returnMessages: true,
+        inputKey: "input",
+        outputKey: "output",
+      }),
+      lastActivity: Date.now()
+    };
+    memoryMap.set(sessionId, memoryActivity);
+  } else {
+    // Update activity timestamp for existing memory
+    memoryActivity.lastActivity = Date.now();
+  }
   
   const chatModel = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -185,7 +283,7 @@ async function getAgentExecutor(sessionId: string, userId?: string) {
   return initializeAgentExecutorWithOptions(tools, chatModel, {
     agentType: "chat-conversational-react-description",
     verbose: false,
-    memory,
+    memory: memoryActivity.memory,
     agentArgs: {
       systemMessage: systemPrompt,
     },
@@ -223,6 +321,10 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
         productHistory: getProductHistory(sessionId)
       };
     }
+    
+    // Touch memory activity before processing
+    touchMemoryActivity(sessionId);
+    
     const agentExecutor = await getAgentExecutor(sessionId, userId);
     const result = await agentExecutor.invoke({ input: userInput });
     let response = result.output || result.result || "Sorry, I couldn't find an answer.";
@@ -266,3 +368,5 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
     };
   }
 }
+
+export { startMemoryCleanup, clearMemoryForSession, restoreMemoryFromDatabase };

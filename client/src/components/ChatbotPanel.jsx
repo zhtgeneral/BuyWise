@@ -73,8 +73,8 @@ export default function ChatbotPanel({
     
     const { 
       chatbotMessage, 
-      productData, 
-      responseConversationId 
+      responseConversationId,
+      productData
     } = response.data;
     
     // Update conversationId in Redux if we got one back
@@ -104,9 +104,11 @@ export default function ChatbotPanel({
   function handleKeyDown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      if (!isLoading) {
+        handleSendMessage();
+      }
     }
-  };
+  }
 
   const isPastChat = /^\/chat\/.+/.test(location.pathname) && location.pathname !== '/chat';
 
