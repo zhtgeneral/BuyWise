@@ -12,6 +12,7 @@ import {
   setConversationId 
 } from '../libs/features/chatSlice';
 import { setProducts } from '../libs/features/productsSlice';
+import { addNewChatToHistory, updateChatInHistory } from '../libs/features/historySlice';
 import { OrbitProgress, ThreeDot } from 'react-loading-indicators'
 
 export default function ChatbotPanel({
@@ -28,6 +29,29 @@ export default function ChatbotPanel({
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+
+  // Helper function to update chat history
+  function updateChatHistory(updatedMessages, responseConversationId = null) {
+    const finalConversationId = responseConversationId || conversationId;
+    if (finalConversationId) {
+      const chatHistoryEntry = {
+        _id: finalConversationId,
+        messages: updatedMessages,
+        createdAt: new Date().toISOString()
+      };
+
+      if (responseConversationId && responseConversationId !== conversationId) {
+        // New chat - add to history
+        dispatch(addNewChatToHistory(chatHistoryEntry));
+      } else {
+        // Existing chat - update in history
+        dispatch(updateChatInHistory({ 
+          chatId: finalConversationId, 
+          updatedChat: chatHistoryEntry 
+        }));
+      }
+    }
+  }
 
   async function handleSendMessage() {
     if (!userInput.trim()) return;
@@ -53,19 +77,29 @@ export default function ChatbotPanel({
       });      
     } catch (error) {
       console.error('ChatbotPanel error:', error);
-      dispatch(addMessage({ 
+      const errorMessage = { 
         speaker: "bot", 
         text: "Sorry, I encountered an error. Please try again later."
-      }));
+      };
+      dispatch(addMessage(errorMessage));
+      
+      // Update history with error message
+      updateChatHistory([...chat, errorMessage]);
+      
       setIsLoading(false);
       return;
     } 
 
     if (response.status !== 200) {
-      dispatch(addMessage({ 
+      const errorMessage = { 
         speaker: "bot", 
         text: "My output is displaying incorrectly, but my internals are working. Sorry for the inconvenience."
-      }));
+      };
+      dispatch(addMessage(errorMessage));
+      
+      // Update history with error message
+      updateChatHistory([...chat, errorMessage]);
+      
       setIsLoading(false);
       return;
     }
@@ -80,22 +114,29 @@ export default function ChatbotPanel({
     if (responseConversationId && responseConversationId !== conversationId) {
       dispatch(setConversationId(responseConversationId));
     }
-    
-    if (productData?.length > 0) {
-      dispatch(addMessage({
-        speaker: "bot", 
-        text: chatbotMessage,
-        recommendedProducts: productData
-      }));
-      dispatch(setProducts(productData));
-      setIsLoading(false);
-      return;
-    } 
 
-    dispatch(addMessage({
-      speaker: "bot", 
-      text: chatbotMessage     
-    }));        
+    // Add bot message to current chat
+    const botMessage = productData?.length > 0 
+      ? {
+          speaker: "bot", 
+          text: chatbotMessage,
+          recommendedProducts: productData
+        }
+      : {
+          speaker: "bot", 
+          text: chatbotMessage     
+        };
+    
+    dispatch(addMessage(botMessage));
+    
+    // Update products if any
+    if (productData?.length > 0) {
+      dispatch(setProducts(productData));
+    }
+
+    // Update chat history
+    updateChatHistory([...chat, botMessage], responseConversationId);
+    
     setIsLoading(false);
   };
 

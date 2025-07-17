@@ -34,12 +34,17 @@ export default function Sidebar() {
 
   const [canClearChat, setCanClearChat] = useState(false);
   const shouldRefreshRef = useRef(false);
+  const hasLoadedHistoryRef = useRef(false);
 
+  // Fetch chat history at authentication
   useEffect(() => {
-    if (userEmail) {
+    if (isAuthenticated && userEmail && !hasLoadedHistoryRef.current) {
       dispatch(fetchChatHistory(userEmail));
+      hasLoadedHistoryRef.current = true;
+    } else if (!isAuthenticated) {
+      hasLoadedHistoryRef.current = false;
     }
-  }, [location.pathname, dispatch, userEmail]);
+  }, [isAuthenticated, userEmail, dispatch]);
 
   function handleLogout() {
     localStorage.removeItem('token'); // TODO use cookies instead of local storage
