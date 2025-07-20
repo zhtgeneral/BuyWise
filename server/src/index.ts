@@ -9,6 +9,7 @@ import authRoutes from './routes/auth';
 import productsRoutes from './routes/products';
 import chatRoutes from './routes/chat';
 import proxyRoutes from './routes/proxy';
+import recommenderRoutes from './routes/recommender';
 import { authMiddleware, authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
@@ -94,6 +95,7 @@ connectDB().then(() => {
   app.use('/api/products', productsRoutes);
   app.use('/api/chats', chatRoutes);
   app.use('/api/buywise/redirect', proxyRoutes);
+  app.use('/api/recommender', recommenderRoutes);
 
   app.use('/api/auth', authRoutes);
   // app.post('/api/auth/register', postRegister);

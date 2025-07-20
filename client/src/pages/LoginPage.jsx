@@ -22,6 +22,16 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const context = { setLoading, email, password, navigate, dispatch };
 
+  // Check if user is already logged in on component mount
+  React.useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // User is already logged in, validate auth state and redirect to explore page
+      dispatch(validateAuth());
+      navigate('/explore-products');
+    }
+  }, [navigate, dispatch]);
+
   function handleRegister() {
     navigate('/registration');
   };

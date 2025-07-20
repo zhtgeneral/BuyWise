@@ -156,10 +156,12 @@ function FillRecommendedProducts({
 
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000)); // TODO remove later on. Only for test
-
-        var response = await axios.post(`/api/recommender`, {
-          userId: user._id, // string optional
-          profile: profile // JSON object
+        const token = localStorage.getItem('token');
+        
+        var response = await axios.get(`http://localhost:3000/api/recommender`,{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         })        
       } catch (error) {
         setError('Unable to fetch recommended products ', error);
