@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "debug": "ls && cat package.json && ls node_modules && npm install",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:vi": "vitest run"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -34,6 +35,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
