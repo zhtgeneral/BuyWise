@@ -1,9 +1,11 @@
 import '../styles/Sidebar.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
 import { clearChats } from '../libs/features/historySlice';
+import { clearChat } from '../libs/features/chatSlice';
+import { clearProducts } from '../libs/features/productsSlice';
 import PastChats from './ChatHistory';
 
 import TerminalIcon from '../icons/terminal.svg?react';
@@ -42,7 +44,8 @@ export default function Sidebar() {
       <div className="sidebar-items" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <LogoAndRoutes 
           isAuthenticated={isAuthenticated}
-          navigate={navigate}        
+          navigate={navigate}
+          dispatch={dispatch}
         />
 
         {
@@ -62,8 +65,17 @@ export default function Sidebar() {
 function LogoAndRoutes({
   isAuthenticated,
   navigate,
+  dispatch,
 }) {
+  const location = useLocation();
+
   async function handleNavigation(url) {
+    if (url === '/chat' && location.pathname.startsWith('/chat')) {
+      dispatch(clearChat());
+      dispatch(clearProducts());
+      navigate('/chat');
+      return;
+    }
     RedirectRoutes(url, navigate, isAuthenticated);
   }
 
