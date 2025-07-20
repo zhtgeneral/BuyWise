@@ -4,6 +4,7 @@ import { CustomJwtPayload } from '../types/jwt';
 import { Document } from 'mongoose';
 import { UserService } from './UserService';
 import { ProfileService } from './ProfileService';
+import { AppError } from '../utils/AppError';
 
 interface AuthData {
   token: string,
@@ -61,7 +62,12 @@ export class AuthService {
    * 
    * Validate the user before calling this function in the endpoint.
    */
-  static async login(user: Partial<IUser>): Promise<AuthData> {    
+  static async login(user: Partial<IUser>, password: string): Promise<AuthData> {
+    const isPasswordValid = await UserService.comparePassword(user, password);
+    if (!isPasswordValid) {
+      throw new AppError('Invalid password', 401);
+    }
+
     const payload: CustomJwtPayload = {
       id: (user as Document & { _id: any })._id.toString()
     };

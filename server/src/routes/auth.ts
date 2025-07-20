@@ -327,12 +327,12 @@ router.post('/login', async (req, res) => {
   }
 
   try { 
-    var result = await AuthService.login(user);
+    var result = await AuthService.login(user, password);
   } catch (error: any) {
     console.error("/api/login POST error: " + JSON.stringify(error, null, 2));
     return res.status(500).json({
       success: false,
-      error: 'Unknown authentication error'
+      error: 'Invalid Login Error'
     })
   }
   

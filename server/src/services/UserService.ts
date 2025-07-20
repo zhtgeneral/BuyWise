@@ -88,6 +88,7 @@ export class UserService {
     let user;
     if (showPassword) {
       user = await User.findOne({ email }).select('+password');
+      return user;
     } else {
       user = await User.findOne({ email }).select('-password');
     }  
@@ -120,6 +121,6 @@ export class UserService {
   }
 
   static async comparePassword(user: Partial<IUser>, currentPassword: string) {
-    return await user.comparePassword(currentPassword) || false;
+    return await user.comparePassword(currentPassword);
   }
 } 
