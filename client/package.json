@@ -22,6 +22,7 @@
     "react-loading-indicators": "^1.0.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.1",
+    "redux-persist": "^6.0.0",
     "respinner": "^4.0.3",
     "vite": "^6.3.5"
   },

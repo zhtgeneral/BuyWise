@@ -1,12 +1,15 @@
 import '../styles/Sidebar.css';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
-import { clearChats } from '../libs/features/historySlice';
+import { clearChats, selectChats } from '../libs/features/historySlice';
 import { clearChat } from '../libs/features/chatSlice';
 import { clearProducts } from '../libs/features/productsSlice';
 import PastChats from './ChatHistory';
+import { setChats } from '../libs/features/historySlice';
+import axios from 'axios';
 
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
@@ -16,6 +19,8 @@ import BuyWiseLogo from '../assets/BuyWiseLogo.png';
 import { updateProfile } from '../libs/features/profileSlice';
 import RedirectRoutes from '../middleware/middleware';
 
+const backendURL = import.meta.env.BACKEND_URL || 'http://localhost:3000';
+
 /**
  * This is the sidebar
  *
@@ -24,8 +29,35 @@ import RedirectRoutes from '../middleware/middleware';
 export default function Sidebar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const user = useSelector(selectProfileUser);
+  const chatHistory = useSelector(selectChats);
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  
+  /**
+   * Chat history is fetched at login for a unified experience, but reloading the page may clear the history.
+   */
+  React.useEffect(() => {
+    async function ensureChatHistory() {
+      if (isAuthenticated && chatHistory.length === 0) {
+        try {
+          const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(user.email)}`)
+          var historyBody = response.data;
+        } catch (error) {
+          alert(error.response?.data?.error || 'Error related to fetching chat history'); 
+          return;
+        }
+
+        if (!historyBody.success) {
+          alert('Login Failed: Unable to fetch chat history'); 
+          return;
+        }
+        dispatch(setChats(historyBody.chats));
+      }
+    }
+
+    ensureChatHistory();
+  }, [isAuthenticated, chatHistory])
 
   function handleLogout() {
     localStorage.removeItem('token'); // TODO use cookies instead of local storage
@@ -38,6 +70,8 @@ export default function Sidebar() {
     alert("You have successfully logged out!");
     navigate('/');
   }
+
+  
 
   return (
     <aside className="sidebar">

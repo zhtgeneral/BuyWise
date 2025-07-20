@@ -2,8 +2,9 @@ import '@mantine/core/styles.css';
 import './styles/main.css';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { PersistGate } from 'redux-persist/integration/react';
 import { createRoot } from 'react-dom/client';
-import { store } from './libs/store';
+import { store, persistor } from './libs/store';
 import { MantineProvider } from '@mantine/core';
 import Layout from './Layout';
 import HomePage from './pages/HomePage';
@@ -77,8 +78,10 @@ const router = createBrowserRouter([
  */
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <MantineProvider withGlobalStyles withNormalizeCSS>
-      <RouterProvider router={router} />
-    </MantineProvider>
+    <PersistGate loading={null} persistor={persistor}>
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <RouterProvider router={router} />
+      </MantineProvider>
+    </PersistGate>
   </Provider>
 );
