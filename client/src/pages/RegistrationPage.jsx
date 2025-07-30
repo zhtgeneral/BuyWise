@@ -50,15 +50,15 @@ export default function RegistrationPage() {
 
     const { success, token } = response.data;
     if (success && token) {        
-        saveToBrowser(token);
-        alert(`Registration successful! Your account has been created and verified.`);
-        setIsLoading(false);
-        navigate('/login');
-        return;
-      } 
+      saveToBrowser(token);
+      alert(`Registration successful! Your account has been created and verified.`);
+      setIsLoading(false);
+      navigate('/login');
+      return;
+    } 
 
-      alert('Registration failed: No token received');
-      setIsLoading(false);      
+    alert('Registration failed: No token received');
+    setIsLoading(false);      
   };
 
   // TODO change to cookies

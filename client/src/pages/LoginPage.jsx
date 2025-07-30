@@ -5,10 +5,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import { updateProfile } from '../libs/features/profileSlice';
-import { validateAuth } from '../libs/features/authenticationSlice';
-import { setChats } from '../libs/features/historySlice';
-import { OrbitProgress } from 'react-loading-indicators'
+import { OrbitProgress } from 'react-loading-indicators';
+import { saveToBrowser } from '../utils/browser';
+import { saveStates } from '../utils/states'
 
 const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
@@ -21,16 +20,6 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   const context = { setLoading, email, password, navigate, dispatch };
-
-  // Check if user is already logged in on component mount
-  React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // User is already logged in, validate auth state and redirect to explore page
-      dispatch(validateAuth());
-      navigate('/explore-products');
-    }
-  }, [navigate, dispatch]);
 
   function handleRegister() {
     navigate('/registration');
@@ -159,13 +148,6 @@ async function handleLogin(context) {
   navigate('/');
 }
 
-/**
- * Store the token in localStorage
- */
-function saveToBrowser(token) {
-  localStorage.setItem('token', token); // TODO save using cookie
-}
-
 function ConditionalLoadingIndicator({
   isLoading
 }) {
@@ -181,30 +163,4 @@ function ConditionalLoadingIndicator({
     )
   }
   return 'Login';
-}
-
-/**
- * Save user to redux store for use around the app and validate authenticated state.
- */
-function saveStates(user, preferences, history, dispatch) {
-  const updatedProfile = {
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isEmailVerified: user.isEmailVerified
-    },          
-    preferences: {
-      storage_preference: preferences.storage_preference,
-      RAM_preference: preferences.RAM_preference,
-      brand_preference: preferences.brand_preference,
-      min_budget: preferences.min_budget,
-      max_budget: preferences.max_budget,
-      rating_preference: preferences.rating_preference,
-      country: preferences.country,
-    }
-  }
-  dispatch(updateProfile(updatedProfile)); 
-  dispatch(validateAuth());
-  dispatch(setChats(history));
 }
