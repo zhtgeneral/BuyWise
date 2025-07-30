@@ -86,9 +86,9 @@ export default function ProfilePage() {
               <input
                 type="text"
                 value={localProfile.user.name}
-                onChange={(e) => handleUserOptionsChange('name', e.target.value)}
                 className="profile-field__input"
                 autoComplete="name"
+                disabled
               />
             </div>
             <div className="profile-field">
