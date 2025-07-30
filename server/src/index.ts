@@ -93,7 +93,7 @@ connectDB().then(() => {
   // })
   app.use('/api/profiles', profileRoutes);
   app.use('/api/products', productsRoutes);
-  app.use('/api/chats', chatRoutes);
+  app.use('/api/chats', authenticate, chatRoutes);
   app.use('/api/buywise/redirect', proxyRoutes);
   app.use('/api/recommender', recommenderRoutes);
 

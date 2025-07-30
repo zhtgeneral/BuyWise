@@ -135,7 +135,12 @@ async function handleLogin(context) {
   }
 
   try {
-    const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(email)}`)
+    const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(email)}`,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     var historyBody = response.data;
   } catch (error) {
     alert(error.response?.data?.error || 'Error related to fetching chat history'); 
