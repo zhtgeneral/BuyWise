@@ -190,13 +190,13 @@ function saveStates(user, preferences, history, dispatch) {
       isEmailVerified: user.isEmailVerified
     },          
     preferences: {
-      storage_preference: preferences.storage_preference,
-      RAM_preference: preferences.RAM_preference,
-      brand_preference: preferences.brand_preference,
-      min_budget: preferences.min_budget,
-      max_budget: preferences.max_budget,
-      rating_preference: preferences.rating_preference,
       country: preferences.country,
+      max_products_per_search: preferences.max_products_per_search,
+      price_sort_preference: preferences.price_sort_preference,
+      allow_ai_personalization: preferences.allow_ai_personalization,
+      response_style: preferences.response_style,
+      minimum_rating_threshold: preferences.minimum_rating_threshold,
+      exclude_unrated_products: preferences.exclude_unrated_products,
     }
   }
   dispatch(updateProfile(updatedProfile)); 
