@@ -49,11 +49,12 @@ type ProfileContextType = {
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
+const testing = false;
 export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [profile, setProfile] = useState<Profile>(initialState);
 
   React.useEffect(() => {
-    console.log("ProfileProvider got profile: " + JSON.stringify(profile, null, 2));
+    if (testing) console.log("ProfileProvider got profile: " + JSON.stringify(profile, null, 2));
   }, [profile])
 
   const updateUser = (userData: Partial<User>) => {

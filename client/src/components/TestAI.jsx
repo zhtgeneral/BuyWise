@@ -19,6 +19,7 @@ import { InferenceClient } from "@huggingface/inference";
 
 
 // const client = new InferenceClient(import.meta.env.VITE_MY_VARIABLE);
+const testing = false;
 const client = new InferenceClient('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');
 
 const userRequest = "Where am I?";
@@ -98,4 +99,4 @@ const chatCompletion = await client.chatCompletion({
   ],
 });
 
-console.log(chatCompletion.choices[0].message);
+if (testing) console.log(chatCompletion.choices[0].message);
