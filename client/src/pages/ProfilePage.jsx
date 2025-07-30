@@ -6,7 +6,7 @@ import axios from 'axios';
 import { selectIsAuthenticated } from '../libs/features/authenticationSlice';
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
-
+const debug = false;
 /**
  * This page allows the user to update their info and their preferences.
  */
@@ -38,7 +38,7 @@ export default function ProfilePage() {
   };
 
   function handleSave () {
-    console.log("ProfilePage saved user profile: " + JSON.stringify(localProfile, null, 2));
+    if (debug) console.log("ProfilePage saved user profile: " + JSON.stringify(localProfile, null, 2));
     
     if (!isAuthenticated) {
       alert('You are not authenticated. Please login again.');

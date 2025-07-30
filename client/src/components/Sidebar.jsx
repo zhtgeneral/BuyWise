@@ -41,7 +41,12 @@ export default function Sidebar() {
     async function ensureChatHistory() {
       if (isAuthenticated && chatHistory.length === 0) {
         try {
-          const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(user.email)}`)
+          const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(user.email)}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           var historyBody = response.data;
         } catch (error) {
           alert(error.response?.data?.error || 'Error related to fetching chat history'); 
