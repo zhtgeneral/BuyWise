@@ -345,24 +345,16 @@ describe('Profile API', () => {
     });
 
     it('should return 200 for successfully getting profile', async () => {
-      /** Physically verify token without mocking */
       const fakeProfile = {
         _id: 'test id',
-        userId: 'test userId',        
-        storage_preference: '123GB',
-        RAM_preference: '8GB',
-        brand_preference: 'Apple, Samsung, Sony',        
-        min_budget: 50,
-        max_budget: 500,
-        rating_preference: 5,
+        userId: 'test userId',
         country: 'Canada',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 5,
+        price_sort_preference: 'lowest_first',
+        allow_ai_personalization: true,
+        response_style: 'conversational',
+        minimum_rating_threshold: 4,
+        exclude_unrated_products: false,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
@@ -484,27 +476,19 @@ describe('Profile API', () => {
     it('should return 500 for error during getting profile', async () => {
       const fakeProfileData = {
         _id: 'test id',
-        userId: 'test userId',        
-        storage_preference: '123GB',
-        RAM_preference: '8GB',
-        brand_preference: 'Apple, Samsung, Sony',        
-        min_budget: 50,
-        max_budget: 500,
-        rating_preference: 5,
+        userId: 'test userId',
         country: 'Canada',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 5,
+        price_sort_preference: 'highest_first',
+        allow_ai_personalization: true,
+        response_style: 'conversational',
+        minimum_rating_threshold: 4,
+        exclude_unrated_products: false,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
       }
 
-      /** Physically verify token without mocking */
       sinon.stub(ProfileService, 'getProfileByUserId').throws(new Error("Some error related to getting user"));
 
       const response = await request(app)
@@ -520,26 +504,18 @@ describe('Profile API', () => {
     })
 
     it('should return 404 for missing profile for userId', async () => {
-      /** Physically verify token without mocking */
       sinon.stub(ProfileService, 'getProfileByUserId').resolves(null);
 
       const fakeProfileData = {
         _id: 'test id',
-        userId: 'test userId',        
-        storage_preference: '123GB',
-        RAM_preference: '8GB',
-        brand_preference: 'Apple, Samsung, Sony',        
-        min_budget: 50,
-        max_budget: 500,
-        rating_preference: 5,
+        userId: 'test userId',
         country: 'Canada',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 5,
+        price_sort_preference: 'highest_first',
+        allow_ai_personalization: true,
+        response_style: 'conversational',
+        minimum_rating_threshold: 4,
+        exclude_unrated_products: false,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
@@ -560,48 +536,33 @@ describe('Profile API', () => {
     it('should return 500 for error with updating profile', async () => {
       const fakeProfileData = {
         _id: 'test id',
-        userId: 'test userId',        
-        storage_preference: '1TB',
-        RAM_preference: '32GB',
-        brand_preference: 'NVidia, Intel',        
-        min_budget: 200,
-        max_budget: 1000,
-        rating_preference: 3,
+        userId: 'test userId',
         country: 'US',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 8,
+        price_sort_preference: 'lowest_first',
+        allow_ai_personalization: false,
+        response_style: 'technical',
+        minimum_rating_threshold: 5,
+        exclude_unrated_products: true,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
       }
       const existingProfileData = {
         _id: 'test id',
-        userId: 'test userId',        
-        storage_preference: '123GB',
-        RAM_preference: '8GB',
-        brand_preference: 'Apple, Samsung, Sony',        
-        min_budget: 50,
-        max_budget: 500,
-        rating_preference: 5,
+        userId: 'test userId',
         country: 'Canada',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 3,
+        price_sort_preference: 'highest_first',
+        allow_ai_personalization: true,
+        response_style: 'conversational',
+        minimum_rating_threshold: 3,
+        exclude_unrated_products: false,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
       }
 
-      /** Physically verify token without mocking */
       sinon.stub(ProfileService, 'getProfileByUserId').resolves(existingProfileData);
       sinon.stub(ProfileService, 'updateProfile').throws(new Error("Some error related to updating profile"));
       
@@ -620,48 +581,33 @@ describe('Profile API', () => {
     it('should return 200 for successfully updating profile', async () => {
       const fakeProfileData = {
         _id: 'test id',
-        userId: 'userId123',        
-        storage_preference: '1TB',
-        RAM_preference: '32GB',
-        brand_preference: 'NVidia, Intel',        
-        min_budget: 200,
-        max_budget: 1000,
-        rating_preference: 3,
+        userId: 'userId123',
         country: 'US',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 8,
+        price_sort_preference: 'lowest_first',
+        allow_ai_personalization: false,
+        response_style: 'technical',
+        minimum_rating_threshold: 5,
+        exclude_unrated_products: true,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
       }
       const existingProfileData = {
         _id: 'test id',
-        userId: 'userId123',        
-        storage_preference: '123GB',
-        RAM_preference: '8GB',
-        brand_preference: 'Apple, Samsung, Sony',        
-        min_budget: 50,
-        max_budget: 500,
-        rating_preference: 5,
+        userId: 'userId123',
         country: 'Canada',
-        address: {
-          street: 'test street',
-          city: 'test city',
-          state: 'test state',
-          zipCode: 'test zip code',
-          country: 'test country',
-        },
+        max_products_per_search: 3,
+        price_sort_preference: 'lowest_first',
+        allow_ai_personalization: true,
+        response_style: 'conversational',
+        minimum_rating_threshold: 3,
+        exclude_unrated_products: false,
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString(),
         email: 'test@example.com',
       }
 
-      /** Physically verify token without mocking */
       sinon.stub(ProfileService, 'getProfileByUserId').resolves(existingProfileData);
       sinon.stub(ProfileService, 'updateProfile').resolves(fakeProfileData);
       

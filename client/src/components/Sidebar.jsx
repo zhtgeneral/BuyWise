@@ -31,6 +31,7 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const user = useSelector(selectProfileUser);
   const chatHistory = useSelector(selectChats);
+  const token = localStorage.getItem('token');
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
@@ -39,7 +40,6 @@ export default function Sidebar() {
    */
   React.useEffect(() => {
     async function ensureChatHistory() {
-      const token = localStorage.getItem('token'); // TODO save using cookie
       if (isAuthenticated && chatHistory.length === 0) {
         try {
           const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(user.email)}`,

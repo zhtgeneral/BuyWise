@@ -50,13 +50,13 @@ export default function ProfilePage() {
     axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
       {
         profileData: {
-          storage_preference: localProfile.preferences.storage_preference,
-          RAM_preference: localProfile.preferences.RAM_preference,
-          brand_preference: localProfile.preferences.brand_preference,
-          min_budget: localProfile.preferences.min_budget,
-          max_budget: localProfile.preferences.max_budget,
-          rating_preference: localProfile.preferences.rating_preference,
-          country: localProfile.preferences.country
+          country: localProfile.preferences.country,
+          max_products_per_search: localProfile.preferences.max_products_per_search,
+          price_sort_preference: localProfile.preferences.price_sort_preference,
+          allow_ai_personalization: localProfile.preferences.allow_ai_personalization,
+          response_style: localProfile.preferences.response_style,
+          minimum_rating_threshold: localProfile.preferences.minimum_rating_threshold,
+          exclude_unrated_products: localProfile.preferences.exclude_unrated_products
         }
       }, 
       {
@@ -86,9 +86,9 @@ export default function ProfilePage() {
               <input
                 type="text"
                 value={localProfile.user.name}
-                onChange={(e) => handleUserOptionsChange('name', e.target.value)}
                 className="profile-field__input"
                 autoComplete="name"
+                disabled
               />
             </div>
             <div className="profile-field">
@@ -102,74 +102,6 @@ export default function ProfilePage() {
               />
             </div>
             <div className="profile-field">
-              <label className="profile-field__label">Storage Preference:</label>
-              <select
-                value={localProfile.preferences.storage_preference}
-                onChange={(e) => handleUserPreferencesChange('storage_preference', e.target.value)}
-                className="profile-field__input"
-              >
-                <option value="None">None</option>
-                <option value="64GB">64GB</option>
-                <option value="128GB">128GB</option>
-                <option value="256GB">256GB</option>
-                <option value="512GB">512GB</option>
-                <option value="1TB+">1TB+</option>
-              </select>
-            </div>
-            <div className="profile-field">
-              <label className="profile-field__label">RAM Preference:</label>
-              <select
-                value={localProfile.preferences.RAM_preference}
-                onChange={(e) => handleUserPreferencesChange('RAM_preference', e.target.value)}
-                className="profile-field__input"
-              >
-                <option value="None">None</option>
-                <option value="2GB">2GB</option>
-                <option value="4GB">4GB</option>
-                <option value="8GB">8GB</option>
-                <option value="16GB">16GB</option>
-                <option value="32GB+">32GB+</option>
-              </select>
-            </div>
-            <div className="profile-field">
-              <label className="profile-field__label">Brand Preference:</label>
-              <input
-                type="text"
-                value={localProfile.preferences.brand_preference}
-                onChange={(e) => handleUserPreferencesChange('brand_preference', e.target.value)}
-                className="profile-field__input"
-              />
-            </div>
-            <div className="profile-field">
-              <label className="profile-field__label">Budget Minimum:</label>
-              <input
-                type="number"
-                value={localProfile.preferences.min_budget}
-                onChange={(e) => handleUserPreferencesChange('min_budget', Number(e.target.value))}
-                className="profile-field__input"
-              />
-            </div>
-            <div className="profile-field">
-              <label className="profile-field__label">Budget Maximum:</label>
-              <input
-                type="number"
-                value={localProfile.preferences.max_budget}
-                onChange={(e) => handleUserPreferencesChange('max_budget', Number(e.target.value))}
-                className="profile-field__input"
-              />
-            </div>            
-            <div className="profile-field">
-              <label className="profile-field__label">Rating Preference:</label>
-              <input
-                type="number"
-                value={localProfile.preferences.rating_preference}
-                onChange={(e) => handleUserPreferencesChange('rating_preference', Number(e.target.value))}
-                className="profile-field__input"
-                min="1"
-                max="5"
-              />
-            </div>
-            <div className="profile-field">
               <label className="profile-field__label">Country:</label>
               <input
                 type="text"
@@ -177,6 +109,74 @@ export default function ProfilePage() {
                 onChange={(e) => handleUserPreferencesChange('country', e.target.value)}
                 className="profile-field__input"
               />
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Max Products Per Search:</label>
+              <input
+                type="number"
+                value={localProfile.preferences.max_products_per_search}
+                onChange={(e) => handleUserPreferencesChange('max_products_per_search', Number(e.target.value))}
+                className="profile-field__input"
+                min="1"
+                max="10"
+              />
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Price Sort Preference:</label>
+              <select
+                value={localProfile.preferences.price_sort_preference}
+                onChange={(e) => handleUserPreferencesChange('price_sort_preference', e.target.value)}
+                className="profile-field__input"
+              >
+                <option value="lowest_first">Lowest First</option>
+                <option value="highest_first">Highest First</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Allow AI Personalization:</label>
+              <select
+                value={localProfile.preferences.allow_ai_personalization}
+                onChange={(e) => handleUserPreferencesChange('allow_ai_personalization', e.target.value === 'true')}
+                className="profile-field__input"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Response Style:</label>
+              <select
+                value={localProfile.preferences.response_style}
+                onChange={(e) => handleUserPreferencesChange('response_style', e.target.value)}
+                className="profile-field__input"
+              >
+                <option value="concise">Concise</option>
+                <option value="conversational">Conversational</option>
+                <option value="technical">Technical</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Minimum Rating Threshold:</label>
+              <input
+                type="number"
+                value={localProfile.preferences.minimum_rating_threshold}
+                onChange={(e) => handleUserPreferencesChange('minimum_rating_threshold', Number(e.target.value))}
+                className="profile-field__input"
+                min="1"
+                max="5"
+              />
+            </div>
+            <div className="profile-field">
+              <label className="profile-field__label">Exclude Unrated Products:</label>
+              <select
+                value={localProfile.preferences.exclude_unrated_products}
+                onChange={(e) => handleUserPreferencesChange('exclude_unrated_products', e.target.value === 'true')}
+                className="profile-field__input"
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
             </div>
           </div>
           <button className="profile-button" onClick={handleSave}>Save changes</button>

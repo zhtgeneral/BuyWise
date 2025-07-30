@@ -560,22 +560,26 @@ router.patch('/passwords/:userId?', authenticate, async (req: Request, res: Resp
  *           schema:
  *             type: object
  *             properties:
- *               storage_preference: 
- *                 type: string
- *                 enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
- *               RAM_preference:
- *                 type: string
- *                 enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
- *               brand_preference:
- *                 type: string
- *               min_budget: 
- *                 type: number
- *               max_budget:
- *                 type: number
- *               rating_preference:
- *                 type: number
  *               country:
  *                 type: string
+ *               max_products_per_search:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 10
+ *               price_sort_preference:
+ *                 type: string
+ *                 enum: ['lowest_first', 'highest_first', 'none']
+ *               allow_ai_personalization:
+ *                 type: boolean
+ *               response_style:
+ *                 type: string
+ *                 enum: ['concise', 'conversational', 'technical']
+ *               minimum_rating_threshold:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 5
+ *               exclude_unrated_products:
+ *                 type: boolean
  *     responses:
  *       401:
  *         description: Unauthenticated

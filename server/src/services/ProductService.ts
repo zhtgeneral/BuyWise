@@ -141,7 +141,6 @@ export class ProductService {
           };
         })
       );
-      console.log('enrichedProducts', enrichedProducts);
       
       return enrichedProducts;
 

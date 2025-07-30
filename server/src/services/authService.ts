@@ -28,13 +28,13 @@ export class AuthService {
     
     const userId = (user as any)._id;
     const profileData = {      
-      storage_preference: 'none',
-      RAM_preference: 'none',
-      brand_preference: '',
-      min_budget: 100,
-      max_budget: 1000,
-      rating_preference: 3,
       country: 'Canada',
+      max_products_per_search: 5,
+      price_sort_preference: 'lowest_first',
+      allow_ai_personalization: true,
+      response_style: 'conversational',
+      minimum_rating_threshold: 3,
+      exclude_unrated_products: false,
       email: user.email
     }
     const profile = await ProfileService.createProfile(userId, profileData);

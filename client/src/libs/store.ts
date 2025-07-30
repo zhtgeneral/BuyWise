@@ -11,7 +11,7 @@ import historyReducer from './features/historySlice';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['profile'], // Only persist the profile slice
+  whitelist: ['profile', 'history']
 };
 
 
