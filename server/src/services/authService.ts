@@ -30,7 +30,7 @@ export class AuthService {
     const profileData = {      
       country: 'Canada',
       max_products_per_search: 5,
-      price_sort_preference: 'low',
+      price_sort_preference: 'lowest_first',
       allow_ai_personalization: true,
       response_style: 'conversational',
       minimum_rating_threshold: 3,
