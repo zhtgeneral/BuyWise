@@ -447,18 +447,35 @@ export class RecommendationService {
 
   /**
    * Transform SerpAPI product format to client expected format
+   * Creates proxy URLs for product links to track user clicks
    */
   private static transformToClientFormat(products: any[]): any[] {
-    return products.map(product => ({
-      id: product.product_id || product.id || Math.random().toString(36).substring(2, 15),
-      source: product.source || 'Unknown',
-      title: product.title || 'Product Title',
-      image: product.thumbnail || product.image || '',
-      price: product.extracted_price || product.price || 0,
-      url: product.seller_details?.direct_link || product.url || '',
-      rating: product.rating || 0,
-      reviews: product.reviews || 0
-    }));
+    return products.map(product => {
+      const originalUrl = product.seller_details?.direct_link || product.url || '';
+      
+      // Create proxy URL if we have a valid original URL
+      let proxyUrl = '';
+      if (originalUrl) {
+        const params = {
+          product_id: product.product_id || product.id || '',
+          source: product.source || '',
+          title: product.title || '',
+          price: product.extracted_price || product.price || 0
+        };
+        proxyUrl = ProductService.createProxyUrl(originalUrl, params);
+      }
+
+      return {
+        id: product.product_id || product.id || Math.random().toString(36).substring(2, 15),
+        source: product.source || 'Unknown',
+        title: product.title || 'Product Title',
+        image: product.thumbnail || product.image || '',
+        price: product.extracted_price || product.price || 0,
+        url: proxyUrl || originalUrl, // Use proxy URL if available, fallback to original
+        rating: product.rating || 0,
+        reviews: product.reviews || 0
+      };
+    });
   }
 
   /**
