@@ -9,7 +9,10 @@
     "lint": "eslint .",
     "debug": "ls && cat package.json && ls node_modules && npm install",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:vi": "vitest run",
+    "test:e2e": "npx playwright test --ui",
+    "test:e2e:ci": "npx playwright test"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.0",
@@ -22,17 +25,22 @@
     "react-loading-indicators": "^1.0.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.1",
+    "redux-persist": "^6.0.0",
     "respinner": "^4.0.3",
     "vite": "^6.3.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@playwright/experimental-ct-react": "^1.54.1",
+    "@playwright/test": "^1.54.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^24.1.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "@vitest/ui": "^3.2.4",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

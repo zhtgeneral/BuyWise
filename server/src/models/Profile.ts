@@ -11,20 +11,13 @@ import mongoose, { Schema, Document } from 'mongoose';
  */
 export interface IProfile extends Document {
   userId: string;
-  storage_preference: string;
-  RAM_preference: string;
-  brand_preference: string; // use Comma seperated string instead of array for less storage use
-  min_budget: number,
-  max_budget: number,
-  rating_preference: number,
   country: string;
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
+  max_products_per_search: number;
+  price_sort_preference: string;
+  allow_ai_personalization: boolean;
+  response_style: string;
+  minimum_rating_threshold: number;
+  exclude_unrated_products: boolean;
   createdAt: string;
   updatedAt: string;
   email: string;
@@ -37,44 +30,39 @@ const ProfileSchema: Schema = new Schema({
     required: [true, 'User ID is required'],
     unique: true
   },
-  storage_preference: {
-    type: String,
-    required: false,
-    enum: ['none', '64GB', '128GB', '256GB', '512GB', '1TB+']
-  },
-  RAM_preference: {
-    type: String,
-    required: false,
-    enum: ['none', '2GB', '4GB', '8GB', '16GB', '32GB+']
-  },
-  brand_preference: {
-    type: String,
-    required: false,
-  },
-  min_budget: {
-    type: Number,
-    required: false,
-    default: 100
-  },
-  max_budget: {
-    type: Number,
-    required: false,
-    default: 1000
-  },
-  rating_preference: {
-    type: Number,
-    default: 3
-  },
   country: {
     type: String,
     default: 'Canada'
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String
+  max_products_per_search: {
+    type: Number,
+    default: 3,
+    min: 1,
+    max: 10
+  },
+  price_sort_preference: {
+    type: String,
+    default: 'lowest_first',
+    enum: ['lowest_first', 'highest_first', 'none']
+  },
+  allow_ai_personalization: {
+    type: Boolean,
+    default: true
+  },
+  response_style: {
+    type: String,
+    default: 'conversational',
+    enum: ['concise', 'conversational', 'technical']
+  },
+  minimum_rating_threshold: {
+    type: Number,
+    default: 3,
+    min: 1,
+    max: 5
+  },
+  exclude_unrated_products: {
+    type: Boolean,
+    default: false
   },
   email: {
     type: String,

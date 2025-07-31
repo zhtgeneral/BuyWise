@@ -4,6 +4,7 @@ import { CustomJwtPayload } from '../types/jwt';
 import { Document } from 'mongoose';
 import { UserService } from './UserService';
 import { ProfileService } from './ProfileService';
+import { AppError } from '../utils/AppError';
 
 interface AuthData {
   token: string,
@@ -27,13 +28,13 @@ export class AuthService {
     
     const userId = (user as any)._id;
     const profileData = {      
-      storage_preference: 'none',
-      RAM_preference: 'none',
-      brand_preference: '',
-      min_budget: 100,
-      max_budget: 1000,
-      rating_preference: 3,
       country: 'Canada',
+      max_products_per_search: 5,
+      price_sort_preference: 'lowest_first',
+      allow_ai_personalization: true,
+      response_style: 'conversational',
+      minimum_rating_threshold: 3,
+      exclude_unrated_products: false,
       email: user.email
     }
     const profile = await ProfileService.createProfile(userId, profileData);
@@ -61,7 +62,12 @@ export class AuthService {
    * 
    * Validate the user before calling this function in the endpoint.
    */
-  static async login(user: Partial<IUser>): Promise<AuthData> {    
+  static async login(user: Partial<IUser>, password: string): Promise<AuthData> {
+    const isPasswordValid = await UserService.comparePassword(user, password);
+    if (!isPasswordValid) {
+      throw new AppError('Invalid password', 401);
+    }
+
     const payload: CustomJwtPayload = {
       id: (user as Document & { _id: any })._id.toString()
     };

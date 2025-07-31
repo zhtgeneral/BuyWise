@@ -52,7 +52,7 @@ export class ChatbotService {
     }
     
     // Get AI response using the real MongoDB _id
-    const agentResponse = await chatWithAgent(message, sessionId, userId);
+    const agentResponse = await chatWithAgent(message, sessionId, userId, userEmail);
     console.log('ChatbotService got AI response:', agentResponse.message);
     
     // Update database with AI response

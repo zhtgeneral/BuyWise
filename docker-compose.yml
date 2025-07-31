@@ -22,12 +22,19 @@ services:
     depends_on:
       - server
 
+  client-tests:
+    build: ./client
+    container_name: frontend-tests
+    command: npm run test:vi
+    volumes:
+      - frontend_reports:/app/reports
+
   server-tests:
     build: ./server
     container_name: backend-tests
     command: npm run test:vi
     volumes:
-      - reports:/app/reports
+      - backend_reports:/app/reports
 
   report-server:
     image: node:22
@@ -35,16 +42,19 @@ services:
     working_dir: /app
     command: npx http-server reports -p 8080 -c-1
     volumes:
-      - reports:/app/reports
+      - frontend_reports:/app/reports/frontend
+      - backend_reports:/app/reports/backend
     ports:
       - "8080:8080"
     depends_on:
       - server-tests
+      - client-tests
 
 volumes:
   frontend_node_modules:
   backend_node_modules:
-  reports:
+  frontend_reports:
+  backend_reports:
 
 # Message to fix issue
 # Error: Cannot find module @rollup/rollup-linux-x64-gnu. 

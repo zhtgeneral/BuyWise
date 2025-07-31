@@ -2,13 +2,13 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface preferenceInfo {
-  storage_preference: string;
-  RAM_preference: string;
-  brand_preference: string,
-  min_budget: number,
-  max_budget: number,
-  rating_preference: number
-  country: string,
+  country: string;
+  max_products_per_search: number;
+  price_sort_preference: string;
+  allow_ai_personalization: boolean;
+  response_style: string;
+  minimum_rating_threshold: number;
+  exclude_unrated_products: boolean;
 }
 
 interface userInfo {
@@ -36,13 +36,13 @@ const initialState: Profile = {
     isEmailVerified: false,
   },
   preferences: {
-    storage_preference: '128GB',
-    RAM_preference: '2GB',
-    brand_preference: "None",
-    min_budget: 100,
-    max_budget: 1000,
-    rating_preference: 3,
     country: "Canada",
+    max_products_per_search: 3,
+    price_sort_preference: "lowest_first",
+    allow_ai_personalization: true,
+    response_style: "conversational",
+    minimum_rating_threshold: 3,
+    exclude_unrated_products: false,
   }
 };
 

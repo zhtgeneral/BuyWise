@@ -24,7 +24,7 @@ const authenticationSlice = createSlice({
      * 
      * If so, it sets the authenticated state as true
      */
-    validateAuth: (state, action) => {
+    validateAuth: (state, action?) => {
       localStorage.getItem('token')? state.isAuthenticated = true : state.isAuthenticated = false;
     }
   },

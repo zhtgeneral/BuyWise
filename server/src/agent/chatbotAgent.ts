@@ -15,12 +15,8 @@ interface MemoryActivity {
 const MEMORY_TTL = 30 * 60 * 1000; // 30 minutes
 let cleanupInterval: NodeJS.Timeout | null = null;
 
-// TODO: Find a better way to sync product data with asynchronous tool calls
-let lastProductData: any[] = [];
-
 function formatProductForFrontend(products: any[], userId?: string) {
   const formattedProducts = products.map((p) => {
-    console.log("formatProductForFrontend: product seller details" + JSON.stringify(p.seller_details, null, 2));
     return {
       id: p.product_id || randomUUID(),
       source: p.source || "",
@@ -35,8 +31,8 @@ function formatProductForFrontend(products: any[], userId?: string) {
   return formattedProducts;
 }
 
-// Function to create tools with access to userId
-function createTools(userId?: string) {
+// Function to create tools with access to userId and sessionId
+function createTools(userId?: string, sessionId?: string, userEmail?: string) {
   // Product search tool
   const productSearchTool = new DynamicTool({
     name: "product_search",
@@ -44,29 +40,52 @@ function createTools(userId?: string) {
     func: async (input: string) => {
       console.log("Tool Invoked: product_search with input:", input);
       const products = await ProductService.searchProducts(input);
-      lastProductData = formatProductForFrontend(products, userId);
-      return JSON.stringify(lastProductData.slice(0, 3));
+      const formattedProducts = formatProductForFrontend(products, userId);
+      return JSON.stringify(formattedProducts.slice(0, 3));
     },
   });
 
-  // Price comparison tool
-  const priceComparisonTool = new DynamicTool({
-    name: "price_comparison",
-    description: "Compare prices and find budget-friendly options",
+  // Session product history tool
+  const sessionProductHistoryTool = new DynamicTool({
+    name: "session_product_history",
+    description: "Get all products that have been discussed in this conversation session. Use this when the user asks about products from earlier in the conversation, wants to compare with previous products, or references 'the laptop we looked at before' etc.",
     func: async (input: string) => {
-      console.log("Tool Invoked: price_comparison with input:", input);
-      const products = await ProductService.searchProducts(input);
-      const sortedByPrice = products.sort((a, b) => (a.extracted_price || 0) - (b.extracted_price || 0));
-      lastProductData = formatProductForFrontend(products, userId);
-      return JSON.stringify({
-        cheapest: sortedByPrice.slice(0, 3),
-        mostExpensive: sortedByPrice.slice(-2),
-        averagePrice: products.reduce((sum, p) => sum + (p.extracted_price || 0), 0) / products.length
-      });
+      console.log("Tool Invoked: session_product_history with input:", input);
+
+      try {
+        // Import ChatService dynamically to avoid circular dependency
+        const { ChatService } = await import('../services/ChatService');
+        const existingChats = await ChatService.getChatsByEmail(userEmail);
+        const currentChat = existingChats.find(chat => chat._id === sessionId);
+        
+        if (currentChat && currentChat.messages.length > 0) {
+          // Extract all products from bot messages in this conversation
+          const sessionProducts = currentChat.messages
+            .filter(m => m.speaker === 'bot' && m.recommendedProducts && m.recommendedProducts.length > 0)
+            .flatMap(m => m.recommendedProducts || []);
+          
+          if (sessionProducts.length === 0) {
+            return JSON.stringify({ products: [], message: "No products have been discussed in this conversation yet." });
+          }
+          
+          // Return the most recent products (last 10 to avoid token limit)
+          const recentProducts = sessionProducts.slice(-10);
+          return JSON.stringify({ 
+            products: recentProducts,
+            total_count: sessionProducts.length,
+            message: `Found ${sessionProducts.length} products from this conversation.`
+          });
+        }
+        
+        return JSON.stringify({ products: [], message: "No conversation history found." });
+      } catch (error) {
+        console.error('Error getting session product history:', error);
+        return JSON.stringify({ products: [], message: "Error retrieving product history." });
+      }
     },
   });
 
-  return [productSearchTool, priceComparisonTool];
+  return [productSearchTool, sessionProductHistoryTool];
 }
 
 // Drill down on product categories tool
@@ -151,6 +170,7 @@ What you help with:
 - Explaining tech specs in simple, relatable terms
 - Budget-friendly recommendations and alternatives
 - Product recommendations based on use cases (gaming, work, photography, etc.)
+- Referencing and comparing products from earlier in the conversation
 
 Conversation flow:
 - When users ask about tech products, dive right in with excitement and helpfulness
@@ -221,7 +241,6 @@ function startMemoryCleanup(): void {
     for (const [sessionId, activity] of memoryMap.entries()) {
       if (now - activity.lastActivity > MEMORY_TTL) {
         memoryMap.delete(sessionId);
-        productHistoryMap.delete(sessionId);
         cleanedCount++;
       }
     }
@@ -237,7 +256,6 @@ function startMemoryCleanup(): void {
 // Function to clear specific memory (for testing or manual cleanup)
 function clearMemoryForSession(sessionId: string): void {
   memoryMap.delete(sessionId);
-  productHistoryMap.delete(sessionId);
 }
 
 // Function to update activity timestamp
@@ -249,7 +267,7 @@ function touchMemoryActivity(sessionId: string): void {
 }
 
 // Wrapper to initialize the agent executor
-async function getAgentExecutor(sessionId: string, userId?: string) {
+async function getAgentExecutor(sessionId: string, userId?: string, userEmail?: string) {
   let memoryActivity = memoryMap.get(sessionId);
   
   if (!memoryActivity) {
@@ -276,13 +294,14 @@ async function getAgentExecutor(sessionId: string, userId?: string) {
     maxTokens: 1000,
   });
   
-  // Create tools with userId access
-  const tools = [...createTools(userId), ...defaultTools];
+  // Create tools with userId and session context
+  const tools = [...createTools(userId, sessionId, userEmail), ...defaultTools];
   
   // Apparently this is now deprecated...? Look up LangGraph alternative
   return initializeAgentExecutorWithOptions(tools, chatModel, {
     agentType: "chat-conversational-react-description",
     verbose: false,
+    returnIntermediateSteps: true,
     memory: memoryActivity.memory,
     agentArgs: {
       systemMessage: systemPrompt,
@@ -290,23 +309,8 @@ async function getAgentExecutor(sessionId: string, userId?: string) {
   });
 }
 
-// Per-session product history
-const productHistoryMap = new Map<string, any[]>();
-
-function addProductsToHistory(sessionId: string, products: any[]) {
-  if (!productHistoryMap.has(sessionId)) productHistoryMap.set(sessionId, []);
-  productHistoryMap.get(sessionId)!.push(...products);
-}
-
-function getProductHistory(sessionId: string): any[] {
-  return productHistoryMap.get(sessionId) || [];
-}
-
-export async function chatWithAgent(userInput: string, sessionId: string = 'default', userId?: string) {
+export async function chatWithAgent(userInput: string, sessionId: string = 'default', userId?: string, userEmail?: string) {
   try {
-    // Clear previous product data
-    lastProductData = [];
-
     // Pre-filter obviously off-topic questions
     const offTopicKeywords = ['weather', 'recipe', 'cooking', 'movie', 'music', 'sports', 'politics', 'news', 'joke', 'story', 'game', 'math', 'history', 'geography'];
     const techKeywords = ['laptop', 'phone', 'computer', 'pc', 'mobile', 'device', 'tech', 'buy', 'purchase', 'price', 'compare', 'recommendation', 'specs', 'features', 'apple', 'samsung', 'dell', 'hp', 'android', 'ios', 'windows', 'mac'];
@@ -317,54 +321,64 @@ export async function chatWithAgent(userInput: string, sessionId: string = 'defa
     if (hasOffTopicKeywords && !hasTechKeywords) {
       return {
         message: "That's interesting! I'm really focused on helping with tech shopping though. Are you looking for a new laptop, phone, or computer? I'd love to help you find something perfect for your needs!",
-        productData: null,
-        productHistory: getProductHistory(sessionId)
+        productData: null
       };
     }
     
     // Touch memory activity before processing
     touchMemoryActivity(sessionId);
     
-    const agentExecutor = await getAgentExecutor(sessionId, userId);
+    const agentExecutor = await getAgentExecutor(sessionId, userId, userEmail);
     const result = await agentExecutor.invoke({ input: userInput });
     let response = result.output || result.result || "Sorry, I couldn't find an answer.";
-    // Enforce tool output for off-topic queries
+    let productData: any[] | null = null;
+    
+    // Process tool execution results
     if (result.intermediateSteps) {
+      console.log("Processing intermediate steps for tools...");
       for (const step of result.intermediateSteps) {
-        if (
-          step.action &&
-          step.action.tool === "check_topic_relevance" &&
-          step.observation
-        ) {
-          const obs = JSON.parse(step.observation);
-          if (obs.relevant === false && obs.message) {
-            // Return the tool's message directly to the user, bypassing LLM meta-reasoning
-            return {
-              message: obs.message,
-              productData: null,
-              productHistory: getProductHistory(sessionId)
-            };
+        console.log("Processing step:", step);
+        if (step.action && step.observation) {
+          const { tool } = step.action;
+          
+          // Handle topic relevance check
+          if (tool === "check_topic_relevance") {
+            try {
+              const obs = JSON.parse(step.observation);
+              if (obs.relevant === false && obs.message) {
+                // Return the tool's message directly to the user, bypassing LLM meta-reasoning
+                return {
+                  message: obs.message,
+                  productData: null
+                };
+              }
+            } catch (error) {
+              console.error('Error parsing topic relevance result:', error);
+            }
+          }
+          
+          // Extract product data from product search
+          if (tool === "product_search") {
+            try {
+              productData = JSON.parse(step.observation);
+            } catch (error) {
+              console.error('Error parsing product search results:', error);
+            }
           }
         }
       }
     }
 
-    // Add any new products to the session's product history
-    if (lastProductData.length > 0) {
-      addProductsToHistory(sessionId, lastProductData);
-    }
     // Return both the response and any product data that was found
     return {
       message: response,
-      productData: lastProductData.length > 0 ? lastProductData : null,
-      productHistory: getProductHistory(sessionId)
+      productData: productData
     };
   } catch (error) {
     console.error('Error in chatWithAgent:', error);
     return {
       message: "I'm sorry, I encountered an error. Please try again.",
-      productData: null,
-      productHistory: []
+      productData: null
     };
   }
 }
