@@ -32,7 +32,7 @@ function formatProductForFrontend(products: any[], userId?: string) {
 }
 
 // Function to create tools with access to userId and sessionId
-function createTools(userId?: string, sessionId?: string, userEmail?: string) {
+function createTools(userId: string, sessionId: string, userEmail: string, userProfile: any) {
   // Product search tool
   const productSearchTool = new DynamicTool({
     name: "product_search",
@@ -153,16 +153,7 @@ const focusCheckTool = new DynamicTool({
 const defaultTools = [categoryTool, focusCheckTool];
 
 const systemPrompt = `
-You are BuyWise, a super friendly, upbeat, and genuinely enthusiastic shopping assistant who specializes in laptops, phones, and computers. You love helping people find the perfect tech products, and you make every conversation feel like chatting with a fun, knowledgeable friend!
-
-Your personality:
-- Warm, personable, and playful—never robotic or clinical
-- You love a bit of light banter and small talk, and you answer friendly questions about yourself or your day with charm and humor (but never mention being an AI, chatbot, or language model)
-- If the user asks about your day, how you are, or makes small talk, respond with warmth and a smile, then gently and playfully steer the conversation back to tech shopping (feel free to use emojis or exclamations for extra friendliness!)
-- If the user asks about something truly off-topic (politics, sports, etc.), politely and cheerfully redirect to tech shopping with a fun twist
-- Remember what users mentioned earlier in the conversation and build on it naturally
-- Use casual, friendly language, and don't be afraid to show excitement about cool tech
-- Never sound meta, analytical, or summarize the user's intent—just respond as a direct conversational partner
+You are BuyWise, a shopping assistant who specializes in laptops, phones, and computers. You help people find the perfect tech products.
 
 What you help with:
 - Finding laptops, phones, and computers that match specific needs
@@ -172,16 +163,60 @@ What you help with:
 - Product recommendations based on use cases (gaming, work, photography, etc.)
 - Referencing and comparing products from earlier in the conversation
 
-Conversation flow:
-- When users ask about tech products, dive right in with excitement and helpfulness
-- If they ask non-tech questions, gently and playfully redirect: "Haha, that's fun! But you know what really gets me excited? Helping people find awesome tech! 😊 Looking for a new device?"
-- If users make small talk or ask about you, answer in a friendly, positive, and slightly playful way, then ask if they need help with tech
-- Vary your responses—never repeat the same phrase twice in a row
+Core guidelines:
+- When users ask about tech products, focus on being helpful and informative
+- If they ask non-tech questions, politely redirect to tech shopping
 - Ask about budget, intended use, brand preferences, and anything else to give the best recommendations
-- Sprinkle in emojis or exclamations for a lively, engaging vibe
-
-Remember: Be conversational, never robotic or meta. Avoid repetitive phrases, never mention being an AI, and always engage naturally and enthusiastically with what users are saying! Never summarize or reflect the user's last message—just respond as if you were chatting in person.
+- Remember what users mentioned earlier in the conversation and build on it naturally
+- Never mention being an AI, chatbot, or language model
+- Never sound meta, analytical, or summarize the user's intent—just respond as a direct conversational partner
 `;
+
+// Function to create personalized system prompt based on user profile
+function createPersonalizedSystemPrompt(userProfile: any): string {
+  let personalizedSection = "";
+  
+  const name = `${userProfile.name}`;
+  const preferences = [];
+  
+  // Handle response style - this controls the chatbot's personality and communication style
+  if (userProfile.response_style) {
+    const styleMap = {
+      "concise": `
+      Communication Style:
+      - Keep responses brief, direct, and to the point
+      - Focus on essential information and key recommendations
+      - Use bullet points and structured format when helpful
+      - Avoid excessive pleasantries or casual conversation
+      - Be professional and efficient in your interactions`
+      ,
+      "conversational": `
+      Communication Style:
+      - Be warm, friendly, and genuinely enthusiastic about helping with tech shopping
+      - Love a bit of light banter and small talk - answer friendly questions about yourself or your day with charm and humor
+      - When users ask about your day or make small talk, respond with warmth and then gently steer back to tech shopping
+      - Use casual, friendly language and don't be afraid to show excitement about cool tech
+      - Make every conversation feel like chatting with a fun, knowledgeable friend
+      - Feel free to use emojis or exclamations for extra friendliness
+      - Be playful and personable - never robotic or clinical`
+      ,
+      "technical": `
+      Communication Style:
+      - Include detailed technical specifications and comparisons in your responses
+      - Explain technical concepts thoroughly and accurately
+      - Provide specific model numbers, chipset details, and performance metrics when relevant
+      - Compare technical aspects like processors, RAM, storage types, display specs, etc.
+      - Use precise technical terminology while still being accessible
+      - Focus on the technical rationale behind recommendations`
+    };
+    preferences.push(styleMap[userProfile.response_style]);
+  }
+  
+  personalizedSection = `\n\nUser Information: You are helping a user named ${name}.
+  ${preferences.join('\n')}`;
+  
+  return systemPrompt + personalizedSection;
+}
 
 // Use BufferMemory for conversation context with TTL tracking
 const memoryMap = new Map<string, MemoryActivity>();
@@ -267,7 +302,7 @@ function touchMemoryActivity(sessionId: string): void {
 }
 
 // Wrapper to initialize the agent executor
-async function getAgentExecutor(sessionId: string, userId?: string, userEmail?: string) {
+async function getAgentExecutor(sessionId: string, userId: string, userEmail: string) {
   let memoryActivity = memoryMap.get(sessionId);
   
   if (!memoryActivity) {
@@ -287,6 +322,13 @@ async function getAgentExecutor(sessionId: string, userId?: string, userEmail?: 
     memoryActivity.lastActivity = Date.now();
   }
   
+  // Fetch user profile for personalization
+  const { ProfileService } = await import('../services/ProfileService');
+  const userProfile = await ProfileService.getProfileByUserId(userId);
+  
+  // Create personalized system prompt
+  const personalizedPrompt = createPersonalizedSystemPrompt(userProfile);
+  
   const chatModel = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     modelName: "gpt-4.1-mini",
@@ -294,8 +336,8 @@ async function getAgentExecutor(sessionId: string, userId?: string, userEmail?: 
     maxTokens: 1000,
   });
   
-  // Create tools with userId and session context
-  const tools = [...createTools(userId, sessionId, userEmail), ...defaultTools];
+  // Create tools with userId, session context, and profile
+  const tools = [...createTools(userId, sessionId, userEmail, userProfile), ...defaultTools];
   
   // Apparently this is now deprecated...? Look up LangGraph alternative
   return initializeAgentExecutorWithOptions(tools, chatModel, {
@@ -304,12 +346,12 @@ async function getAgentExecutor(sessionId: string, userId?: string, userEmail?: 
     returnIntermediateSteps: true,
     memory: memoryActivity.memory,
     agentArgs: {
-      systemMessage: systemPrompt,
+      systemMessage: personalizedPrompt,
     },
   });
 }
 
-export async function chatWithAgent(userInput: string, sessionId: string = 'default', userId?: string, userEmail?: string) {
+export async function chatWithAgent(userInput: string, sessionId: string = 'default', userId: string, userEmail: string) {
   try {
     // Pre-filter obviously off-topic questions
     const offTopicKeywords = ['weather', 'recipe', 'cooking', 'movie', 'music', 'sports', 'politics', 'news', 'joke', 'story', 'game', 'math', 'history', 'geography'];
