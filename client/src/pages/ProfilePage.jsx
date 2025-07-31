@@ -50,6 +50,7 @@ export default function ProfilePage() {
     axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
       {
         profileData: {
+          name: localProfile.preferences.name,
           country: localProfile.preferences.country,
           max_products_per_search: localProfile.preferences.max_products_per_search,
           price_sort_preference: localProfile.preferences.price_sort_preference,

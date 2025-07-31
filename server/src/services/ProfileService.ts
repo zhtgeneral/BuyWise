@@ -43,6 +43,7 @@ export class ProfileService {
    */
   static async updateProfile(profile: Partial<IProfile>, updateData: Partial<IProfile>): Promise<Partial<IProfile>> {
     delete updateData.userId;
+    delete updateData.name;
     const updatedProfile = await Profile.findOneAndUpdate(
         { _id: profile._id },
         { $set: updateData },
@@ -58,8 +59,9 @@ export class ProfileService {
       throw new AppError('Profile not found', 404);
     }
 
-    // Don't allow userId updates through this endpoint
+    // Don't allow userId or name updates through this endpoint
     delete updateData.userId;
+    delete updateData.name;
 
     Object.assign(profile, updateData);
     await profile.save();

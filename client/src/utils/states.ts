@@ -14,6 +14,7 @@ export function saveStates(user, preferences, history, dispatch) {
       isEmailVerified: user.isEmailVerified
     },          
     preferences: {
+      name: preferences.name,
       country: preferences.country,
       max_products_per_search: preferences.max_products_per_search,
       price_sort_preference: preferences.price_sort_preference,
