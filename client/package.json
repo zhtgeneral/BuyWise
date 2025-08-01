@@ -20,6 +20,7 @@
     "@mantine/hooks": "^8.0.2",
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
+    "crypto": "^1.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-loading-indicators": "^1.0.1",

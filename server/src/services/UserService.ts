@@ -123,4 +123,8 @@ export class UserService {
   static async comparePassword(user: Partial<IUser>, currentPassword: string) {
     return await user.comparePassword(currentPassword);
   }
+
+  static async deleteUser(email: string) {
+    await User.deleteOne({ email });
+  }
 } 

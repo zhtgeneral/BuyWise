@@ -82,4 +82,8 @@ export class ProfileService {
       throw new AppError('Failed to create or update profile', 400);
     }
   }
+
+  static async deleteProfile(email: string): Promise<void> {
+    await Profile.deleteOne({ email });
+  }
 } 

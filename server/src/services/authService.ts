@@ -84,4 +84,14 @@ export class AuthService {
       user: userWithoutPassword
     };
   }
+
+  /**
+   * Only call for cleaning up tests
+   */
+  static async delete(email: string): Promise<void> {
+    await Promise.all([
+      UserService.deleteUser(email),
+      ProfileService.deleteProfile(email)
+    ])
+  }
 } 
