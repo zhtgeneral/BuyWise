@@ -119,6 +119,40 @@ export default function ExplorePage() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const handleRefreshRecommendations = async () => {
+    setIsLoading(true);
+    setError('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Clear cache first
+      await axios.post(`http://localhost:3000/api/recommender/refresh`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Fetch fresh recommendations
+      const response = await axios.get(`http://localhost:3000/api/recommender`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 200) {
+        setProducts(response.data.recommendedProducts);
+        setError('');
+      } else {
+        setError('Failed to refresh recommendations');
+      }
+    } catch (error) {
+      setError('Unable to refresh recommendations: ' + (error.response?.data?.error || error.message));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <FillRecommendedProducts
@@ -128,7 +162,16 @@ export default function ExplorePage() {
       />
       <main className="explore-container">
         <div className="explore-padding">
-          <h1>Explore Products</h1>   
+          <div className="explore-header">
+            <h1>Explore Products</h1>
+            <button 
+              className="refresh-button" 
+              onClick={handleRefreshRecommendations}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
           <ConditionalProductGrid 
             error={error} 
             products={products}

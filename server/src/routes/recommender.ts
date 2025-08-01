@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { RecommendationService } from '../services/RecommendationService';
 import { authenticate } from '../middleware/auth';
+import RecommendationCache from '../models/RecommendationCache';
 
 const router = express.Router();
 
@@ -126,7 +127,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const userId = req.user?.id;
     // TODO: Get user email from database using userId
     // For now, we'll use userId for recommendations
-    const email = undefined;
+    const email = req.user?.email;
 
     // Validate limit parameter
     const limitNum = parseInt(limit as string);
@@ -339,6 +340,63 @@ router.get('/category/:category', authenticate, async (req: Request, res: Respon
     return res.status(500).json({
       success: false,
       error: error.message || 'Failed to fetch category recommendations'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/recommender/refresh:
+ *   post:
+ *     summary: Force refresh recommendations by clearing cache
+ *     tags: [Recommender]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cache cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Recommendations cache cleared successfully"
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/refresh', authenticate, async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const email = req.user?.email;
+
+    // Clear cache for this user
+    const cacheQuery: any = {};
+    if (userId) {
+      cacheQuery.userId = userId;
+    } else if (email) {
+      cacheQuery.email = email;
+    }
+
+    // Clear all cached recommendations for this user
+    await RecommendationCache.deleteMany(cacheQuery);
+
+    console.log(`/api/recommender/refresh POST cleared cache for user ${email || userId || 'anonymous'}`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Recommendations cache cleared successfully'
+    });
+
+  } catch (error: any) {
+    console.error('/api/recommender/refresh POST error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to clear recommendations cache'
     });
   }
 });
