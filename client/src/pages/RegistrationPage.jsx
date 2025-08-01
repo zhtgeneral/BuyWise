@@ -51,10 +51,10 @@ export default function RegistrationPage() {
 
     const { success, token } = response.data;
     if (success && token) {        
-      Browser.setToken(token);
-      alert(`Registration successful! Your account has been created and verified.`);
+      Browser.saveToken(token);
       setIsLoading(false);
       navigate('/login');
+      alert(`Registration successful! Your account has been created and verified.`);
       return;
     } 
 
