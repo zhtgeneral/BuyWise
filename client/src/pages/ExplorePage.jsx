@@ -1,13 +1,14 @@
 import '../styles/ExplorePage.css'
 import React from 'react';
 import axios from 'axios';
-import { 
-  selectProfilePreferences, 
-  selectProfileUser 
-} from '../libs/features/profileSlice';
-import { useSelector } from 'react-redux';
+// import { 
+//   selectProfilePreferences, 
+//   selectProfileUser 
+// } from '../libs/features/profileSlice';
+// import { useSelector } from 'react-redux';
 import ProductCard from '../components/ProductCard';
 import { OrbitProgress } from 'react-loading-indicators'
+import Browser from '../utils/browser';
 
 // TODO remove later on
 const mockProducts = [
@@ -144,8 +145,8 @@ function FillRecommendedProducts({
   setProducts,
   setIsLoading
 }) {
-  const user = useSelector(selectProfileUser);
-  const profile = useSelector(selectProfilePreferences);
+  // const user = useSelector(selectProfileUser);
+  // const profile = useSelector(selectProfilePreferences);
 
   /** Loads when the component loads the first time */
   React.useEffect(() => {
@@ -156,11 +157,10 @@ function FillRecommendedProducts({
 
       try {
         await new Promise((resolve) => setTimeout(resolve, 2000)); // TODO remove later on. Only for test
-        const token = localStorage.getItem('token');
         
         var response = await axios.get(`http://localhost:3000/api/recommender`,{
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${Browser.getToken()}`
           }
         })        
       } catch (error) {

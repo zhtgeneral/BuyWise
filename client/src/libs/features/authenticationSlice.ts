@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import Browser from '../../utils/browser';
 
 
 interface AuthenticatedState {
@@ -25,7 +26,7 @@ const authenticationSlice = createSlice({
      * If so, it sets the authenticated state as true
      */
     validateAuth: (state, action?) => {
-      localStorage.getItem('token')? state.isAuthenticated = true : state.isAuthenticated = false;
+      Browser.getToken()? state.isAuthenticated = true : state.isAuthenticated = false;
     }
   },
 });

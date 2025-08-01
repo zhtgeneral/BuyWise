@@ -27,6 +27,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.1",
     "redux-persist": "^6.0.0",
+    "redux-persist-transform-encrypt": "^5.1.1",
     "respinner": "^4.0.3",
     "vite": "^6.3.5"
   },

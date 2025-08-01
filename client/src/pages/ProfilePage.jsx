@@ -1,9 +1,11 @@
 import '../styles/ProfilePage.css'; 
 import { useState } from 'react';
-import { selectProfile, updateProfile } from '../libs/features/profileSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
+
+import { selectProfile, updateProfile } from '../libs/features/profileSlice';
 import { selectIsAuthenticated } from '../libs/features/authenticationSlice';
+import Browser from '../utils/browser';
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 const debug = false;
@@ -16,16 +18,6 @@ export default function ProfilePage() {
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [localProfile, setLocalProfile] = useState(profile);
-
-  const handleUserOptionsChange = (field, value) => {
-    setLocalProfile(prev => ({
-      ...prev,
-      user: {
-        ...prev.user,
-        [field]: value
-      }
-    }));
-  };
 
   const handleUserPreferencesChange = (field, value) => {
     setLocalProfile(prev => ({
@@ -44,8 +36,6 @@ export default function ProfilePage() {
       alert('You are not authenticated. Please login again.');
       return;
     }
-
-    const token = localStorage.getItem('token');
     
     axios.patch(`${backendURL}/api/profiles/${profile.user._id}`, 
       {
@@ -62,7 +52,7 @@ export default function ProfilePage() {
       }, 
       {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${Browser.getToken()}`
         }
       }
     ).then((response) => {

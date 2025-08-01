@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import { OrbitProgress } from 'react-loading-indicators';
-import { saveToBrowser } from '../utils/browser';
+import Browser from '../utils/browser';
 import { saveStates } from '../utils/states'
 
 const backendURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
@@ -143,7 +143,7 @@ async function handleLogin(context) {
     return;
   }
 
-  saveToBrowser(userBody.token);
+  Browser.saveToken(userBody.token);
   saveStates(userBody.user, profileBody.profile, historyBody.chats, dispatch);
   navigate('/');
 }
