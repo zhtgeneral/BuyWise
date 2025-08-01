@@ -348,6 +348,7 @@ describe('Profile API', () => {
       const fakeProfile = {
         _id: 'test id',
         userId: 'test userId',
+        name: 'Test User',
         country: 'Canada',
         max_products_per_search: 5,
         price_sort_preference: 'lowest_first',
@@ -477,6 +478,7 @@ describe('Profile API', () => {
       const fakeProfileData = {
         _id: 'test id',
         userId: 'test userId',
+        name: 'Test User',
         country: 'Canada',
         max_products_per_search: 5,
         price_sort_preference: 'highest_first',
@@ -509,6 +511,7 @@ describe('Profile API', () => {
       const fakeProfileData = {
         _id: 'test id',
         userId: 'test userId',
+        name: 'Test User',
         country: 'Canada',
         max_products_per_search: 5,
         price_sort_preference: 'highest_first',
@@ -537,6 +540,7 @@ describe('Profile API', () => {
       const fakeProfileData = {
         _id: 'test id',
         userId: 'test userId',
+        name: 'Test User',
         country: 'US',
         max_products_per_search: 8,
         price_sort_preference: 'lowest_first',
@@ -551,6 +555,7 @@ describe('Profile API', () => {
       const existingProfileData = {
         _id: 'test id',
         userId: 'test userId',
+        name: 'Test User',
         country: 'Canada',
         max_products_per_search: 3,
         price_sort_preference: 'highest_first',
@@ -582,6 +587,7 @@ describe('Profile API', () => {
       const fakeProfileData = {
         _id: 'test id',
         userId: 'userId123',
+        name: 'Test User',
         country: 'US',
         max_products_per_search: 8,
         price_sort_preference: 'lowest_first',
@@ -596,6 +602,7 @@ describe('Profile API', () => {
       const existingProfileData = {
         _id: 'test id',
         userId: 'userId123',
+        name: 'Test User',
         country: 'Canada',
         max_products_per_search: 3,
         price_sort_preference: 'lowest_first',

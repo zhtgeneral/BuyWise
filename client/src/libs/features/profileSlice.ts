@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface preferenceInfo {
+  name: string;
   country: string;
   max_products_per_search: number;
   price_sort_preference: string;
@@ -36,6 +37,7 @@ const initialState: Profile = {
     isEmailVerified: false,
   },
   preferences: {
+    name: "No name",
     country: "Canada",
     max_products_per_search: 3,
     price_sort_preference: "lowest_first",

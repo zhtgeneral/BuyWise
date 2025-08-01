@@ -11,6 +11,7 @@ import mongoose, { Schema, Document } from 'mongoose';
  */
 export interface IProfile extends Document {
   userId: string;
+  name: string;
   country: string;
   max_products_per_search: number;
   price_sort_preference: string;
@@ -29,6 +30,11 @@ const ProfileSchema: Schema = new Schema({
     ref: 'User',
     required: [true, 'User ID is required'],
     unique: true
+  },
+  name: {
+    type: String,
+    required: [true, 'Name is required'],
+    immutable: true  // Name cannot be changed after creation
   },
   country: {
     type: String,

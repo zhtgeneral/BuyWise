@@ -2,6 +2,7 @@ import '../styles/ChatbotPanel.css';
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import Browser from '../utils/browser';
 
 import ChatMessage from './ChatMessage';
 import { 
@@ -70,7 +71,7 @@ export default function ChatbotPanel() {
       }, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${Browser.getToken()}`
         }
       });      
     } catch (error) {

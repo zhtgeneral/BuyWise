@@ -45,7 +45,6 @@ export class ChatbotService {
       // Attempt to restore memory from database for existing conversations
       try {
         await restoreMemoryFromDatabase(sessionId, userEmail);
-        console.log('ChatbotService: Memory restoration attempted for session:', sessionId);
       } catch (error) {
         console.error('ChatbotService: Memory restoration failed, but continuing:', error);
       }
@@ -53,10 +52,8 @@ export class ChatbotService {
     
     // Get AI response using the real MongoDB _id
     const agentResponse = await chatWithAgent(message, sessionId, userId, userEmail);
-    console.log('ChatbotService got AI response:', agentResponse.message);
     
     // Update database with AI response
-    console.log('ChatbotService: Saving conversation exchange for user:', userEmail, 'sessionId:', sessionId);
     await this.saveConversationExchange(
       message,
       agentResponse.message,
@@ -65,7 +62,6 @@ export class ChatbotService {
       conversationId,
       sessionId
     );
-    console.log('ChatbotService: Successfully saved conversation exchange');
     
     return {
       chatbotMessage: agentResponse.message,

@@ -14,7 +14,8 @@
     "test:auth": "vitest run --config vitest.config.ts src/tests/integration/auth.test.ts",
     "test:products": "vitest run --config vitest.config.ts src/tests/integration/products.test.ts",
     "test:chats": "vitest run --config vitest.config.ts src/tests/integration/chats.test.ts",
-    "test:profile": "vitest run --config vitest.config.ts src/tests/integration/profile.test.ts"
+    "test:profile": "vitest run --config vitest.config.ts src/tests/integration/profile.test.ts",
+    "test:search": "vitest run --config vitest.config.ts src/tests/integration/search.test.ts"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.6",

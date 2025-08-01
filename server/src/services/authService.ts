@@ -28,6 +28,7 @@ export class AuthService {
     
     const userId = (user as any)._id;
     const profileData = {      
+      name: name,
       country: 'Canada',
       max_products_per_search: 5,
       price_sort_preference: 'lowest_first',
@@ -82,5 +83,15 @@ export class AuthService {
       token: token,
       user: userWithoutPassword
     };
+  }
+
+  /**
+   * Only call for cleaning up tests
+   */
+  static async delete(email: string): Promise<void> {
+    await Promise.all([
+      UserService.deleteUser(email),
+      ProfileService.deleteProfile(email)
+    ])
   }
 } 

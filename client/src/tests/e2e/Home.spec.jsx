@@ -19,3 +19,6 @@ test.describe('Visual', async () => {
     await expect(sidebarLinks).toHaveText(/About Us/);    
   })
 });
+
+// rizz@mail.ca
+// RizzRizz1!

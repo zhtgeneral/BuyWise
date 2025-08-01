@@ -2,22 +2,25 @@ import '../styles/Sidebar.css';
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+
 import { selectIsAuthenticated, validateAuth } from '../libs/features/authenticationSlice';
 import { selectProfileUser } from '../libs/features/profileSlice';
-import { clearChats, selectChats } from '../libs/features/historySlice';
 import { clearChat } from '../libs/features/chatSlice';
+import { clearChats, selectChats } from '../libs/features/historySlice';
 import { clearProducts } from '../libs/features/productsSlice';
-import PastChats from './ChatHistory';
 import { setChats } from '../libs/features/historySlice';
-import axios from 'axios';
+import { updateProfile } from '../libs/features/profileSlice';
+
+import PastChats from './ChatHistory';
+import Browser from '../utils/browser';
+import RedirectRoutes from '../middleware/middleware';
 
 import TerminalIcon from '../icons/terminal.svg?react';
 import EditIcon from '../icons/edit.svg?react';
 import AboutUsIcon from '../icons/about_us.svg?react';
 import ExploreIcon from '../icons/compass.svg?react';
 import BuyWiseLogo from '../assets/BuyWiseLogo.png';
-import { updateProfile } from '../libs/features/profileSlice';
-import RedirectRoutes from '../middleware/middleware';
 
 const backendURL = import.meta.env.BACKEND_URL || 'http://localhost:3000';
 
@@ -31,7 +34,6 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const user = useSelector(selectProfileUser);
   const chatHistory = useSelector(selectChats);
-  const token = localStorage.getItem('token');
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
   
@@ -45,7 +47,7 @@ export default function Sidebar() {
           const response = await axios.get(`${backendURL}/api/chats?email=${encodeURIComponent(user.email)}`,
           {
             headers: {
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${Browser.getToken()}`
             }
           });
           var historyBody = response.data;
@@ -66,7 +68,7 @@ export default function Sidebar() {
   }, [isAuthenticated, chatHistory])
 
   function handleLogout() {
-    localStorage.removeItem('token'); // TODO use cookies instead of local storage
+    Browser.logout();
     dispatch(validateAuth());
     dispatch(updateProfile({
       user: {},

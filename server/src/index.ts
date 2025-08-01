@@ -13,8 +13,8 @@ import recommenderRoutes from './routes/recommender';
 import { authMiddleware, authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
 import { postChat } from './routes/chatbot';
-import { startMemoryCleanup } from './agent/chatbotAgent';
-// import { postRegister } from './routes/auth';
+import { startMemoryCleanup } from './agent/chatbotAgent'
+import devRoutes from './routes/dev';
 
 dotenv.config();
 
@@ -88,9 +88,6 @@ connectDB().then(() => {
 
   app.post('/api/chatbot', authenticate, postChat);
 
-  // app.get('/api/test-products', (req: Request, res: Response) => {
-  //   return res.json(test_products);
-  // })
   app.use('/api/profiles', profileRoutes);
   app.use('/api/products', productsRoutes);
   app.use('/api/chats', authenticate, chatRoutes);
@@ -98,7 +95,7 @@ connectDB().then(() => {
   app.use('/api/recommender', recommenderRoutes);
 
   app.use('/api/auth', authRoutes);
-  // app.post('/api/auth/register', postRegister);
+  app.use('/api/dev', devRoutes);
 
   // Protected route (requires JWT)
   app.get('/api/protected', authMiddleware, (req: Request, res: Response) => {

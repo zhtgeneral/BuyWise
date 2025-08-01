@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import { OrbitProgress } from 'react-loading-indicators'
+import Browser from '../utils/browser';
 
 const backendURL = import.meta.env.backendURL || 'http://localhost:3000';
 
@@ -50,7 +51,7 @@ export default function RegistrationPage() {
 
     const { success, token } = response.data;
     if (success && token) {        
-      saveToBrowser(token);
+      Browser.setToken(token);
       alert(`Registration successful! Your account has been created and verified.`);
       setIsLoading(false);
       navigate('/login');
@@ -60,11 +61,6 @@ export default function RegistrationPage() {
     alert('Registration failed: No token received');
     setIsLoading(false);      
   };
-
-  // TODO change to cookies
-  function saveToBrowser(token) {
-    localStorage.setItem('token', token);
-  }
 
   return (
     <main className="login-container">
