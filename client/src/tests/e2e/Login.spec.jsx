@@ -68,8 +68,6 @@ test.describe('Login Page', async () => {
       await passwordInput.fill(testPassword);
 
       await loginButton.click(); 
-
-      await page.waitForTimeout(1000);
       
       await expect(page).toHaveURL('/'); 
       await Promise.all([
