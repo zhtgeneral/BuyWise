@@ -2,11 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/AppError';
 import { CustomJwtPayload } from '../types/jwt';
+import User from '../models/User';
+import connectDB from '../lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 interface JwtPayload {
   id: string;
+  email?: string;
 }
 
 declare global {
@@ -39,7 +42,20 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
-    req.user = decoded;
+    
+    // Fetch user from database to get email
+    await connectDB();
+    const user = await User.findById(decoded.id).select('email');
+    
+    if (user) {
+      req.user = {
+        id: decoded.id,
+        email: user.email
+      };
+    } else {
+      req.user = decoded; // Fallback to just id if user not found
+    }
+    
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

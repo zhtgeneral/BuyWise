@@ -234,4 +234,177 @@ export class AIService {
     const chatbotResponse = chatCompletion.choices[0].message.content;
     return chatbotResponse;
   }
+
+  /**
+   * Extract product interests and keywords from chat messages using LLM
+   * Reuses the same GitHub AI model as the chatbot
+   */
+  public static async extractKeywordsFromChat(messages: string[]): Promise<string[]> {
+    try {
+      const combinedMessages = messages.join(' ');
+      
+      const response = await ghClient.path("/chat/completions").post({
+        body: {
+          messages: [
+            { 
+              role: "system", 
+              content: `
+                Analyze the following chat messages and extract product-related keywords for recommendation purposes.
+                
+                Focus on extracting:
+                1. Product categories (laptop, smartphone, headphones, gaming, camera, tablet, etc.)
+                2. Brand names (Apple, Samsung, Dell, HP, Lenovo, Asus, Acer, etc.)
+                3. Price preferences (budget, cheap, expensive, premium, affordable, etc.)
+                4. Technical specifications (RAM, storage, processor, graphics, etc.)
+                5. Use cases (gaming, work, student, professional, etc.)
+                6. Performance needs (fast, slow, powerful, lightweight, etc.)
+
+                Return the response in this exact format:
+                Keywords=laptop,apple,budget,gaming,ram,storage
+                
+                Only include relevant keywords, separate with commas, no explanations.
+              `
+            },
+            {
+              role: "user",
+              content: combinedMessages
+            }
+          ],
+          temperature: 0.2,
+          top_p: 0.1,
+          max_tokens: 200,
+          model: modelName
+        }
+      });
+
+      if (isUnexpected(response)) {
+        throw response.body.error;
+      }
+
+      const responseText = response.body.choices[0].message.content || '';
+      
+      // Parse the response to extract keywords
+      const keywordsMatch = responseText.match(/Keywords=(.*?)(\n|$)/);
+      
+      if (keywordsMatch && keywordsMatch[1]) {
+        const keywordsText = keywordsMatch[1];
+        const keywords = keywordsText.split(',').map(k => k.trim().toLowerCase()).filter(k => k.length > 0);
+        return [...new Set(keywords)]; // Remove duplicates
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error extracting keywords from chat:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Extract product preferences from click data using LLM
+   * Analyzes clicked product titles and sources to understand user preferences
+   */
+  public static async extractKeywordsFromClicks(clickData: any[]): Promise<any> {
+    try {
+      if (clickData.length === 0) {
+        return {
+          categories: [],
+          brands: [],
+          priceRanges: [],
+          stores: []
+        };
+      }
+
+      // Prepare click data for LLM analysis
+      const clickInfo = clickData.map(log => {
+        const params = log.params || {};
+        return {
+          title: params.title || '',
+          source: params.source || '',
+          price: params.price || 0
+        };
+      }).filter(item => item.title || item.source);
+
+      if (clickInfo.length === 0) {
+        return {
+          categories: [],
+          brands: [],
+          priceRanges: [],
+          stores: []
+        };
+      }
+
+      const clickText = clickInfo.map(item => 
+        `Title: ${item.title}, Store: ${item.source}, Price: $${item.price}`
+      ).join('; ');
+
+      const response = await ghClient.path("/chat/completions").post({
+        body: {
+          messages: [
+            { 
+              role: "system", 
+              content: `
+                Analyze the following clicked product data and extract user preferences.
+                
+                Focus on extracting:
+                1. Product categories (laptop, smartphone, headphones, gaming, camera, tablet, etc.)
+                2. Brand preferences (Apple, Samsung, Dell, HP, Lenovo, etc.)
+                3. Price range preferences (budget, mid-range, premium based on price ranges)
+                4. Store preferences (Amazon, Best Buy, Walmart, etc.)
+
+                Return the response in this exact format:
+                Categories=laptop,smartphone,gaming
+                Brands=apple,samsung,dell
+                PriceRanges=budget,premium
+                Stores=amazon,best buy
+                
+                Only include relevant items, separate with commas, no explanations.
+              `
+            },
+            {
+              role: "user",
+              content: clickText
+            }
+          ],
+          temperature: 0.2,
+          top_p: 0.1,
+          max_tokens: 200,
+          model: modelName
+        }
+      });
+
+      if (isUnexpected(response)) {
+        throw response.body.error;
+      }
+
+      const responseText = response.body.choices[0].message.content || '';
+      
+      // Parse the response to extract different preference types
+      const categoriesMatch = responseText.match(/Categories=(.*?)(\n|$)/);
+      const brandsMatch = responseText.match(/Brands=(.*?)(\n|$)/);
+      const priceRangesMatch = responseText.match(/PriceRanges=(.*?)(\n|$)/);
+      const storesMatch = responseText.match(/Stores=(.*?)(\n|$)/);
+      
+      const parseKeywords = (match: RegExpMatchArray | null) => {
+        if (match && match[1]) {
+          return match[1].split(',').map(k => k.trim().toLowerCase()).filter(k => k.length > 0);
+        }
+        return [];
+      };
+
+      return {
+        categories: parseKeywords(categoriesMatch),
+        brands: parseKeywords(brandsMatch),
+        priceRanges: parseKeywords(priceRangesMatch),
+        stores: parseKeywords(storesMatch)
+      };
+    } catch (error) {
+      console.error('Error extracting keywords from clicks:', error);
+      return {
+        categories: [],
+        brands: [],
+        priceRanges: [],
+        stores: []
+      };
+    }
+  }
 }

@@ -1,4 +1,5 @@
 import { ProductService } from './ProductService';
+import { AIService } from './AIService';
 import Chat from '../models/Chat';
 import ProxyLog from '../models/ProxyLog';
 import RecommendationCache from '../models/RecommendationCache';
@@ -26,12 +27,18 @@ export class RecommendationService {
         await this.cacheRecommendations(cacheKey, defaultRecs, 'default');
         return defaultRecs;
       }
-
+      console.log('userId', userId  );
+      console.log('email', email);
+      
       // Extract user interests from chat history and click patterns in parallel
       const [chatInterests, clickPatterns] = await Promise.all([
         email ? this.extractInterestsFromChat(email) : Promise.resolve([]),
         this.analyzeClickPatterns(userId, email)
       ]);
+
+      console.log('chatInterests', chatInterests);
+      console.log('clickPatterns', clickPatterns);
+      
 
       // If user has some history, generate personalized recommendations
       if (chatInterests.length > 0 || clickPatterns.length > 0) {
@@ -51,67 +58,37 @@ export class RecommendationService {
   }
 
   /**
-   * Extract product interests from user chat messages
+   * Extract product interests from user chat messages using LLM
    * Analyzes chat content to identify product categories, brands, and preferences
    */
   private static async extractInterestsFromChat(email: string): Promise<string[]> {
     try {
       const chats = await Chat.find({ email }).sort({ createdAt: -1 }).limit(10);
       
-      const interests: string[] = [];
-      const productKeywords = [
-        'laptop', 'computer', 'pc', 'desktop', 'notebook',
-        'smartphone', 'phone', 'mobile', 'iphone', 'android',
-        'headphones', 'earbuds', 'speakers', 'audio',
-        'gaming', 'console', 'xbox', 'playstation', 'nintendo',
-        'camera', 'photography', 'lens',
-        'tablet', 'ipad', 'android tablet',
-        'smartwatch', 'fitness tracker',
-        'appliance', 'refrigerator', 'washing machine', 'microwave',
-        'furniture', 'chair', 'desk', 'table',
-        'clothing', 'shoes', 'accessories'
-      ];
+      if (chats.length === 0) {
+        return [];
+      }
 
-      const brandKeywords = [
-        'apple', 'samsung', 'dell', 'hp', 'lenovo', 'asus', 'acer',
-        'sony', 'lg', 'nike', 'adidas', 'canon', 'nikon',
-        'microsoft', 'google', 'amazon', 'best buy', 'walmart'
-      ];
-
-      const priceKeywords = [
-        'budget', 'cheap', 'expensive', 'affordable', 'premium',
-        'under', 'over', 'dollar', 'price', 'cost'
-      ];
-
+      // Extract all messages from recent chats
+      const allMessages: string[] = [];
       for (const chat of chats) {
         for (const message of chat.messages) {
-          const text = message.text.toLowerCase();
-          
-          // Extract product categories
-          for (const keyword of productKeywords) {
-            if (text.includes(keyword)) {
-              interests.push(keyword);
-            }
-          }
-
-          // Extract brand preferences
-          for (const brand of brandKeywords) {
-            if (text.includes(brand)) {
-              interests.push(brand);
-            }
-          }
-
-          // Extract price-related terms
-          for (const priceTerm of priceKeywords) {
-            if (text.includes(priceTerm)) {
-              interests.push(priceTerm);
-            }
+          if (message.text && message.text.trim().length > 0) {
+            allMessages.push(message.text);
           }
         }
       }
 
-      // Remove duplicates and return unique interests
-      return [...new Set(interests)];
+      if (allMessages.length === 0) {
+        return [];
+      }
+
+      // Use LLM to extract keywords from chat messages
+      const keywords = await AIService.extractKeywordsFromChat(allMessages);
+      
+      console.log(`Extracted keywords from ${allMessages.length} messages:`, keywords);
+      
+      return keywords;
     } catch (error) {
       console.error('Error extracting interests from chat:', error);
       return [];
@@ -119,7 +96,7 @@ export class RecommendationService {
   }
 
   /**
-   * Analyze user click patterns from ProxyLog
+   * Analyze user click patterns from ProxyLog using LLM
    * Extracts product preferences from user's click history
    */
   private static async analyzeClickPatterns(userId?: string, email?: string): Promise<any[]> {
@@ -139,62 +116,18 @@ export class RecommendationService {
         .sort({ createdAt: -1 })
         .limit(50);
 
-      // Analyze click patterns to extract product preferences
-      const clickAnalysis = {
-        categories: new Set<string>(),
-        brands: new Set<string>(),
-        priceRanges: new Set<string>(),
-        stores: new Set<string>(),
-        recentClicks: clickLogs.slice(0, 10) // Most recent clicks
-      };
-
-      for (const log of clickLogs) {
-        const params = log.params || {};
-        const title = params.title || '';
-        const source = params.source || '';
-        
-        // Extract product categories from title
-        const titleLower = title.toLowerCase();
-        if (titleLower.includes('laptop') || titleLower.includes('computer')) {
-          clickAnalysis.categories.add('laptop');
-        } else if (titleLower.includes('phone') || titleLower.includes('smartphone')) {
-          clickAnalysis.categories.add('smartphone');
-        } else if (titleLower.includes('headphone') || titleLower.includes('earbud')) {
-          clickAnalysis.categories.add('headphones');
-        } else if (titleLower.includes('gaming') || titleLower.includes('console')) {
-          clickAnalysis.categories.add('gaming');
-        } else if (titleLower.includes('camera')) {
-          clickAnalysis.categories.add('camera');
-        } else if (titleLower.includes('tablet')) {
-          clickAnalysis.categories.add('tablet');
-        }
-
-        // Extract brands from title and source
-        const brandKeywords = ['apple', 'samsung', 'dell', 'hp', 'lenovo', 'asus', 'acer', 'sony', 'lg'];
-        for (const brand of brandKeywords) {
-          if (titleLower.includes(brand) || source.toLowerCase().includes(brand)) {
-            clickAnalysis.brands.add(brand);
-          }
-        }
-
-        // Extract store preferences
-        if (source) {
-          clickAnalysis.stores.add(source);
-        }
-
-        // Analyze price ranges (if price is available)
-        const price = params.price || 0;
-        if (price > 0) {
-          if (price < 200) {
-            clickAnalysis.priceRanges.add('budget');
-          } else if (price < 500) {
-            clickAnalysis.priceRanges.add('mid-range');
-          } else {
-            clickAnalysis.priceRanges.add('premium');
-          }
-        }
+      if (clickLogs.length === 0) {
+        return [];
       }
 
+      // Use LLM to analyze click patterns
+      const clickAnalysis = await AIService.extractKeywordsFromClicks(clickLogs);
+      
+      // Add recent clicks for additional context
+      clickAnalysis.recentClicks = clickLogs.slice(0, 10);
+      
+      console.log(`Extracted click preferences from ${clickLogs.length} clicks:`, clickAnalysis);
+      
       return [clickAnalysis];
     } catch (error) {
       console.error('Error analyzing click patterns:', error);
