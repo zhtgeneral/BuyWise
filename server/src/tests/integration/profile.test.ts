@@ -656,57 +656,57 @@ describe('Profile API', () => {
       process.env.JWT_SECRET || 'testsecret'
     );
 
-    // it('should return 401 for no auth token on header', async () => {
-    //   const response = await request(app)
-    //     .patch('/api/profiles/passwords')
-    //     .expect(401)
+    it('should return 401 for no auth token on header', async () => {
+      const response = await request(app)
+        .patch('/api/profiles/passwords')
+        .expect(401)
 
-    //   expect(response.body).to.deep.equal({
-    //     success: false,
-    //     error: 'No auth token in header'
-    //   })
-    // });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'No auth token in header'
+      })
+    });
 
-    // it('should return 500 for unconfigured JWT', async () => {
-    //   delete process.env.JWT_SECRET;
-    //   const response = await request(app)
-    //     .patch('/api/profiles/passwords/userId123')
-    //     .set('Authorization', `Bearer sometoken`)
-    //     .expect(500)
+    it('should return 500 for unconfigured JWT', async () => {
+      delete process.env.JWT_SECRET;
+      const response = await request(app)
+        .patch('/api/profiles/passwords/userId123')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
 
-    //   expect(response.body).to.deep.equal({
-    //     success: false,
-    //     error: 'JWT not configured'
-    //   })
-    // });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'JWT not configured'
+      })
+    });
 
-    // it('should return 401 for JWT verification error', async () => {
-    //   sinon.stub(jwt, 'verify').throws(new JsonWebTokenError("Some JWT verification error"));
+    it('should return 401 for JWT verification error', async () => {
+      sinon.stub(jwt, 'verify').throws(new JsonWebTokenError("Some JWT verification error"));
 
-    //   const response = await request(app)
-    //     .patch('/api/profiles/passwords/userId123')
-    //     .set('Authorization', `Bearer sometoken`)
-    //     .expect(401)
+      const response = await request(app)
+        .patch('/api/profiles/passwords/userId123')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(401)
 
-    //   expect(response.body).to.deep.equal({
-    //     success: false,
-    //     error: 'Invalid JWT'
-    //   })
-    // });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Invalid JWT'
+      })
+    });
 
-    // it('should return 500 for unknown error JWT', async () => {
-    //   sinon.stub(jwt, 'verify').throws(new Error("Some other error during JWT verification"));
+    it('should return 500 for unknown error JWT', async () => {
+      sinon.stub(jwt, 'verify').throws(new Error("Some other error during JWT verification"));
 
-    //   const response = await request(app)
-    //     .patch('/api/profiles/passwords/userId123')
-    //     .set('Authorization', `Bearer sometoken`)
-    //     .expect(500)
+      const response = await request(app)
+        .patch('/api/profiles/passwords/userId123')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
 
-    //   expect(response.body).to.deep.equal({
-    //     success: false,
-    //     error: 'Unknown error'
-    //   })
-    // });
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Unknown error'
+      })
+    });
 
     it('should return 400 for userId missing from params', async () => {
       sinon.stub(jwt, 'verify').resolves();
