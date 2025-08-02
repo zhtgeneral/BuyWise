@@ -111,6 +111,10 @@ This section showcases the key features of BuyWise through our interactive demo,
 
 > *Figure 4. Browse through the curated products provided by BuyWise in an intuitive, grid-based interface. Each product card displays essential information and direct merchant links, allowing you to click through to the original retailer's website where you can complete your purchase.*
 
+![recommender](demo_pics/recommender.png)
+
+> *Figure 5. BuyWise recommendation engine on the Explore Products page. The displayed products are dynamically generated based on the user’s chat inputs and click behavior, offering a curated selection of devices tailored to the user’s preferences. The system blends NLP-driven insights from recent conversations (shown in the chat history on the left) with interaction data, and surfaces results with significantly improved performance through caching and parallel API execution. The “Refresh” button allows users to manually override the cache and fetch the latest personalized recommendations instantly.*
+
 ### **Standard Goals**
 
 - Design an attractive and user-friendly interface for browsing and comparing products (COMPLETED)
