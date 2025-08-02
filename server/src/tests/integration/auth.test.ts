@@ -332,7 +332,7 @@ describe('Auth API', () => {
 
       expect(response.body).to.deep.equal({
         success: false,
-        error: "Unknown authentication error"
+        error: "Invalid Login Error"
       })
     })
 

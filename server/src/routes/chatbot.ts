@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { ChatbotService } from '../services/ChatbotService';
 import User from '../models/User';
+import express from 'express';
+import { authenticate } from '../middleware/auth';
+
+const router = express.Router();
 
 /**
  * @swagger
@@ -68,63 +72,45 @@ import User from '../models/User';
  *       500:
  *         description: Server error or incomplete AI response
  */
-export const postChat = async (req: Request, res: Response) => {  
+router.post('/', authenticate, async (req: Request, res: Response) => {  
+  /** conversationId is allowed to be empty */
   const { message, conversationId } = req.body;
   
-  // Input validation
-  if (!message) {
-    console.log(`/api/chatbot POST did not receive message: ${message}`);
-    return res.status(400).json({ error: 'Message is required' });
+  if (message === undefined) {
+    console.error(`/api/chatbot POST did not receive message: ${message}`);
+    return res.status(400).json({ error: 'message is required' });
   }
 
   if (typeof message !== "string") {
-    console.log(`/api/chatbot POST received message with type of: ${typeof message}`);
-    return res.status(400).json({ error: 'Message must be a string' });
+    console.error(`/api/chatbot POST received message with type of: ${typeof message}`);
+    return res.status(400).json({ error: 'message must be a string' });
   }
   
   if (message === '') {
     console.error(`/api/chatbot POST did not receive message: ${message}`);
-    return res.status(400).json({ error: 'Message cannot be empty' });
+    return res.status(400).json({ error: 'message cannot be empty' });
   }
 
+  // TODO if more time test that conversationId is valid. Assume it is
+
+  /** Assume authenticate middleware sets the req.user before this route  */
+  const email = req.user?.email;
+  const userId = req.user?.id;
+
   try {
-    // Extract authenticated user info
-    const userId = (req as any).user?.id;
-    
-    // Require authentication
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required to use chatbot' });
-    }
-    
-    let userEmail = null;
-    
-    // Fetch user's email from the database
-    try {
-      const user = await User.findById(userId);
-      userEmail = user?.email || null;
-      console.log('Chatbot route: Found user email:', userEmail, 'for userId:', userId);
-      
-      if (!userEmail) {
-        return res.status(401).json({ error: 'User not found' });
-      }
-    } catch (userError) {
-      console.error('Chatbot route: Error fetching user:', userError);
-      return res.status(500).json({ error: 'Error fetching user information' });
-    }
-    
-    console.log('Chatbot route: Processing message from user:', userEmail, 'conversationId:', conversationId);
-    
-    // Process message through ChatbotService
-    const result = await ChatbotService.processMessage(
+    var result = await ChatbotService.processMessage(
       message,
       conversationId,
-      userEmail,
+      email,
       userId
-    );
-    
-    return res.status(200).json(result);
+    );        
   } catch (error: unknown) {
-    console.log(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
+    console.error(`/api/chatbot POST error: ${JSON.stringify(error, null, 2)}`);
     return res.status(500).json({ error: 'AI response failed' });    
   }
-}
+
+  console.log(`/api/chatbot POST result: ${JSON.stringify(result)}`);
+  return res.status(200).json(result);
+})
+
+export default router;

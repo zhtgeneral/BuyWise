@@ -1,7 +1,8 @@
-import { describe, beforeAll, afterEach, it, expect } from 'vitest';
+import { describe, beforeAll, beforeEach, afterEach, it, expect } from 'vitest';
 import sinon from 'sinon';
 import express from 'express';
 import request from 'supertest'
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 
 import chatRouter from '../../routes/chat';
 import { ChatService } from '../../services/ChatService';
@@ -22,9 +23,74 @@ describe('Chat API', () => {
   });
 
   describe('/api/chats POST', () => {
+    let originalSecret: string | undefined;
+
+    beforeEach(() => {
+      originalSecret = process.env.JWT_SECRET;
+    });
+
+    afterEach(() => {
+      process.env.JWT_SECRET = originalSecret; // restore
+    });
+
+    it('should return 401 for no auth token on header', async () => {
+      const response = await request(app)
+        .post('/api/chats/')
+        .expect(401)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'No auth token in header'
+      })
+    });
+
+    it('should return 500 for unconfigured JWT', async () => {
+      delete process.env.JWT_SECRET;
+      const response = await request(app)
+        .post('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'JWT not configured'
+      })
+    });
+
+    it('should return 401 for JWT verification error', async () => {
+      sinon.stub(jwt, 'verify').throws(new JsonWebTokenError("Some JWT verification error"));
+
+      const response = await request(app)
+        .post('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(401)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Invalid JWT'
+      })
+    });
+
+    it('should return 500 for unknown error JWT', async () => {
+      sinon.stub(jwt, 'verify').throws(new Error("Some other error during JWT verification"));
+
+      const response = await request(app)
+        .post('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Unknown error'
+      })
+    });
+
     it('should return 400 for missing messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)
         .send({          
           email: 'test@example.com'
         })
@@ -37,8 +103,11 @@ describe('Chat API', () => {
     });
 
     it('should return 400 for missing email', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)        
         .send({          
           messages: [
             {
@@ -60,8 +129,11 @@ describe('Chat API', () => {
     });
 
     it('should return 400 for non string email', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)                
         .send({          
           email: 123,
           messages: [
@@ -84,8 +156,11 @@ describe('Chat API', () => {
     });
 
     it('should return 400 for non array messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)                
         .send({          
           email: 'text@example.com',
           messages: 'filler'
@@ -99,8 +174,11 @@ describe('Chat API', () => {
     });    
     
     it('should return 400 for missing text in messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)       
         .send({          
           email: 'text@example.com',
           messages: [
@@ -122,8 +200,11 @@ describe('Chat API', () => {
     });   
 
     it('should return 400 for missing speaker in messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .send({          
           email: 'text@example.com',
           messages: [
@@ -145,8 +226,11 @@ describe('Chat API', () => {
     });   
 
     it('should return 400 for invalid speaker in messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .send({          
           email: 'text@example.com',
           messages: [
@@ -169,8 +253,11 @@ describe('Chat API', () => {
     });    
 
     it('should return 400 for non string text in messages', async () => {
+      sinon.stub(jwt, 'verify').resolves();
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .send({          
           email: 'text@example.com',
           messages: [
@@ -193,9 +280,12 @@ describe('Chat API', () => {
     });    
   
     it('should return 500 for failed save chat', async () => {
+      sinon.stub(jwt, 'verify').resolves();      
       sinon.stub(ChatService, 'saveChat').throws(new Error("Some error in save chat"));
+
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .send({          
           email: 'text@example.com',
           messages: [
@@ -237,10 +327,12 @@ describe('Chat API', () => {
         createdAt: testDate
       }
 
+      sinon.stub(jwt, 'verify').resolves();      
       sinon.stub(ChatService, 'saveChat').resolves(mockChat);
 
       const response = await request(app)
         .post('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .send({          
           email: 'text@example.com',
           messages: messagesData
@@ -252,9 +344,74 @@ describe('Chat API', () => {
   });
 
   describe('/api/chats GET', () => {
+    let originalSecret: string | undefined;
+
+    beforeEach(() => {
+      originalSecret = process.env.JWT_SECRET;
+    });
+
+    afterEach(() => {
+      process.env.JWT_SECRET = originalSecret; // restore
+    });
+
+     it('should return 401 for no auth token on header', async () => {
+      const response = await request(app)
+        .get('/api/chats/')
+        .expect(401)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'No auth token in header'
+      })
+    });
+
+    it('should return 500 for unconfigured JWT', async () => {
+      delete process.env.JWT_SECRET;
+      const response = await request(app)
+        .get('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'JWT not configured'
+      })
+    });
+
+    it('should return 401 for JWT verification error', async () => {
+      sinon.stub(jwt, 'verify').throws(new JsonWebTokenError("Some JWT verification error"));
+
+      const response = await request(app)
+        .get('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(401)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Invalid JWT'
+      })
+    });
+
+    it('should return 500 for unknown error JWT', async () => {
+      sinon.stub(jwt, 'verify').throws(new Error("Some other error during JWT verification"));
+
+      const response = await request(app)
+        .get('/api/chats/')
+        .set('Authorization', `Bearer sometoken`)
+        .expect(500)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'Unknown error'
+      })
+    });
+
     it('should return 400 for missing email on query params', async () => {
+      sinon.stub(jwt, 'verify').resolves();    
+
       const response = await request(app)
         .get('/api/chats')
+        .set('Authorization', `Bearer sometoken`)      
         .expect(400)
 
       expect(response.body).to.deep.equal({
@@ -264,9 +421,12 @@ describe('Chat API', () => {
     })
 
     it('should return 500 for unknown error during fetch', async () => {
+      sinon.stub(jwt, 'verify').resolves();    
       sinon.stub(ChatService, 'getChatsByEmail').throws(new Error("Some error related to fetching chats"));
+
       const response = await request(app)
         .get('/api/chats?email=test@example.com')
+        .set('Authorization', `Bearer sometoken`)      
         .expect(500)
 
       expect(response.body).to.deep.equal({
@@ -338,9 +498,13 @@ describe('Chat API', () => {
         "updatedAt": testDate
       }
     ]    
+
+    sinon.stub(jwt, 'verify').resolves();    
     sinon.stub(ChatService, 'getChatsByEmail').resolves(fakeChats);
+
       const response = await request(app)
         .get('/api/chats?email=test@example.com')
+        .set('Authorization', `Bearer sometoken`)      
         .expect(200)
 
       expect(response.body).to.deep.equal({

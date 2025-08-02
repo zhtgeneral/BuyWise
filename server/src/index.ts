@@ -12,7 +12,8 @@ import proxyRoutes from './routes/proxy';
 import recommenderRoutes from './routes/recommender';
 import { authMiddleware, authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
-import { postChat } from './routes/chatbot';
+// import { postChat } from './routes/chatbot';
+import chatbotRoutes from './routes/chatbot';
 import { startMemoryCleanup } from './agent/chatbotAgent'
 import devRoutes from './routes/dev';
 
@@ -86,14 +87,12 @@ const connectDB = async () => {
 connectDB().then(() => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  app.post('/api/chatbot', authenticate, postChat);
-
+  app.use('/api/chatbot',  chatbotRoutes);
   app.use('/api/profiles', profileRoutes);
   app.use('/api/products', productsRoutes);
-  app.use('/api/chats', authenticate, chatRoutes);
+  app.use('/api/chats', chatRoutes);
   app.use('/api/buywise/redirect', proxyRoutes);
   app.use('/api/recommender', recommenderRoutes);
-
   app.use('/api/auth', authRoutes);
   app.use('/api/dev', devRoutes);
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import { ChatService } from '../services/ChatService';
+import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -132,7 +133,7 @@ const router = express.Router();
  *                 error:
  *                   type: string
  */
-router.post('/', async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
   const { messages, email, sessionId } = req.body;
   if (messages === undefined || email === undefined) {
     return res.status(400).json({
@@ -284,7 +285,7 @@ router.post('/', async (req, res) => {
  *                 error:
  *                   type: string
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   const { email } = req.query;
   if (!email) {
     console.error("/api/chats GET no email on query");

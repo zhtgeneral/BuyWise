@@ -1,11 +1,13 @@
-import { describe, beforeAll, afterEach, it, expect } from 'vitest';
+import { describe, beforeEach, beforeAll, afterEach, it, expect } from 'vitest';
 import sinon from 'sinon';
 import request from 'supertest';
 import express from 'express';
+import jwt, { JsonWebTokenError } from 'jsonwebtoken';
 
-import { postChat } from '../../routes/chatbot';
+import chatbotRoutes from '../../routes/chatbot';
 import { AIService } from '../../services/AIService';
 import { ProductService } from '../../services/ProductService';
+import { ChatbotService } from '../../services/ChatbotService';
 
 
 /**
@@ -23,7 +25,7 @@ describe('Chatbot API', () => {
   beforeAll(() => {
     app = express();
     app.use(express.json());
-    app.post('/api/chatbot', postChat);
+    app.use('/api/chatbot', chatbotRoutes);
   });
 
   afterEach(() => {
@@ -32,130 +34,121 @@ describe('Chatbot API', () => {
 
 
   describe('/api/chatbot POST', async () => {    
-    it('returns 400 code for missing message', async () => {      
+    let originalSecret: string | undefined;
+
+    beforeEach(() => {
+      originalSecret = process.env.JWT_SECRET;
+    });
+
+    afterEach(() => {
+      process.env.JWT_SECRET = originalSecret; 
+    })
+
+    it('should return 401 for no auth token on header', async () => {
       const response = await request(app)
         .post('/api/chatbot')
+        /** Missing auth header */
+        .send({ message: "some message", conversationId: "some id" })
+        .expect(401)
+
+      expect(response.body).to.deep.equal({
+        success: false,
+        error: 'No auth token in header'
+      })
+    });
+
+    it('returns 400 code for missing message', async () => {    
+      sinon.stub(jwt, 'verify').resolves();  
+      const response = await request(app)
+        .post('/api/chatbot')
+        .set('Authorization', `Bearer sometoken`)
         .send({})
         .expect(400)
       
-      expect(response.body).to.deep.equal({ error: 'Message is required' });
+      expect(response.body).to.deep.equal({ error: 'message is required' });
     });
 
     it('returns 400 code for wrong data type', async () => {      
+      sinon.stub(jwt, 'verify').resolves();  
       const response = await request(app)
         .post('/api/chatbot')
-        .send({ message: 0 })
+        .set('Authorization', `Bearer sometoken`)
+        .send({ message: 123, conversationId: 123 })        
         .expect(400)
 
-      expect(response.body).to.deep.equal({ error: 'Message is required' });
+      expect(response.body).to.deep.equal({ error: 'message must be a string' });
     });
 
-    it('returns 400 code for empty message', async () => {      
+    it('returns 400 code for empty message', async () => {  
+      sinon.stub(jwt, 'verify').resolves();      
       const response = await request(app)
         .post('/api/chatbot')
-        .send({ message: "" })
+        .set('Authorization', `Bearer sometoken`)
+        .send({ message: "", conversationId: "someId" })
         .expect(400)
       
-      expect(response.body).to.deep.equal({ error: 'Message is required' });
+      expect(response.body).to.deep.equal({ error: 'message cannot be empty' });
     });
 
     it('returns 500 code for failed chatbot API call', async () => {
-      sinon.stub(AIService, 'chatCompletionGithubModel').throws(new Error("some API error message"));
+      sinon.stub(jwt, 'verify').resolves();      
+      sinon.stub(ChatbotService, 'processMessage').throws(new Error("some API error message"));
       const response = await request(app)
         .post('/api/chatbot')
-        .send({ message: "hi" })
+        .set('Authorization', `Bearer sometoken`)
+        .send({ message: "hi", conversationId: "some id" })
         .expect(500)
 
-      expect(response.body).to.deep.equal({ error: 'Unable to call chatbot API' });
-    });
-
-    it('returns 500 code for incomplete chatbot response', async () => {
-      sinon.stub(AIService, 'chatCompletionGithubModel').resolves({
-        chatbotMessage: "",
-        productRequested: false,
-        productQuery: ""
-      })
-
-      const response = await request(app)
-        .post('/api/chatbot')
-        .send({ message: "give me an incomplete response" })
-        .expect(500)
-
-      expect(response.body).to.deep.equal({ error: 'AI unable to respond' });
+      expect(response.body).to.deep.equal({ error: 'AI response failed' });
     });
 
     it('returns 200 code for working chatbot API without products', async () => {
-      sinon.stub(AIService, 'chatCompletionGithubModel').resolves({
+      const responseNoProducts = {
         chatbotMessage: "What would you like to search for?",
-        productRequested: false,
-        productQuery: ""
-      })
-      const response = await request(app)
-        .post('/api/chatbot')
-        .send({ message: "test message" })
-        .expect(200)
-
-      expect(response.body).to.deep.equal({ 
-        chatbotMessage: "What would you like to search for?",
-        productData: null
-      });   
-    });
-
-    it('returns 200 code for working chatbot API and failed product API', async () => {
-      sinon.stub(AIService, 'chatCompletionGithubModel').resolves({
-        chatbotMessage: "Here are some macbooks I found.",
-        productRequested: true,
-        productQuery: "macbook"
-      })
-      sinon.stub(ProductService, 'searchProducts').throws(new Error("some API error message"));
-
-      const response = await request(app)
-        .post('/api/chatbot')
-        .send({ message: "I want some macbooks" })
-        .expect(200)
-
-      expect(response.body).to.deep.equal({ 
-        chatbotMessage: "Here are some macbooks I found.",
-        productData: null
-      });   
-    });
-
-    it('returns 200 code for working chatbot API and product API', async () => {
-      const mockProduct = {
-        product_id: "123",
-        source: "Best Buy",
-        title: "MacBook Pro",
-        thumbnail: "image.jpg",
-        extracted_price: 1299,
-        seller_details: { direct_link: "http://example.com" },
-        rating: 4.5,
-        reviews: 120
+        responseConversationId: "some id",
+        productData: []
       }
-      sinon.stub(AIService, 'chatCompletionGithubModel').resolves({
-        chatbotMessage: "Here are some macbooks I found.",
-        productRequested: true,
-        productQuery: "macbook"
-      })
-      sinon.stub(ProductService, 'searchProducts').resolves([mockProduct]);
+
+      sinon.stub(jwt, 'verify').resolves();      
+      sinon.stub(ChatbotService, 'processMessage').resolves(responseNoProducts)
+      
+      const response = await request(app)
+        .post('/api/chatbot')
+        .set('Authorization', `Bearer sometoken`)
+        .send({ message: "test message", conversationId: "some id" })
+        .expect(200)
+
+      expect(response.body).to.deep.equal(responseNoProducts);   
+    });
+
+    it('returns 200 code for working chatbot API', async () => {
+      const responseSomeProducts = {
+        chatbotMessage: "What would you like to search for?",
+        responseConversationId: "some id",
+        productData: [
+          {
+            product_id: "123",
+            source: "Best Buy",
+            title: "MacBook Pro",
+            thumbnail: "image.jpg",
+            extracted_price: 1299,
+            seller_details: { direct_link: "http://example.com" },
+            rating: 4.5,
+            reviews: 120
+          }
+        ]
+      }
+
+      sinon.stub(jwt, 'verify').resolves();    
+      sinon.stub(ChatbotService, 'processMessage').resolves(responseSomeProducts)       
 
       const response = await request(app)
         .post('/api/chatbot')
-        .send({ message: "I want some macbooks" })
+        .set('Authorization', `Bearer sometoken`)
+        .send({ message: "I want some macbooks", conversationId: "some id" })
         .expect(200)
 
-      expect(response.body).to.deep.equal({ 
-        chatbotMessage: "Here are some macbooks I found.",
-        productData: [{
-          id: mockProduct.product_id,
-          source: mockProduct.source,
-          title: mockProduct.title,
-          image: mockProduct.thumbnail,
-          price: mockProduct.extracted_price,
-          url: mockProduct.seller_details.direct_link,
-          rating: mockProduct.rating,
-          reviews: mockProduct.reviews
-        }]
-      });        
-    });    
+      expect(response.body).to.deep.equal(responseSomeProducts);   
+    });  
   })
 })
