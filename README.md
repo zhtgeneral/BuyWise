@@ -125,7 +125,8 @@ This section showcases the key features of BuyWise through our interactive demo,
 - Refactor the chatbot to use LangChain for advanced natural language understanding and improved scalability (COMPLETED)
 - Implement a machine learning-based recommendation system to suggest products tailored to user preferences and history (COMPLETED)
 - Replace Auth0 with a custom authentication and verification system for enhanced control and flexibility (CHANGED)
-  - The verification system was XYZ
+  - The verification system was converted to JWT with encryption
+  - Wanted to learn how to create an authentication system
 
 ### **Non-Trivial Elements**
 
