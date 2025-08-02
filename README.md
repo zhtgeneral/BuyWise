@@ -109,7 +109,7 @@ This section showcases the key features of BuyWise through our interactive demo,
 
 ![browse_products](demo_pics/browse_products.png)
 
-> *Figure 4. Browse through the curated products provided by BuyWise in an intuitive, grid-based interface. Each product card displays essential information and direct merchant links, allowing you to click through to the original retailer's website where you can complete your purchase.
+> *Figure 4. Browse through the curated products provided by BuyWise in an intuitive, grid-based interface. Each product card displays essential information and direct merchant links, allowing you to click through to the original retailer's website where you can complete your purchase.*
 
 ### **Standard Goals**
 
@@ -126,7 +126,8 @@ This section showcases the key features of BuyWise through our interactive demo,
 - Implement a machine learning-based recommendation system to suggest products tailored to user preferences and history (COMPLETED)
 - Replace Auth0 with a custom authentication and verification system for enhanced control and flexibility (CHANGED)
   - The verification system was converted to JWT with encryption
-  - Wanted to learn how to create an authentication system
+  - We wanted to learn more about how to create an authentication system from scratch
+  - Did not implement email verification, we instead focused our efforts on securing backend endpoints, enforcing authentication/authorization using encrypted JWTs
 
 ### **Non-Trivial Elements**
 
@@ -136,3 +137,5 @@ This section showcases the key features of BuyWise through our interactive demo,
 | Machine learning-based recommendation system for tech products              | COMPLETED       |
 | Bespoke login and verification system                    | CHANGED           |
 | Create attractive and intuitive chatting interface                 | COMPLETED            |
+
+As mentioned above, the scope of the email authentication and verification system was altered.
