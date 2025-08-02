@@ -1,11 +1,6 @@
 import '../styles/ExplorePage.css'
 import React from 'react';
 import axios from 'axios';
-// import { 
-//   selectProfilePreferences, 
-//   selectProfileUser 
-// } from '../libs/features/profileSlice';
-// import { useSelector } from 'react-redux';
 import ProductCard from '../components/ProductCard';
 import { OrbitProgress } from 'react-loading-indicators'
 import Browser from '../utils/browser';
@@ -119,38 +114,45 @@ export default function ExplorePage() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const token = Browser.getToken()
+
   const handleRefreshRecommendations = async () => {
     setIsLoading(true);
     setError('');
     
-    try {
-      const token = localStorage.getItem('token');
-      
-      // Clear cache first
+    try {      
       await axios.post(`http://localhost:3000/api/recommender/refresh`, {}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      // Fetch fresh recommendations
-      const response = await axios.get(`http://localhost:3000/api/recommender`, {
+    } catch (error) {
+      setError('Unable to clear cache: ' + (error.response?.data?.error || error.message));
+      setIsLoading(false);
+      return;
+    }      
+
+    try {
+      var response = await axios.get(`http://localhost:3000/api/recommender`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
-      if (response.status === 200) {
-        setProducts(response.data.recommendedProducts);
-        setError('');
-      } else {
-        setError('Failed to refresh recommendations');
-      }
     } catch (error) {
       setError('Unable to refresh recommendations: ' + (error.response?.data?.error || error.message));
-    } finally {
       setIsLoading(false);
+      return;
+    } 
+
+    if (response.status !== 200) {
+      setError('Failed to refresh recommendations');
+      setIsLoading(false);
+      return;
     }
+
+    setProducts(response.data.recommendedProducts);
+    setError('');
+    setIsLoading(false);
   };
 
   return (
@@ -188,9 +190,6 @@ function FillRecommendedProducts({
   setProducts,
   setIsLoading
 }) {
-  // const user = useSelector(selectProfileUser);
-  // const profile = useSelector(selectProfilePreferences);
-
   /** Loads when the component loads the first time */
   React.useEffect(() => {
     // TODO get all products from chat history and filter for relevance to the user
