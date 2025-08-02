@@ -91,54 +91,47 @@ Then navigate to:
 
 ---
 
-## **Milestone 1**
-With this milestone, we have developed the core front-end of our app. The user login feature has now been implemented through Auth0, and the overall style and atmosphere of the app have been established using the component and style library Mantine. We have added the home page and built the basic functionality and design for the AI chat interface, user profile editing pages, and the dynamically populating product grid. Additionally, we have made some minor updates to the docker container architecture as well as to the back-end to prepare for the API endpoints that we will integrate into our app as both the front-end and back-end components are developed in parallel.
+## **Final Release**
 
----
+### **Highlights**
 
-## **Milestone 2**
-With this milestone, we developed the backend and databse of our app. We also began adding in core funcitonality of our BuyWise chat where users can find products with the help of SerpAPI. We also made the decision to create an internal account authenticaion system. Although we are still working through bugs and kinks we currently have a proof-of-concept model of what we would like to iterate on. There a few tests created and through the next iterations we will expand and increase coverage.
+We have implemented our recommendation system that leverages user clickthroughs (data which we have been systematically collecting since the previous milestone). BuyWise now analyzes each user's product clicks to build personalized profiles and deliver intelligent product recommendations tailored to individual preferences and browsing behavior.
 
+Additionally, BuyWise now features an advanced personalized AI filter that customizes product results during chat interactions. This intelligent filtering system ensures that products returned align with users' desired characteristics such as budget preferences, brand inclinations, and other specific requirements based on their previous queries and interactions.
 
-## **Milestone 3**
-With this milestone, we updated our AI model to improve the responses and the ability to detect user contexts using LangChain instead of Meta-llama. We added to our suite of REST API with a new route to generate proxy links and save metadata to the database when a linked in clicked on. We created integration tests and improved backend validation. 
+### **Demo**
 
-Proxy API and updated chatbot guides are available in the M3 demo video.
-Below is the guide to open the test report and to visit the updated API docs.
+This section showcases the key features of BuyWise through our interactive demo, highlighting the core functionality that makes our platform unique and user-friendly.
 
-#### With Docker
+![ask_buywise](demo_pics/ask_buywise.png)
 
-Run all containers:
-`docker-compose up --build`
+> *Figure 3. Engage in dynamic conversations with our intelligent chatbot agent. BuyWise supports casual small talk, provides guidance on product categories it can assist with, and excels at finding products online through natural language queries. The AI intelligently filters search results based on your previous preferences and search history, ensuring personalized recommendations that align with your established shopping patterns and interests.*
 
-To run the tests within docker:
-- Wait roughly 30 seconds or until the tests pass
-- visit `http://127.0.0.1:8080` and follow the files to the test report.
+![browse_products](demo_pics/browse_products.png)
 
-To visit the updated API docs:
-- visit `http://localhost:3000/api-docs`
+> *Figure 4. Browse through the curated products provided by BuyWise in an intuitive, grid-based interface. Each product card displays essential information and direct merchant links, allowing you to click through to the original retailer's website where you can complete your purchase.
 
-#### Without Docker
+### **Standard Goals**
 
-To run the tests and the reporter from root
-```
-cd server ; npm run test:integration ; npm run test:integration:report
-```
-- visit `http://127.0.0.1:8080`
-- click on `integration-tests.html`
+- Design an attractive and user-friendly interface for browsing and comparing products (COMPLETED)
+-  Leverage user profile setttings and past interactions to personalize chatbot responses and product recommendations (COMPLETED)
+- Implement a chatbot using prompt engineering for natural language product queries (COMPLETED)
+- Utilize Auth0 for secure authentication and user profile management (COMPLETED)
+- Enable users to view and revisit past chat sessions with the AI assistant (COMPLETED)
+- Ensure reliable integration with third-party e-commerce APIs (COMPLETED)
 
+### **Stretch Goals**
 
-#### Updated API docs
+- Refactor the chatbot to use LangChain for advanced natural language understanding and improved scalability (COMPLETED)
+- Implement a machine learning-based recommendation system to suggest products tailored to user preferences and history (COMPLETED)
+- Replace Auth0 with a custom authentication and verification system for enhanced control and flexibility (CHANGED)
+  - The verification system was XYZ
 
-To run the backend service:
-- ensure `/server` directory
-- `npm run dev`
-- visit `http://localhost:3000/api-docs`
+### **Non-Trivial Elements**
 
----
-
-## **Known Issues**
-- SerpAPI running out of tokens for our search functionality - 6/20
-- Authentication platform currently tries to create a profile using the same userID throwing a duplicate entry error - 6/20
-- Navigation between `/chat` or `/profile` from sidebar will bring user into `/login` - 6/20
-- Logout button render issues - 6/20
+| Element                                      | Stage of Completion   |
+|----------------------------------------------------------|----------------------|
+| Chatbot leveraging LangChain for natural language         | COMPLETED            |
+| Machine learning-based recommendation system for tech products              | COMPLETED       |
+| Bespoke login and verification system                    | CHANGED           |
+| Create attractive and intuitive chatting interface                 | COMPLETED            |
