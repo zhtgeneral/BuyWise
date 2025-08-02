@@ -8,7 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+ENV NODE_ENV=development
+RUN npm install --include=dev
 
 # Copy server files over
 COPY . .

@@ -93,7 +93,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="profile-field">
-              <label className="profile-field__label">Country:</label>
+              <label className="profile-field__label">Location:</label>
               <input
                 type="text"
                 value={localProfile.preferences.country}

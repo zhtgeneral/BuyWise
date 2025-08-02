@@ -130,7 +130,7 @@ export class ProductService {
       // TODO decide whether to use popular products or all products. Seller details is required for product link. seller details only works for popular products.
       const popularProducts = response["immersive_products"]?.filter((product: any) => 
         product.category === "Popular products"
-      ).slice(0, 10) || [];
+      ).slice(0, 50) || [];
 
       const enrichedProducts = await Promise.all(
         popularProducts.map(async (product: any) => {

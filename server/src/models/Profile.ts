@@ -38,7 +38,7 @@ const ProfileSchema: Schema = new Schema({
   },
   country: {
     type: String,
-    default: 'Canada'
+    default: 'Vancouver, British Columbia, Canada'
   },
   max_products_per_search: {
     type: Number,
